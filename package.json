@@ -1,0 +1,22 @@
+{
+  "name": "mysah",
+  "version": "0.1.0",
+  "description": "ES6 Promise utility belt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ES6",
+    "Promise",
+    "utility"
+  ],
+  "author": "Sami Turcotte",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^7.0.8"
+  },
+  "dependencies": {
+    "es6-promisify": "^5.0.0"
+  }
+}
