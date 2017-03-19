@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "watch": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
+  },
+  "include": [
+      "**/*.ts"
+  ]
+}
