@@ -1,7 +1,7 @@
 {
   "name": "mysah",
   "version": "0.1.0",
-  "description": "ES6 Promise utility belt",
+  "description": "ES6 Promise library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,7 @@
   "keywords": [
     "ES6",
     "Promise",
-    "utility"
+    "library"
   ],
   "author": "Sami Turcotte",
   "license": "MIT",
