@@ -2158,9 +2158,9 @@ multimatch@^2.1.0:
     arrify "^1.0.0"
     minimatch "^3.0.0"
 
-mysah@^0.3.5:
+mhysa@^0.3.5:
   version "0.3.5"
-  resolved "https://registry.yarnpkg.com/mysah/-/mysah-0.3.5.tgz#79305e1834db166d1daa02dac93072adaa63d6c2"
+  resolved "https://registry.yarnpkg.com/mhysa/-/mhysa-0.3.5.tgz#79305e1834db166d1daa02dac93072adaa63d6c2"
   integrity sha512-Fz31nflyS0G2uwKlunpnKU+M9HUPxK89IWYjsNL3ENgunMlMOq1ELtpGGiTSLrbVV/N5Mc9j51kvraEbdPKgzQ==
 
 nan@^2.9.2:

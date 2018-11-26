@@ -1,19 +1,19 @@
-# mysah
+# mhysa
 
 **Promise, Stream and EventEmitter utils for Node.js**
 
 ## Installation
 
 ```sh
-yarn add mysah
+yarn add mhysa
 ```
 
 ## Basic Usage
 
-The following snippet demonstrates most of mysah's current features. More will come!
+The following snippet demonstrates most of mhysa's current features. More will come!
 
 ```js
-const { sleep, once, delay, every, stream }  = require("mysah");
+const { sleep, once, delay, every, stream }  = require("mhysa");
 
 async function main() {
     const collector = stream
@@ -69,7 +69,7 @@ export declare function concat(
 ): NodeJS.ReadableStream;
 ```
 
-### mysah
+### mhysa
 
 ```ts
 /**

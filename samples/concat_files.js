@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { stream } = require("mysah");
+const { stream } = require("mhysa");
 
 const sourceFile1 = path.join(process.cwd(), "package.json");
 const sourceFile2 = path.join(process.cwd(), "README.md");

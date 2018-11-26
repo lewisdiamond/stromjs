@@ -1,5 +1,5 @@
 {
-    "name": "mysah",
+    "name": "mhysa",
     "version": "0.3.6",
     "description": "Promise, Stream and EventEmitter utils for Node.js",
     "keywords": [
@@ -19,7 +19,7 @@
         "dist"
     ],
     "repository": {
-        "url": "git@github.com:Wenzil/mysah.git",
+        "url": "git@github.com:Wenzil/mhysa.git",
         "type": "git"
     },
     "scripts": {
@@ -34,7 +34,7 @@
         "@types/node": "^10.12.10",
         "ava": "^1.0.0-rc.2",
         "chai": "^4.2.0",
-        "mysah": "^0.3.5",
+        "mhysa": "^0.3.5",
         "prettier": "^1.14.3",
         "ts-node": "^7.0.1",
         "tslint": "^5.11.0",
