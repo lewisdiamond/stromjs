@@ -2158,10 +2158,10 @@ multimatch@^2.1.0:
     arrify "^1.0.0"
     minimatch "^3.0.0"
 
-mysah@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/mysah/-/mysah-0.3.1.tgz#82fa28b246ebfc0379e7eb5b3a39c3614a0dc06e"
-  integrity sha512-by0XUl7R19ToMzMnzmn4lTr9shs0I6HIY6mgBfS1k/k0mhumnKcQUzii3zUIlwQJ+ANf8GrbwC/y6U6nTf61VA==
+mysah@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/mysah/-/mysah-0.3.3.tgz#4fd0c0489e9f9f99898d1584b73357f5a60a1dda"
+  integrity sha512-hiottniB9LFmN6I4SL7VJtz7ahi9w0ndE4PJel7WZ6ovvA1LHRJVmbYTbRsy24rHD762ahwLYadxpDE9j+2K+A==
 
 nan@^2.9.2:
   version "2.11.1"
