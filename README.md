@@ -30,7 +30,7 @@ async function main() {
         [Promise.resolve("ab"), delay("cd", 1000)], 
         c => c.length === 2
     ); // true (after another second)
-     await every(
+    await every(
         [Promise.resolve("ab"), delay("cd", 1000)], 
         c => c.length === 1
     ); // false (instantly)
