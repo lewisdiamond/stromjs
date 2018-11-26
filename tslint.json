@@ -6,7 +6,7 @@
     ],
     "rules": {
         "no-console": false,
-        "no-implicit-dependencies": [true, ["ava"]],
+        "no-implicit-dependencies": [true, "dev"],
         "prettier": true,
         "ordered-imports": false
     }
