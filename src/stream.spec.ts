@@ -1,7 +1,7 @@
 import test from "ava";
 import { expect } from "chai";
-import { fromArray, collect, concat } from "./stream";
 import { Readable } from "stream";
+import { fromArray, collect, concat } from "./stream";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);

@@ -1,7 +1,7 @@
 import test from "ava";
 import { expect } from "chai";
-import { once, sleep } from "./";
 import { EventEmitter } from "events";
+import { once, sleep } from "./utils";
 
 const TimingErrorMarginMs = 50;
 

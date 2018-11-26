@@ -11,8 +11,7 @@ yarn add mysah
 ## Basic Usage
 
 ```js
-const stream = require("mysah/stream");
-const { once, sleep } = require("mysah");
+const { once, sleep, stream } = require("mysah");
 
 async function main() {
     const collector = stream
@@ -31,7 +30,7 @@ main();
 
 ## API
 
-### mysah/stream
+### { stream }
 
 ```ts
 /**
