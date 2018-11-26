@@ -2158,6 +2158,11 @@ multimatch@^2.1.0:
     arrify "^1.0.0"
     minimatch "^3.0.0"
 
+mysah@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/mysah/-/mysah-0.3.0.tgz#68be788a33597ade0bec6ef8a523709fdba09ca1"
+  integrity sha512-u2Z5CDuRTeK12sOcJEHDGzIHE1i2FaPb3dxWxqWIJfm63uGX2HFfGCPsuF0WeIhFdsqE4xIy94kpaxDaQZ7sMg==
+
 nan@^2.9.2:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
