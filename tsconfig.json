@@ -1,13 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "sourceMap": true,
-    "watch": false,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true
-  },
-  "include": [
-      "**/*.ts"
-  ]
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "forceConsistentCasingInFileNames": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "outDir": "./dist",
+        "module": "commonjs",
+        "target": "es5",
+        "lib": ["es2017"],
+        "sourceMap": true,
+        "declaration": true
+    },
+    "include": ["src/**/*.ts"]
 }

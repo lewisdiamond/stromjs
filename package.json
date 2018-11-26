@@ -1,22 +1,60 @@
 {
-  "name": "mysah",
-  "version": "0.1.0",
-  "description": "ES6 Promise library",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "ES6",
-    "Promise",
-    "library"
-  ],
-  "author": "Sami Turcotte",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^7.0.8"
-  },
-  "dependencies": {
-    "es6-promisify": "^5.0.0"
-  }
+    "name": "mysah",
+    "version": "0.3.0",
+    "description": "Promise, Stream and EventEmitter utils for Node.js",
+    "keywords": [
+        "promise",
+        "stream",
+        "event emitter",
+        "utils"
+    ],
+    "author": {
+        "name": "Sami Turcotte",
+        "email": "samiturcotte@gmail.com"
+    },
+    "license": "MIT",
+    "main": "index.js",
+    "types": "dist/**/*.d.ts",
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "url": "git@github.com:Wenzil/mysah.git",
+        "type": "git"
+    },
+    "scripts": {
+        "test": "ava",
+        "lint": "tslint -p tsconfig.json",
+        "validate:tslint": "tslint-config-prettier-check ./tslint.json",
+        "prepublishOnly": "yarn lint && yarn test && yarn tsc"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/chai": "^4.1.7",
+        "@types/node": "^10.12.10",
+        "ava": "^1.0.0-rc.2",
+        "chai": "^4.2.0",
+        "prettier": "^1.14.3",
+        "ts-node": "^7.0.1",
+        "tslint": "^5.11.0",
+        "tslint-config-prettier": "^1.16.0",
+        "tslint-plugin-prettier": "^2.0.1",
+        "typescript": "^3.1.6"
+    },
+    "ava": {
+        "files": [
+            "src/**/*.spec.ts"
+        ],
+        "sources": [
+            "src/**/*.ts"
+        ],
+        "compileEnhancements": false,
+        "failWithoutAssertions": false,
+        "extensions": [
+            "ts"
+        ],
+        "require": [
+            "ts-node/register/transpile-only"
+        ]
+    }
 }
