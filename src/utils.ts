@@ -39,9 +39,9 @@ export function once<T>(
 }
 
 /**
- * Resolve to false as soon as any of the promises has resolved to a value for which the predicate is
- * falsey, or resolve to true when all of the promises have resolved to a value for which the predicate is
- * thruthy, or rejects with the reason of the first promise rejection
+ * Eagerly resolve to false as soon as any of the promises has resolved to a value for which the
+ * predicate is falsey, or resolve to true when all of the promises have resolved to a value for which
+ * the predicate is thruthy, or rejects with the reason of the first promise rejection
  *
  * @param promises Promises whose resolved values will be tested by the predicate
  * @param predicate Predicate to apply

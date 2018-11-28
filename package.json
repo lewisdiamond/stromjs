@@ -1,6 +1,6 @@
 {
     "name": "mhysa",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Promise, Stream and EventEmitter utils for Node.js",
     "keywords": [
         "promise",
@@ -35,7 +35,7 @@
         "@types/node": "^10.12.10",
         "ava": "^1.0.0-rc.2",
         "chai": "^4.2.0",
-        "mhysa": "0.3.6",
+        "mhysa": ".",
         "prettier": "^1.14.3",
         "ts-node": "^7.0.1",
         "tslint": "^5.11.0",

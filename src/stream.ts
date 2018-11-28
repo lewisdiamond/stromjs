@@ -52,9 +52,6 @@ export function map<T, R>(
     });
 }
 
-type FlatMapper<T, R> =
-    | ((chunk: T, encoding: string) => R[])
-    | ((chunk: T, encoding: string) => Promise<R[]>);
 /**
  * Return a ReadWrite stream that flat maps streamed chunks
  * @param mapper The mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
@@ -63,7 +60,9 @@ type FlatMapper<T, R> =
  * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
  */
 export function flatMap<T, R>(
-    mapper: FlatMapper<T, R>,
+    mapper:
+        | ((chunk: T, encoding: string) => R[])
+        | ((chunk: T, encoding: string) => Promise<R[]>),
     { readableObjectMode = true, writableObjectMode = true } = {},
 ): NodeJS.ReadWriteStream {
     return new Transform({
@@ -93,12 +92,14 @@ export function flatMap<T, R>(
  * Return a ReadWrite stream that splits streamed chunks using the given separator
  * @param separator The separator to split by, defaulting to "\n"
  */
-export function split(separator: string = "\n"): NodeJS.ReadWriteStream {
+export function split(
+    separator: string | RegExp = "\n",
+): NodeJS.ReadWriteStream {
     let buffered: string = "";
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk, encoding, callback) {
+        async transform(chunk: string, encoding, callback) {
             const splitted = chunk.split(separator);
             if (buffered.length > 0 && splitted.length > 1) {
                 splitted[0] = buffered.concat(splitted[0]);
