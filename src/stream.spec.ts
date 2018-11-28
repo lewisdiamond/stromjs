@@ -1,8 +1,15 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import { fromArray, collect, concat } from "./stream";
-
+import {
+    fromArray,
+    map,
+    flatMap,
+    split,
+    join,
+    collect,
+    concat,
+} from "./stream";
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);
     const elements = ["a", "b", "c"];
@@ -43,6 +50,269 @@ test.cb("fromArray() ends immediately if there are no array elements", t => {
         .on("data", () => t.fail())
         .on("error", t.end)
         .on("end", t.end);
+});
+
+test.cb("map() maps elements synchronously", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["A", "B", "C"];
+    let i = 0;
+    source
+        .pipe(map((element: string) => element.toUpperCase()))
+        .on("data", element => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("map() maps elements asynchronously", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["A", "B", "C"];
+    let i = 0;
+    source
+        .pipe(
+            map(async (element: string) => {
+                await Promise.resolve();
+                return element.toUpperCase();
+            }),
+        )
+        .on("data", element => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("map() emits errors during synchronous mapping", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            map((element: string) => {
+                if (element !== "a") {
+                    throw new Error("Failed mapping");
+                }
+                return element.toUpperCase();
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed mapping");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("map() emits errors during asynchronous mapping", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            map(async (element: string) => {
+                await Promise.resolve();
+                if (element !== "a") {
+                    throw new Error("Failed mapping");
+                }
+                return element.toUpperCase();
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed mapping");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("flatMap() maps elements synchronously", t => {
+    t.plan(6);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "A", "b", "B", "c", "C"];
+    let i = 0;
+    source
+        .pipe(flatMap((element: string) => [element, element.toUpperCase()]))
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("flatMap() maps elements asynchronously", t => {
+    t.plan(6);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "A", "b", "B", "c", "C"];
+    let i = 0;
+    source
+        .pipe(
+            flatMap(async (element: string) => {
+                await Promise.resolve();
+                return [element, element.toUpperCase()];
+            }),
+        )
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("flatMap() emits errors during synchronous mapping", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            flatMap((element: string) => {
+                if (element !== "a") {
+                    throw new Error("Failed mapping");
+                }
+                return [element, element.toUpperCase()];
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed mapping");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("flatMap() emits errors during asynchronous mapping", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            flatMap(async (element: string) => {
+                await Promise.resolve();
+                if (element !== "a") {
+                    throw new Error("Failed mapping");
+                }
+                return [element, element.toUpperCase()];
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed mapping");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("split() splits chunks using the default separator (\\n)", t => {
+    t.plan(5);
+    const source = new Readable({ objectMode: true });
+    const expectedParts = ["ab", "c", "d", "ef", ""];
+    let i = 0;
+    source
+        .pipe(split())
+        .on("data", part => {
+            expect(part).to.equal(expectedParts[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("ab\n");
+    source.push("c");
+    source.push("\n");
+    source.push("d");
+    source.push("\nef\n");
+    source.push(null);
+});
+
+test.cb("split() splits chunks using the specified separator", t => {
+    t.plan(6);
+    const source = new Readable({ objectMode: true });
+    const expectedParts = ["ab", "c", "d", "e", "f", ""];
+    let i = 0;
+    source
+        .pipe(split("|"))
+        .on("data", part => {
+            expect(part).to.equal(expectedParts[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("ab|");
+    source.push("c|d");
+    source.push("|");
+    source.push("e");
+    source.push("|f|");
+    source.push(null);
+});
+
+test.cb("join() joins chunks using the specified separator", t => {
+    t.plan(9);
+    const source = new Readable({ objectMode: true });
+    const expectedParts = ["ab|", "|", "c|d", "|", "|", "|", "e", "|", "|f|"];
+    let i = 0;
+    source
+        .pipe(join("|"))
+        .on("data", part => {
+            expect(part).to.equal(expectedParts[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("ab|");
+    source.push("c|d");
+    source.push("|");
+    source.push("e");
+    source.push("|f|");
+    source.push(null);
 });
 
 test.cb(

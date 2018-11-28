@@ -2059,6 +2059,11 @@ meow@^5.0.0:
     trim-newlines "^2.0.0"
     yargs-parser "^10.0.0"
 
+mhysa@0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/mhysa/-/mhysa-0.3.6.tgz#c33885ca34c5797486ff9af10e33d17e2cd2b2a9"
+  integrity sha512-X7AIhISZ/r5xOHaod3SwLCTXr11ttu/fDiKQPpsI0p/RsTTqweBR7hGJeRIF9Rt6XMW/UY21pJEf/ftUkfvkHg==
+
 micromatch@^3.1.10, micromatch@^3.1.4:
   version "3.1.10"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-3.1.10.tgz#70859bc95c9840952f359a068a3fc49f9ecfac23"
@@ -2157,11 +2162,6 @@ multimatch@^2.1.0:
     array-union "^1.0.1"
     arrify "^1.0.0"
     minimatch "^3.0.0"
-
-mhysa@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/mhysa/-/mhysa-0.3.5.tgz#79305e1834db166d1daa02dac93072adaa63d6c2"
-  integrity sha512-Fz31nflyS0G2uwKlunpnKU+M9HUPxK89IWYjsNL3ENgunMlMOq1ELtpGGiTSLrbVV/N5Mc9j51kvraEbdPKgzQ==
 
 nan@^2.9.2:
   version "2.11.1"
