@@ -10,7 +10,7 @@
         "outDir": "./dist",
         "module": "commonjs",
         "target": "es5",
-        "lib": ["es2017"],
+        "lib": ["es2016"],
         "sourceMap": true,
         "declaration": true
     },

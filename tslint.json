@@ -8,6 +8,7 @@
         "no-console": false,
         "no-implicit-dependencies": [true, "dev"],
         "prettier": true,
-        "ordered-imports": false
+        "ordered-imports": false,
+        "interface-name": false
     }
 }

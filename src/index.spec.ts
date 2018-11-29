@@ -1,15 +1,8 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import {
-    fromArray,
-    map,
-    flatMap,
-    split,
-    join,
-    collect,
-    concat,
-} from "./stream";
+import { fromArray, map, flatMap, split, join, collect, concat } from "./";
+
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);
     const elements = ["a", "b", "c"];

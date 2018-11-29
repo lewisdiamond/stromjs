@@ -41,14 +41,12 @@ main();
 
 ## API
 
-### { stream }
-
 ```ts
 /**
  * Convert an array into a readable stream of its elements
  * @param array The array of elements to stream
  */
-export declare function fromArray(array: any[]): NodeJS.ReadableStream;
+fromArray(array: any[]): NodeJS.ReadableStream;
 
 /**
  * Return a ReadWrite stream that maps streamed chunks
@@ -57,15 +55,9 @@ export declare function fromArray(array: any[]): NodeJS.ReadableStream;
  * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
  * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
  */
-export declare function map<T, R>(
+map<T, R>(
     mapper: (chunk: T, encoding: string) => R,
-    {
-        readableObjectMode,
-        writableObjectMode,
-    }?: {
-        readableObjectMode?: boolean | undefined;
-        writableObjectMode?: boolean | undefined;
-    },
+    options?: ThroughOptions,
 ): NodeJS.ReadWriteStream;
 
 /**
@@ -75,49 +67,57 @@ export declare function map<T, R>(
  * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
  * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
  */
-export declare function flatMap<T, R>(
+flatMap<T, R>(
     mapper:
         | ((chunk: T, encoding: string) => R[])
         | ((chunk: T, encoding: string) => Promise<R[]>),
-    {
-        readableObjectMode,
-        writableObjectMode,
-    }?: {
-        readableObjectMode?: boolean | undefined;
-        writableObjectMode?: boolean | undefined;
-    },
+    options?: ThroughOptions,
 ): NodeJS.ReadWriteStream;
 
 /**
  * Return a ReadWrite stream that splits streamed chunks using the given separator
  * @param separator The separator to split by, defaulting to "\n"
  */
-export declare function split(separator?: string): NodeJS.ReadWriteStream;
+split(
+    separator?: string | RegExp,
+): NodeJS.ReadWriteStream;
 
 /**
  * Return a ReadWrite stream that joins streamed chunks using the given separator
  * @param separator The separator to join with
  */
-export declare function join(separator: string): NodeJS.ReadWriteStream;
+join(separator: string): NodeJS.ReadWriteStream;
 
 /**
- * Return a ReadWrite stream that collects streamed objects or bytes into an array or buffer
+ * Return a ReadWrite stream that collects streamed chunks into an array or buffer
  * @param options
  * @param options.objectMode Whether this stream should behave as a stream of objects
  */
-export declare function collect({
-    objectMode,
-}?: {
-    objectMode?: boolean | undefined;
-}): NodeJS.ReadWriteStream;
+collect(
+    options?: ReadableOptions,
+): NodeJS.ReadWriteStream;
 
 /**
  * Return a stream of readable streams concatenated together
  * @param streams The readable streams to concatenate
  */
-export declare function concat(
+concat(
     ...streams: NodeJS.ReadableStream[]
 ): NodeJS.ReadableStream;
+
+```
+
+### Interfaces
+
+```ts
+interface ReadableOptions {
+    objectMode?: boolean;
+}
+
+interface ThroughOptions {
+    readableObjectMode?: boolean;
+    writableObjectMode?: boolean;
+}
 ```
 
 ### { utils }
@@ -128,7 +128,7 @@ export declare function concat(
  *
  * @param ms The number of milliseconds to wait
  */
-export declare function sleep(ms: number): Promise<{}>;
+sleep(ms: number): Promise<{}>;
 
 /**
  * Resolve a value after the given delay in milliseconds
@@ -136,7 +136,7 @@ export declare function sleep(ms: number): Promise<{}>;
  * @param value Value to resolve
  * @param ms Number of milliseconds to wait
  */
-export declare function delay<T>(value: T, ms: number): Promise<T>;
+delay<T>(value: T, ms: number): Promise<T>;
 
 /**
  * Resolve once the given event emitter emits the specified event
@@ -144,7 +144,7 @@ export declare function delay<T>(value: T, ms: number): Promise<T>;
  * @param emitter Event emitter to watch
  * @param event Event to watch
  */
-export declare function once<T>(
+once<T>(
     emitter: NodeJS.EventEmitter,
     event: string,
 ): Promise<T>;
