@@ -19,7 +19,7 @@
         "dist"
     ],
     "repository": {
-        "url": "git@github.com:Wenzil/mhysa.git",
+        "url": "git@github.com:Wenzil/Mhysa.git",
         "type": "git"
     },
     "scripts": {

@@ -1,4 +1,4 @@
-# mhysa
+# Mhysa
 
 **Streams and event emitter utils for Node.js**
 
@@ -10,7 +10,7 @@ yarn add mhysa
 
 ## Basic Usage
 
-The following snippet demonstrates most of mhysa's current features without much explanation. More 
+The following snippet demonstrates most of Mhysa's current features without much explanation. More 
 will come!
 
 ```js
