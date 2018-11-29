@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { stream } = require("mhysa");
+const Mhysa = require("mhysa");
 
 const sourceFile1 = path.join(process.cwd(), "package.json");
 const sourceFile2 = path.join(process.cwd(), "README.md");
@@ -12,10 +12,8 @@ if (!fs.existsSync(outputDir)) {
 }
 
 // Concat two source files together into one
-stream
-    .concat(
-        fs.createReadStream(sourceFile1),
-        stream.fromArray(["\n"]),
-        fs.createReadStream(sourceFile2),
-    )
-    .pipe(fs.createWriteStream(outputFile));
+Mhysa.concat(
+    fs.createReadStream(sourceFile1),
+    Mhysa.fromArray(["\n"]),
+    fs.createReadStream(sourceFile2),
+).pipe(fs.createWriteStream(outputFile));
