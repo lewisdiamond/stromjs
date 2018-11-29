@@ -146,18 +146,4 @@ export declare function once<T>(
     emitter: NodeJS.EventEmitter,
     event: string,
 ): Promise<T>;
-
-/**
- * Eagerly resolve to false as soon as any of the promises has resolved to a value for which the
- * predicate is falsey, or resolve to true when all of the promises have resolved to a value for which
- * the predicate is thruthy, or rejects with the reason of the first promise rejection
- *
- * @param promises Promises whose resolved values will be tested by the predicate
- * @param predicate Predicate to apply
- * @returns Promise indicating whether the predicate holds for all resolved promise values
- */
-export declare function every<T>(
-    promises: Array<Promise<T>>,
-    predicate: (value: T) => boolean,
-): Promise<boolean>;
 ```
