@@ -1,6 +1,6 @@
 # mhysa
 
-**Promise, Stream and EventEmitter utils for Node.js**
+**Streams and event emitter utils for Node.js**
 
 ## Installation
 
@@ -10,32 +10,29 @@ yarn add mhysa
 
 ## Basic Usage
 
-The following snippet demonstrates most of mhysa's current features. More will come!
+The following snippet demonstrates most of mhysa's current features without much explanation. More 
+will come!
 
 ```js
-const { sleep, once, delay, every, stream } = require("mhysa");
+const { sleep, once, delay, stream } = require("mhysa");
 
 async function main() {
     const collector = stream
         .concat(
-            stream.fromArray(["a\n", "b\n", "c\n"]), 
-            stream.fromArray(["d", "e"]).pipe(stream.join("-"))
+            stream.fromArray(["a\n", "b\n", "c\n"]),
+            stream.fromArray(["d", "e"]).pipe(stream.join("-")),
         )
         .pipe(stream.split("\n"))
-        .pipe(stream.flatMap(s => [s, s.toUpperCase()]))
+        .pipe(
+            stream.flatMap(async s => {
+                await sleep(100);
+                return delay([s, s.toUpperCase()], 100);
+            }),
+        )
         .pipe(stream.collect({ objectMode: true }));
 
     const collected = await once(collector, "data");
-    await sleep(1000); // undefined (after one second)
-    await delay(collected, 1000); // [ 'a', 'A', 'b', 'B', 'c', 'C', 'd-e', 'D-E' ] (after another second)
-    await every(
-        [Promise.resolve("ab"), delay("cd", 1000)], 
-        s => s.length === 2
-    ); // true (after another second)
-    await every(
-        [Promise.resolve("ab"), delay("cd", 1000)], 
-        s => s.length === 1
-    ); // false (instantly)
+    console.log(collected); // [ 'a', 'A', 'b', 'B', 'c', 'C', 'd-e', 'D-E' ] (after 12 * 100 ms)
 }
 main();
 ```
