@@ -1,7 +1,17 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import { fromArray, map, flatMap, split, join, collect, concat } from "./";
+import {
+    fromArray,
+    map,
+    flatMap,
+    split,
+    join,
+    collect,
+    concat,
+    filter,
+    merge,
+} from ".";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);
@@ -9,7 +19,7 @@ test.cb("fromArray() streams array elements in flowing mode", t => {
     const stream = fromArray(elements);
     let i = 0;
     stream
-        .on("data", element => {
+        .on("data", (element: string) => {
             expect(element).to.equal(elements[i]);
             t.pass();
             i++;
@@ -52,7 +62,7 @@ test.cb("map() maps elements synchronously", t => {
     let i = 0;
     source
         .pipe(map((element: string) => element.toUpperCase()))
-        .on("data", element => {
+        .on("data", (element: string) => {
             expect(element).to.equal(expectedElements[i]);
             t.pass();
             i++;
@@ -78,7 +88,7 @@ test.cb("map() maps elements asynchronously", t => {
                 return element.toUpperCase();
             }),
         )
-        .on("data", element => {
+        .on("data", (element: string) => {
             expect(element).to.equal(expectedElements[i]);
             t.pass();
             i++;
@@ -229,6 +239,104 @@ test.cb("flatMap() emits errors during asynchronous mapping", t => {
         .resume()
         .on("error", err => {
             expect(err.message).to.equal("Failed mapping");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("filter() filters elements synchronously", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "c"];
+    let i = 0;
+    source
+        .pipe(filter((element: string) => element !== "b"))
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("filter() filters elements asynchronously", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "c"];
+    let i = 0;
+    source
+        .pipe(
+            filter(async (element: string) => {
+                await Promise.resolve();
+                return element !== "b";
+            }),
+        )
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("filter() emits errors during synchronous filtering", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            filter((element: string) => {
+                if (element !== "a") {
+                    throw new Error("Failed filtering");
+                }
+                return true;
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed filtering");
+            t.pass();
+        })
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("filter() emits errors during asynchronous filtering", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(
+            filter(async (element: string) => {
+                await Promise.resolve();
+                if (element !== "a") {
+                    throw new Error("Failed filtering");
+                }
+                return true;
+            }),
+        )
+        .resume()
+        .on("error", err => {
+            expect(err.message).to.equal("Failed filtering");
             t.pass();
         })
         .on("end", t.end);
@@ -445,7 +553,7 @@ test.cb(
         const expectedElements = ["a", "b", "c", "d", "e", "f"];
         let i = 0;
         concat(source1, source2)
-            .on("data", element => {
+            .on("data", (element: string) => {
                 expect(element).to.equal(expectedElements[i]);
                 t.pass();
                 i++;
@@ -505,7 +613,7 @@ test.cb(
         const expectedElements = ["a", "b", "c", "d", "e", "f"];
         let i = 0;
         concat(source1, source2)
-            .on("data", element => {
+            .on("data", (element: string) => {
                 expect(element).to.deep.equal(Buffer.from(expectedElements[i]));
                 t.pass();
                 i++;
@@ -548,13 +656,13 @@ test.cb(
             .on("end", t.end);
 
         source1.push("a");
-        source2.push("d");
-        source1.push("b");
-        source2.push("e");
-        source1.push("c");
-        source2.push("f");
-        source2.push(null);
-        source1.push(null);
+        setTimeout(() => source2.push("d"), 10);
+        setTimeout(() => source1.push("b"), 20);
+        setTimeout(() => source2.push("e"), 30);
+        setTimeout(() => source1.push("c"), 40);
+        setTimeout(() => source2.push("f"), 50);
+        setTimeout(() => source2.push(null), 60);
+        setTimeout(() => source1.push(null), 70);
     },
 );
 
@@ -564,7 +672,7 @@ test.cb("concat() concatenates a single readable stream (object mode)", t => {
     const expectedElements = ["a", "b", "c", "d", "e", "f"];
     let i = 0;
     concat(source)
-        .on("data", element => {
+        .on("data", (element: string) => {
             expect(element).to.equal(expectedElements[i]);
             t.pass();
             i++;
@@ -586,7 +694,7 @@ test.cb(
         const expectedElements = ["a", "b", "c", "d", "e", "f"];
         let i = 0;
         concat(source)
-            .on("data", element => {
+            .on("data", (element: string) => {
                 expect(element).to.deep.equal(Buffer.from(expectedElements[i]));
                 t.pass();
                 i++;
@@ -608,6 +716,62 @@ test.cb("concat() concatenates empty list of readable streams", t => {
         .on("data", _ => {
             t.fail();
         })
+        .on("error", t.end)
+        .on("end", t.end);
+});
+
+test.cb.only(
+    "merge() merges multiple readable streams in chunk arrival order",
+    t => {
+        t.plan(6);
+        const source1 = new Readable({ objectMode: true, read: () => ({}) });
+        const source2 = new Readable({ objectMode: true, read: () => ({}) });
+        const expectedElements = ["a", "d", "b", "e", "c", "f"];
+        let i = 0;
+        merge(source1, source2)
+            .on("data", (element: string) => {
+                expect(element).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source1.push("a");
+        setTimeout(() => source2.push("d"), 10);
+        setTimeout(() => source1.push("b"), 20);
+        setTimeout(() => source2.push("e"), 30);
+        setTimeout(() => source1.push("c"), 40);
+        setTimeout(() => source2.push("f"), 50);
+        setTimeout(() => source2.push(null), 60);
+        setTimeout(() => source1.push(null), 70);
+    },
+);
+
+test.cb("merge() merges a readable stream", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true, read: () => ({}) });
+    const expectedElements = ["a", "b", "c"];
+    let i = 0;
+    merge(source)
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("merge() merges an empty list of readable streams", t => {
+    t.plan(0);
+    merge()
+        .on("data", () => t.pass())
         .on("error", t.end)
         .on("end", t.end);
 });

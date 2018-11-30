@@ -1,7 +1,7 @@
 {
     "name": "mhysa",
-    "version": "0.5.0",
-    "description": "Promise, Stream and EventEmitter utils for Node.js",
+    "version": "0.6.0-beta.0",
+    "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",
         "stream",
@@ -9,8 +9,7 @@
         "utils"
     ],
     "author": {
-        "name": "Sami Turcotte",
-        "email": "samiturcotte@gmail.com"
+        "name": "Wenzil"
     },
     "license": "MIT",
     "main": "dist/index.js",

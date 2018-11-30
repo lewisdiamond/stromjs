@@ -2,10 +2,10 @@ import { Transform, Readable } from "stream";
 import * as _utils from "./utils";
 export const utils = _utils;
 
-export interface ReadableOptions {
+export interface ThroughOptions {
     objectMode?: boolean;
 }
-export interface ThroughOptions {
+export interface TransformOptions {
     readableObjectMode?: boolean;
     writableObjectMode?: boolean;
 }
@@ -38,14 +38,14 @@ export function fromArray(array: any[]): NodeJS.ReadableStream {
  */
 export function map<T, R>(
     mapper: (chunk: T, encoding: string) => R,
-    options: ThroughOptions = {
+    options: TransformOptions = {
         readableObjectMode: true,
         writableObjectMode: true,
     },
 ): NodeJS.ReadWriteStream {
     return new Transform({
         ...options,
-        async transform(chunk, encoding, callback) {
+        async transform(chunk: T, encoding, callback) {
             let isPromise = false;
             try {
                 const mapped = mapper(chunk, encoding);
@@ -75,20 +75,54 @@ export function flatMap<T, R>(
     mapper:
         | ((chunk: T, encoding: string) => R[])
         | ((chunk: T, encoding: string) => Promise<R[]>),
-    options: ThroughOptions = {
+    options: TransformOptions = {
         readableObjectMode: true,
         writableObjectMode: true,
     },
 ): NodeJS.ReadWriteStream {
     return new Transform({
         ...options,
-        async transform(chunk, encoding, callback) {
+        async transform(chunk: T, encoding, callback) {
             let isPromise = false;
             try {
                 const mapped = mapper(chunk, encoding);
                 isPromise = mapped instanceof Promise;
                 (await mapped).forEach(c => this.push(c));
                 callback();
+            } catch (err) {
+                if (isPromise) {
+                    // Calling the callback asynchronously with an error wouldn't emit the error, so emit directly
+                    this.emit("error", err);
+                    callback();
+                } else {
+                    callback(err);
+                }
+            }
+        },
+    });
+}
+
+export function filter<T>(
+    predicate:
+        | ((chunk: T, encoding: string) => boolean)
+        | ((chunk: T, encoding: string) => Promise<boolean>),
+    options: ThroughOptions = {
+        objectMode: true,
+    },
+) {
+    return new Transform({
+        readableObjectMode: options.objectMode,
+        writableObjectMode: options.objectMode,
+        async transform(chunk: T, encoding, callback) {
+            let isPromise = false;
+            try {
+                const result = predicate(chunk, encoding);
+                isPromise = result instanceof Promise;
+                if (!!(await result)) {
+                    callback(undefined, chunk);
+                } else {
+                    callback();
+                }
             } catch (err) {
                 if (isPromise) {
                     // Calling the callback asynchronously with an error wouldn't emit the error, so emit directly
@@ -138,7 +172,7 @@ export function join(separator: string): NodeJS.ReadWriteStream {
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk, encoding, callback) {
+        async transform(chunk: string, encoding, callback) {
             if (!isFirstChunk) {
                 this.push(separator);
             }
@@ -155,7 +189,7 @@ export function join(separator: string): NodeJS.ReadWriteStream {
  * @param options.objectMode Whether this stream should behave as a stream of objects
  */
 export function collect(
-    options: ReadableOptions = { objectMode: false },
+    options: ThroughOptions = { objectMode: false },
 ): NodeJS.ReadWriteStream {
     const collected: any[] = [];
     return new Transform({
@@ -214,4 +248,42 @@ export function concat(
         },
     });
     return wrapper;
+}
+
+/**
+ * Return a stream of readable streams merged together in chunk arrival order
+ * @param streams The readable streams to merge
+ */
+export function merge(
+    ...streams: NodeJS.ReadableStream[]
+): NodeJS.ReadableStream {
+    let isStarted = false;
+    let streamEndedCount = 0;
+    return new Readable({
+        objectMode: true,
+        read() {
+            if (streamEndedCount >= streams.length) {
+                this.push(null);
+            } else if (!isStarted) {
+                isStarted = true;
+                streams.forEach(stream =>
+                    stream
+                        .on("data", chunk => {
+                            if (!this.push(chunk)) {
+                                streams.forEach(s => s.pause());
+                            }
+                        })
+                        .on("error", err => this.emit("error", err))
+                        .on("end", () => {
+                            streamEndedCount++;
+                            if (streamEndedCount === streams.length) {
+                                this.push(null);
+                            }
+                        }),
+                );
+            } else {
+                streams.forEach(s => s.resume());
+            }
+        },
+    });
 }
