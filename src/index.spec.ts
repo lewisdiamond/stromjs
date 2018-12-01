@@ -5,11 +5,14 @@ import {
     fromArray,
     map,
     flatMap,
+    filter,
     split,
     join,
+    replace,
+    parse,
+    stringify,
     collect,
     concat,
-    filter,
     merge,
 } from ".";
 
@@ -417,6 +420,149 @@ test.cb("join() joins chunks using the specified separator", t => {
 });
 
 test.cb(
+    "replace() replaces occurrences of the given string in the streamed elements with the specified " +
+        "replacement string",
+    t => {
+        t.plan(3);
+        const source = new Readable({ objectMode: true });
+        const expectedElements = ["abc", "xyf", "ghi"];
+        let i = 0;
+        source
+            .pipe(replace("de", "xy"))
+            .on("data", part => {
+                expect(part).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source.push("abc");
+        source.push("def");
+        source.push("ghi");
+        source.push(null);
+    },
+);
+
+test.cb(
+    "replace() replaces occurrences of the given regular expression in the streamed elements with " +
+        "the specified replacement string",
+    t => {
+        t.plan(3);
+        const source = new Readable({ objectMode: true });
+        const expectedElements = ["abc", "xyz", "ghi"];
+        let i = 0;
+        source
+            .pipe(replace(/^def$/, "xyz"))
+            .on("data", part => {
+                expect(part).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source.push("abc");
+        source.push("def");
+        source.push("ghi");
+        source.push(null);
+    },
+);
+
+test.cb("parse() parses the streamed elements as JSON", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["abc", {}, []];
+    let i = 0;
+    source
+        .pipe(parse())
+        .on("data", part => {
+            expect(part).to.deep.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push('"abc"');
+    source.push("{}");
+    source.push("[]");
+    source.push(null);
+});
+
+test.cb("parse() emits errors on invalid JSON", t => {
+    t.plan(2);
+    const source = new Readable({ objectMode: true });
+    source
+        .pipe(parse())
+        .resume()
+        .on("error", () => t.pass())
+        .on("end", t.end);
+
+    source.push("{}");
+    source.push("");
+    source.push([]);
+    source.push(null);
+});
+
+test.cb("stringify() stringifies the streamed elements as JSON", t => {
+    t.plan(4);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = [
+        '"abc"',
+        "0",
+        '{"a":"a","b":"b","c":"c"}',
+        '["a","b","c"]',
+    ];
+    let i = 0;
+    source
+        .pipe(stringify())
+        .on("data", part => {
+            expect(part).to.deep.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("abc");
+    source.push(0);
+    source.push({ a: "a", b: "b", c: "c" });
+    source.push(["a", "b", "c"]);
+    source.push(null);
+});
+
+test.cb(
+    "stringify() stringifies the streamed elements as pretty-printed JSON",
+    t => {
+        t.plan(4);
+        const source = new Readable({ objectMode: true });
+        const expectedElements = [
+            '"abc"',
+            "0",
+            '{\n  "a": "a",\n  "b": "b",\n  "c": "c"\n}',
+            '[\n  "a",\n  "b",\n  "c"\n]',
+        ];
+        let i = 0;
+        source
+            .pipe(stringify({ pretty: true }))
+            .on("data", part => {
+                expect(part).to.deep.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source.push("abc");
+        source.push(0);
+        source.push({ a: "a", b: "b", c: "c" });
+        source.push(["a", "b", "c"]);
+        source.push(null);
+    },
+);
+
+test.cb(
     "collect() collects streamed elements into an array (object, flowing mode)",
     t => {
         t.plan(1);
@@ -636,8 +782,8 @@ test.cb(
     "concat() concatenates multiple readable streams (non-object, paused mode)",
     t => {
         t.plan(6);
-        const source1 = new Readable({ objectMode: false });
-        const source2 = new Readable({ objectMode: false });
+        const source1 = new Readable({ objectMode: false, read: () => ({}) });
+        const source2 = new Readable({ objectMode: false, read: () => ({}) });
         const expectedElements = ["a", "b", "c", "d", "e", "f"];
         let i = 0;
         const concatenation = concat(source1, source2)
@@ -720,7 +866,7 @@ test.cb("concat() concatenates empty list of readable streams", t => {
         .on("end", t.end);
 });
 
-test.cb.only(
+test.cb(
     "merge() merges multiple readable streams in chunk arrival order",
     t => {
         t.plan(6);

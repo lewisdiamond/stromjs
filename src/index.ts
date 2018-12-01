@@ -184,6 +184,67 @@ export function join(separator: string): NodeJS.ReadWriteStream {
 }
 
 /**
+ * Return a ReadWrite stream that replaces occurrences of the given string or regular expression  in
+ * the streamed chunks with the specified replacement string
+ * @param searchValue The search string to use
+ * @param replaceValue The replacement string to use
+ */
+export function replace(
+    searchValue: string | RegExp,
+    replaceValue: string,
+): NodeJS.ReadWriteStream {
+    return new Transform({
+        readableObjectMode: true,
+        writableObjectMode: true,
+        transform(chunk: string, encoding, callback) {
+            callback(undefined, chunk.replace(searchValue, replaceValue));
+        },
+    });
+}
+
+/**
+ * Return a ReadWrite stream that parses the streamed chunks as JSON
+ */
+export function parse(): NodeJS.ReadWriteStream {
+    return new Transform({
+        readableObjectMode: true,
+        writableObjectMode: true,
+        async transform(chunk: string, encoding, callback) {
+            try {
+                // Using await causes parsing errors to be emitted
+                callback(undefined, await JSON.parse(chunk));
+            } catch (err) {
+                callback(err);
+            }
+        },
+    });
+}
+type JsonPrimitive = string | number | object;
+type JsonValue = JsonPrimitive | JsonPrimitive[];
+interface JsonParseOptions {
+    pretty: boolean;
+}
+/**
+ * Return a ReadWrite stream that stringifies the streamed chunks to JSON
+ */
+export function stringify(
+    options: JsonParseOptions = { pretty: false },
+): NodeJS.ReadWriteStream {
+    return new Transform({
+        readableObjectMode: true,
+        writableObjectMode: true,
+        transform(chunk: JsonValue, encoding, callback) {
+            callback(
+                undefined,
+                options.pretty
+                    ? JSON.stringify(chunk, null, 2)
+                    : JSON.stringify(chunk),
+            );
+        },
+    });
+}
+
+/**
  * Return a ReadWrite stream that collects streamed chunks into an array or buffer
  * @param options
  * @param options.objectMode Whether this stream should behave as a stream of objects
