@@ -1,5 +1,6 @@
-import { Transform, Readable } from "stream";
+import { Transform, Readable, Writable, Duplex } from "stream";
 import * as _utils from "./utils";
+import { ChildProcess } from "child_process";
 export const utils = _utils;
 
 export interface ThroughOptions {
@@ -12,7 +13,7 @@ export interface TransformOptions {
 
 /**
  * Convert an array into a readable stream of its elements
- * @param array The array of elements to stream
+ * @param array Array of elements to stream
  */
 export function fromArray(array: any[]): NodeJS.ReadableStream {
     let cursor = 0;
@@ -31,7 +32,7 @@ export function fromArray(array: any[]): NodeJS.ReadableStream {
 
 /**
  * Return a ReadWrite stream that maps streamed chunks
- * @param mapper The mapper function, mapping each (chunk, encoding) to a new chunk (or a promise of such)
+ * @param mapper Mapper function, mapping each (chunk, encoding) to a new chunk (or a promise of such)
  * @param options
  * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
  * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
@@ -66,7 +67,7 @@ export function map<T, R>(
 
 /**
  * Return a ReadWrite stream that flat maps streamed chunks
- * @param mapper The mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
+ * @param mapper Mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
  * @param options
  * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
  * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
@@ -138,7 +139,7 @@ export function filter<T>(
 
 /**
  * Return a ReadWrite stream that splits streamed chunks using the given separator
- * @param separator The separator to split by, defaulting to "\n"
+ * @param separator Separator to split by, defaulting to "\n"
  */
 export function split(
     separator: string | RegExp = "\n",
@@ -165,7 +166,7 @@ export function split(
 
 /**
  * Return a ReadWrite stream that joins streamed chunks using the given separator
- * @param separator The separator to join with
+ * @param separator Separator to join with
  */
 export function join(separator: string): NodeJS.ReadWriteStream {
     let isFirstChunk = true;
@@ -186,8 +187,8 @@ export function join(separator: string): NodeJS.ReadWriteStream {
 /**
  * Return a ReadWrite stream that replaces occurrences of the given string or regular expression  in
  * the streamed chunks with the specified replacement string
- * @param searchValue The search string to use
- * @param replaceValue The replacement string to use
+ * @param searchValue Search string to use
+ * @param replaceValue Replacement string to use
  */
 export function replace(
     searchValue: string | RegExp,
@@ -271,7 +272,7 @@ export function collect(
 
 /**
  * Return a stream of readable streams concatenated together
- * @param streams The readable streams to concatenate
+ * @param streams Readable streams to concatenate
  */
 export function concat(
     ...streams: NodeJS.ReadableStream[]
@@ -313,7 +314,7 @@ export function concat(
 
 /**
  * Return a stream of readable streams merged together in chunk arrival order
- * @param streams The readable streams to merge
+ * @param streams Readable streams to merge
  */
 export function merge(
     ...streams: NodeJS.ReadableStream[]
@@ -347,4 +348,45 @@ export function merge(
             }
         },
     });
+}
+
+/**
+ * Return a Duplex stream from a writable stream that is assumed to somehow, when written to,
+ * cause the given readable stream to yield chunks
+ * @param writable Writable stream assumed to cause the readable stream to yield chunks when written to
+ * @param readable Readable stream assumed to yield chunks when the writable stream is written to
+ */
+export function duplex(writable: Writable, readable: Readable) {
+    const wrapper = new Duplex({
+        readableObjectMode: true,
+        writableObjectMode: true,
+        read() {
+            readable.resume();
+        },
+        write(chunk, encoding, callback) {
+            return writable.write(chunk, encoding, callback);
+        },
+        final(callback) {
+            writable.end(callback);
+        },
+    });
+    readable
+        .on("data", chunk => {
+            if (!wrapper.push(chunk)) {
+                readable.pause();
+            }
+        })
+        .on("error", err => wrapper.emit("error", err))
+        .on("end", () => wrapper.push(null));
+    writable.on("drain", () => wrapper.emit("drain"));
+    writable.on("error", err => wrapper.emit("error", err));
+    return wrapper;
+}
+
+/**
+ * Return a Duplex stream from a child process' stdin and stdout
+ * @param childProcess Child process from which to create duplex stream
+ */
+export function child(childProcess: ChildProcess) {
+    return duplex(childProcess.stdin, childProcess.stdout);
 }

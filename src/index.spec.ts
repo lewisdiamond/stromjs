@@ -1,3 +1,4 @@
+import * as cp from "child_process";
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
@@ -14,6 +15,8 @@ import {
     collect,
     concat,
     merge,
+    duplex,
+    child,
 } from ".";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
@@ -921,3 +924,49 @@ test.cb("merge() merges an empty list of readable streams", t => {
         .on("error", t.end)
         .on("end", t.end);
 });
+
+test.cb(
+    "duplex() combines a writable and readable stream into a ReadWrite stream",
+    t => {
+        t.plan(1);
+        const source = new Readable();
+        const catProcess = cp.exec("cat");
+        let out = "";
+        source
+            .pipe(duplex(catProcess.stdin, catProcess.stdout))
+            .on("data", chunk => (out += chunk))
+            .on("error", t.end)
+            .on("end", () => {
+                expect(out).to.equal("abcdef");
+                t.pass();
+                t.end();
+            });
+        source.push("ab");
+        source.push("cd");
+        source.push("ef");
+        source.push(null);
+    },
+);
+
+test.cb(
+    "child() allows easily writing to child process stdin and reading from its stdout",
+    t => {
+        t.plan(1);
+        const source = new Readable();
+        const catProcess = cp.exec("cat");
+        let out = "";
+        source
+            .pipe(child(catProcess))
+            .on("data", chunk => (out += chunk))
+            .on("error", t.end)
+            .on("end", () => {
+                expect(out).to.equal("abcdef");
+                t.pass();
+                t.end();
+            });
+        source.push("ab");
+        source.push("cd");
+        source.push("ef");
+        source.push(null);
+    },
+);

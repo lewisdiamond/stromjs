@@ -30,7 +30,6 @@
     "dependencies": {},
     "devDependencies": {
         "@types/chai": "^4.1.7",
-        "@types/event-stream": "^3.3.34",
         "@types/node": "^10.12.10",
         "ava": "^1.0.0-rc.2",
         "chai": "^4.2.0",
