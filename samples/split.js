@@ -1,6 +1,6 @@
-const mhysa = require("mhysa");
-let stream = mhysa.split(",");
+const Mhysa = require("mhysa");
 
+const stream = Mhysa.split(",");
 const buf = Buffer.from("a,b,c");
 stream.on("data", function(data) {
     console.log(data);
