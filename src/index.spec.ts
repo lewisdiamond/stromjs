@@ -18,6 +18,7 @@ import {
     duplex,
     child,
     reduce,
+    last,
 } from ".";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
@@ -1065,3 +1066,14 @@ test.cb(
         source.push(null);
     },
 );
+
+test("last() yields the last chunk streamed by the given readable stream", async t => {
+    const source = new Readable({ objectMode: true });
+    const lastPromise = last(source);
+    source.push("ab");
+    source.push("cd");
+    source.push("ef");
+    source.push(null);
+    const lastChunk = await lastPromise;
+    expect(lastChunk).to.equal("ef");
+});

@@ -427,3 +427,16 @@ export function duplex(writable: Writable, readable: Readable) {
 export function child(childProcess: ChildProcess) {
     return duplex(childProcess.stdin, childProcess.stdout);
 }
+
+/**
+ * Resolve the last streamed chunk of the given readable stream, after it has ended
+ * @param readable The readable stream to wait on
+ */
+export function last<T>(readable: Readable): Promise<T | null> {
+    let lastChunk: T | null = null;
+    return new Promise((resolve, reject) => {
+        readable
+            .on("data", chunk => (lastChunk = chunk))
+            .on("end", () => resolve(lastChunk));
+    });
+}
