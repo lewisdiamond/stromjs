@@ -1,151 +1,143 @@
 # Mhysa
 
-**Streams and event emitter utils for Node.js**
-
-## Installation
+**Stream utils for Node.js**
 
 ```sh
 yarn add mhysa
 ```
 
-## Basic Usage
+## fromArray(array)
+Convert an array into a `Readable` stream of its elements
 
-The following snippet demonstrates most of Mhysa's current features without much explanation. More 
-will come!
+| Param | Type | Description |
+| --- | --- | --- |
+| `array` | `T[]` | Array of elements to stream |
 
-```js
-const {
-    utils: { sleep, delay, once },
-    ...Mhysa
-} = require("mhysa");
 
-async function main() {
-    const collector = Mhysa.concat(
-        Mhysa.fromArray(["a\n", "b\n", "c\n"]),
-        Mhysa.fromArray(["d", "e"]).pipe(Mhysa.join("-")),
-    )
-        .pipe(Mhysa.split("\n"))
-        .pipe(
-            Mhysa.flatMap(async s => {
-                await sleep(100);
-                return delay([s, s.toUpperCase()], 100);
-            }),
-        )
-        .pipe(Mhysa.collect({ objectMode: true }));
+## map(mapper, options)
+Return a `ReadWrite` stream that maps streamed chunks
 
-    const collected = await once(collector, "data");
-    console.log(collected); // [ 'a', 'A', 'b', 'B', 'c', 'C', 'd-e', 'D-E' ] (after 6 * 100 ms)
-}
-main();
-```
+| Param | Type | Description |
+| --- | --- | --- |
+| `mapper` | `(chunk: T, encoding: string) => R` | Mapper function, mapping each (chunk, encoding) to a new chunk (or a promise of such) |
+| `options` | `object`  |  |
+| `options.readableObjectMode` | `boolean` | Whether this stream should behave as a readable stream of objects |
+| `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
-## API
 
-```ts
-/**
- * Convert an array into a readable stream of its elements
- * @param array The array of elements to stream
- */
-fromArray(array: any[]): NodeJS.ReadableStream;
+## flatMap(mapper, options)
+Return a `ReadWrite` stream that flat maps streamed chunks
 
-/**
- * Return a ReadWrite stream that maps streamed chunks
- * @param mapper The mapper function, mapping each (chunk, encoding) to a new chunk (or a promise of such)
- * @param options
- * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
- * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
- */
-map<T, R>(
-    mapper: (chunk: T, encoding: string) => R,
-    options?: ThroughOptions,
-): NodeJS.ReadWriteStream;
+| Param | Type | Description |
+| --- | --- | --- |
+| `mapper` | `(chunk: T, encoding: string) => R[]` | Mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such) |
+| `options` | `object`  |  |
+| `options.readableObjectMode` | `boolean` | Whether this stream should behave as a readable stream of objects |
+| `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
-/**
- * Return a ReadWrite stream that flat maps streamed chunks
- * @param mapper The mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
- * @param options
- * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
- * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
- */
-flatMap<T, R>(
-    mapper:
-        | ((chunk: T, encoding: string) => R[])
-        | ((chunk: T, encoding: string) => Promise<R[]>),
-    options?: ThroughOptions,
-): NodeJS.ReadWriteStream;
 
-/**
- * Return a ReadWrite stream that splits streamed chunks using the given separator
- * @param separator The separator to split by, defaulting to "\n"
- */
-split(
-    separator?: string | RegExp,
-): NodeJS.ReadWriteStream;
+## filter(predicate, options)
+Return a `ReadWrite` stream that filters out streamed chunks for which the predicate does not hold
 
-/**
- * Return a ReadWrite stream that joins streamed chunks using the given separator
- * @param separator The separator to join with
- */
-join(separator: string): NodeJS.ReadWriteStream;
+| Param | Type | Description |
+| --- | --- | --- |
+| `predicate` | `(chunk: T, encoding: string) => boolean` | Predicate with which to filter scream chunks |
+| `options` | `object`  |  |
+| `options.objectMode` | `boolean` | `boolean` | Whether this stream should behave as a stream of objects |
 
-/**
- * Return a ReadWrite stream that collects streamed chunks into an array or buffer
- * @param options
- * @param options.objectMode Whether this stream should behave as a stream of objects
- */
-collect(
-    options?: ReadableOptions,
-): NodeJS.ReadWriteStream;
 
-/**
- * Return a stream of readable streams concatenated together
- * @param streams The readable streams to concatenate
- */
-concat(
-    ...streams: NodeJS.ReadableStream[]
-): NodeJS.ReadableStream;
+## reduce(iteratee, initialValue, options)
+Return a `ReadWrite` stream that reduces streamed chunks down to a single value and yield that
+value
 
-```
+| Param | Type | Description |
+| --- | --- | --- |
+| `iteratee` | `(chunk: T, encoding: string) => R` | Reducer function to apply on each streamed chunk |
+| `initialValue` | `T` | Initial value |
+| `options` | `object`  |  |
+| `options.readableObjectMode` | `boolean` | Whether this stream should behave as a readable stream of objects |
+| `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
-### Interfaces
 
-```ts
-interface ReadableOptions {
-    objectMode?: boolean;
-}
+## split(separator)
+Return a `ReadWrite` stream that splits streamed chunks using the given separator
 
-interface ThroughOptions {
-    readableObjectMode?: boolean;
-    writableObjectMode?: boolean;
-}
-```
+| Param | Type | Description |
+| --- | --- | --- |
+| `separator` | `string` | Separator to split by, defaulting to `"\n"` |
 
-### { utils }
 
-```ts
-/**
- * Resolve after the given delay in milliseconds
- *
- * @param ms The number of milliseconds to wait
- */
-sleep(ms: number): Promise<{}>;
+## join(separator)
+Return a `ReadWrite` stream that joins streamed chunks using the given separator
 
-/**
- * Resolve a value after the given delay in milliseconds
- *
- * @param value Value to resolve
- * @param ms Number of milliseconds to wait
- */
-delay<T>(value: T, ms: number): Promise<T>;
+| Param | Type | Description |
+| --- | --- | --- |
+| `separator` | `string` | Separator to join with |
 
-/**
- * Resolve once the given event emitter emits the specified event
- *
- * @param emitter Event emitter to watch
- * @param event Event to watch
- */
-once<T>(
-    emitter: NodeJS.EventEmitter,
-    event: string,
-): Promise<T>;
-```
+
+## replace(searchValue, replaceValue)
+Return a `ReadWrite` stream that replaces occurrences of the given string or regular expression  in
+the streamed chunks with the specified replacement string
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `searchValue` |  `string | RegExp` | Search string to use |
+| `replaceValue` | `string` | Replacement string to use |
+
+
+## parse()
+Return a `ReadWrite` stream that parses the streamed chunks as JSON
+
+## stringify()
+Return a `ReadWrite` stream that stringifies the streamed chunks to JSON
+
+## collect(options)
+Return a `ReadWrite` stream that collects streamed chunks into an array or buffer
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `options` | `object`  |  |
+| `options.objectMode` | `boolean` | Whether this stream should behave as a stream of objects |
+
+
+## concat(streams)
+Return a `Readable` stream of readable streams concatenated together
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `streams` | `...Readable[]` | Readable streams to concatenate |
+
+
+## merge(streams)
+Return a `Readable` stream of readable streams merged together in chunk arrival order
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `streams` | `...Readable[]` | Readable streams to merge |
+
+
+## duplex(writable, readable)
+Return a `Duplex` stream from a writable stream that is assumed to somehow, when written to,
+cause the given readable stream to yield chunks
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `writable` | `Writable` | Writable stream assumed to cause the readable stream to yield chunks when written to |
+| `readable` | `Readable` | Readable stream assumed to yield chunks when the writable stream is written to |
+
+
+## child(childProcess)
+Return a `Duplex` stream from a child process' stdin and stdout
+
+| Param | Type | Description |
+| --- | --- | --- |
+| childProcess | `ChildProcess` | Child process from which to create duplex stream |
+
+
+## last(readable)
+Return a `Promise` resolving to the last streamed chunk of the given readable stream, after it has 
+ended
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `readable` | `Readable` | Readable stream to wait on |

@@ -10,7 +10,7 @@ export interface TransformOptions {
 }
 
 /**
- * Convert an array into a readable stream of its elements
+ * Convert an array into a Readable stream of its elements
  * @param array Array of elements to stream
  */
 export function fromArray(array: any[]): NodeJS.ReadableStream {
@@ -101,6 +101,12 @@ export function flatMap<T, R>(
     });
 }
 
+/**
+ * Return a ReadWrite stream that filters out streamed chunks for which the predicate does not hold
+ * @param predicate Predicate with which to filter scream chunks
+ * @param options
+ * @param options.objectMode Whether this stream should behave as a stream of objects
+ */
 export function filter<T>(
     predicate:
         | ((chunk: T, encoding: string) => boolean)
@@ -135,6 +141,15 @@ export function filter<T>(
     });
 }
 
+/**
+ * Return a ReadWrite stream that reduces streamed chunks down to a single value and yield that
+ * value
+ * @param iteratee Reducer function to apply on each streamed chunk
+ * @param initialValue Initial value
+ * @param options
+ * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
+ * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
+ */
 export function reduce<T, R>(
     iteratee:
         | ((previousValue: R, chunk: T, encoding: string) => R)
@@ -255,11 +270,13 @@ export function parse(): NodeJS.ReadWriteStream {
         },
     });
 }
+
 type JsonPrimitive = string | number | object;
 type JsonValue = JsonPrimitive | JsonPrimitive[];
 interface JsonParseOptions {
     pretty: boolean;
 }
+
 /**
  * Return a ReadWrite stream that stringifies the streamed chunks to JSON
  */
@@ -306,7 +323,7 @@ export function collect(
 }
 
 /**
- * Return a stream of readable streams concatenated together
+ * Return a Readable stream of readable streams concatenated together
  * @param streams Readable streams to concatenate
  */
 export function concat(
@@ -348,7 +365,7 @@ export function concat(
 }
 
 /**
- * Return a stream of readable streams merged together in chunk arrival order
+ * Return a Readable stream of readable streams merged together in chunk arrival order
  * @param streams Readable streams to merge
  */
 export function merge(
@@ -427,8 +444,9 @@ export function child(childProcess: ChildProcess) {
 }
 
 /**
- * Resolve the last streamed chunk of the given readable stream, after it has ended
- * @param readable The readable stream to wait on
+ * Return a Promise resolving to the last streamed chunk of the given readable stream, after it has
+ * ended
+ * @param readable Readable stream to wait on
  */
 export function last<T>(readable: Readable): Promise<T | null> {
     let lastChunk: T | null = null;
