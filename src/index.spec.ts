@@ -1067,7 +1067,7 @@ test.cb(
     },
 );
 
-test("last() yields the last chunk streamed by the given readable stream", async t => {
+test("last() resolves to the last chunk streamed by the given readable stream", async t => {
     const source = new Readable({ objectMode: true });
     const lastPromise = last(source);
     source.push("ab");

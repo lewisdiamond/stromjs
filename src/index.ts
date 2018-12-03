@@ -1,7 +1,5 @@
 import { Transform, Readable, Writable, Duplex } from "stream";
-import * as _utils from "./utils";
 import { ChildProcess } from "child_process";
-export const utils = _utils;
 
 export interface ThroughOptions {
     objectMode?: boolean;
