@@ -182,7 +182,17 @@ export function reduce<T, R>(
             }
         },
         flush(callback) {
-            callback(undefined, value);
+            // Best effort attempt at yielding the final value (will throw if e.g. yielding an object and
+            // downstream doesn't expect objects)
+            try {
+                callback(undefined, value);
+            } catch (err) {
+                try {
+                    this.emit("error", err);
+                } catch {
+                    // Best effort was made
+                }
+            }
         },
     });
 }

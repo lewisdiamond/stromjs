@@ -16,4 +16,4 @@ Mhysa.concat(
     fs.createReadStream(sourceFile1),
     Mhysa.fromArray(["\n"]),
     fs.createReadStream(sourceFile2),
-).pipe(fs.createWriteStream(outputFile));
+).pipe(process.stdout);
