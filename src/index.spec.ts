@@ -495,6 +495,30 @@ test.cb("split() splits chunks using the specified separator", t => {
     source.push(null);
 });
 
+test.cb(
+    "split() splits utf-8 encoded buffers using the specified separator",
+    t => {
+        t.plan(3);
+        const expectedElements = ["a", "b", "c"];
+        let i = 0;
+        const through = split(",");
+        const buf = Buffer.from("a,b,c");
+        through
+            .on("data", element => {
+                expect(element).to.equal(expectedElements[i]);
+                i++;
+                t.pass();
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        for (let j = 0; j < buf.length; ++j) {
+            through.write(buf.slice(j, j + 1));
+        }
+        through.end();
+    },
+);
+
 test.cb("join() joins chunks using the specified separator", t => {
     t.plan(9);
     const source = new Readable({ objectMode: true });

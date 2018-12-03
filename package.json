@@ -1,6 +1,6 @@
 {
     "name": "mhysa",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",

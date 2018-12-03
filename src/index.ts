@@ -208,8 +208,10 @@ export function split(
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk: string, encoding, callback) {
-            const splitted = chunk.split(separator);
+        transform(chunk: string | Buffer, encoding, callback) {
+            const asString =
+                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
+            const splitted = asString.split(separator);
             if (buffered.length > 0 && splitted.length > 1) {
                 splitted[0] = buffered.concat(splitted[0]);
                 buffered = "";
@@ -233,11 +235,13 @@ export function join(separator: string): NodeJS.ReadWriteStream {
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk: string, encoding, callback) {
+        async transform(chunk: string | Buffer, encoding, callback) {
+            const asString =
+                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
             if (!isFirstChunk) {
                 this.push(separator);
             }
-            this.push(chunk);
+            this.push(asString);
             isFirstChunk = false;
             callback();
         },
@@ -257,8 +261,10 @@ export function replace(
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        transform(chunk: string, encoding, callback) {
-            callback(undefined, chunk.replace(searchValue, replaceValue));
+        transform(chunk: string | Buffer, encoding, callback) {
+            const asString =
+                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
+            callback(undefined, asString.replace(searchValue, replaceValue));
         },
     });
 }
@@ -270,10 +276,12 @@ export function parse(): NodeJS.ReadWriteStream {
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk: string, encoding, callback) {
+        async transform(chunk: string | Buffer, encoding, callback) {
             try {
+                const asString =
+                    chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
                 // Using await causes parsing errors to be emitted
-                callback(undefined, await JSON.parse(chunk));
+                callback(undefined, await JSON.parse(asString));
             } catch (err) {
                 callback(err);
             }
