@@ -1,12 +1,14 @@
 # Mhysa
 
-**Stream utils for Node.js**
+**Dependency-free stream utils for Node.js**
 
-<sub>Released under the [MIT]() license.</sub>
+<sub>Released under the [MIT](https://github.com/Wenzil/Mhysa/blob/master/LICENSE) license.</sub>
 
 ```sh
 yarn add mhysa
 ```
+
+<sub>Tested with Node.js versions 8+</sub>
 
 ## fromArray(array)
 Convert an array into a `Readable` stream of its elements
