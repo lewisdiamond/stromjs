@@ -2,6 +2,8 @@
 
 **Stream utils for Node.js**
 
+<sub>Released under the [MIT]() license.</sub>
+
 ```sh
 yarn add mhysa
 ```
