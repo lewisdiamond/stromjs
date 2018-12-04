@@ -110,7 +110,7 @@ Mhysa.fromArray(["a,b", "c,d"])
     .pipe(Mhysa.split(","))
     .pipe(Mhysa.join("|"))
     .pipe(process.stdout);
-// a|b|c|d is printed out
+// a|bc|d is printed out
 ```
 
 
