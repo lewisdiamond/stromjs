@@ -1,5 +1,6 @@
 import { Transform, Readable, Writable, Duplex } from "stream";
 import { ChildProcess } from "child_process";
+import { StringDecoder } from "string_decoder";
 
 export interface ThroughOptions {
     objectMode?: boolean;
@@ -7,6 +8,9 @@ export interface ThroughOptions {
 export interface TransformOptions {
     readableObjectMode?: boolean;
     writableObjectMode?: boolean;
+}
+export interface WithEncoding {
+    encoding: string;
 }
 
 /**
@@ -200,19 +204,22 @@ export function reduce<T, R>(
 /**
  * Return a ReadWrite stream that splits streamed chunks using the given separator
  * @param separator Separator to split by, defaulting to "\n"
+ * @param options
+ * @param options.encoding Encoding written chunks are assumed to use
  */
 export function split(
     separator: string | RegExp = "\n",
+    options: WithEncoding = { encoding: "utf8" },
 ): NodeJS.ReadWriteStream {
-    let buffered: string = "";
+    let buffered = "";
+    const decoder = new StringDecoder(options.encoding);
+
     return new Transform({
         readableObjectMode: true,
-        writableObjectMode: true,
-        transform(chunk: string | Buffer, encoding, callback) {
-            const asString =
-                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
+        transform(chunk: Buffer, encoding, callback) {
+            const asString = decoder.write(chunk);
             const splitted = asString.split(separator);
-            if (buffered.length > 0 && splitted.length > 1) {
+            if (splitted.length > 1) {
                 splitted[0] = buffered.concat(splitted[0]);
                 buffered = "";
             }
@@ -221,7 +228,7 @@ export function split(
             callback();
         },
         flush(callback) {
-            callback(undefined, buffered);
+            callback(undefined, buffered + decoder.end());
         },
     });
 }
@@ -229,20 +236,27 @@ export function split(
 /**
  * Return a ReadWrite stream that joins streamed chunks using the given separator
  * @param separator Separator to join with
+ * @param options
+ * @param options.encoding Encoding written chunks are assumed to use
  */
-export function join(separator: string): NodeJS.ReadWriteStream {
+export function join(
+    separator: string,
+    options: WithEncoding = { encoding: "utf8" },
+): NodeJS.ReadWriteStream {
     let isFirstChunk = true;
+    const decoder = new StringDecoder(options.encoding);
     return new Transform({
         readableObjectMode: true,
-        writableObjectMode: true,
-        async transform(chunk: string | Buffer, encoding, callback) {
-            const asString =
-                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
-            if (!isFirstChunk) {
-                this.push(separator);
+        async transform(chunk: Buffer, encoding, callback) {
+            const asString = decoder.write(chunk);
+            // Take care not to break up multi-byte characters spanning multiple chunks
+            if (asString !== "" || chunk.length === 0) {
+                if (!isFirstChunk) {
+                    this.push(separator);
+                }
+                this.push(asString);
+                isFirstChunk = false;
             }
-            this.push(asString);
-            isFirstChunk = false;
             callback();
         },
     });
@@ -253,33 +267,44 @@ export function join(separator: string): NodeJS.ReadWriteStream {
  * the streamed chunks with the specified replacement string
  * @param searchValue Search string to use
  * @param replaceValue Replacement string to use
+ * @param options
+ * @param options.encoding Encoding written chunks are assumed to use
  */
 export function replace(
     searchValue: string | RegExp,
     replaceValue: string,
+    options: WithEncoding = { encoding: "utf8" },
 ): NodeJS.ReadWriteStream {
+    const decoder = new StringDecoder(options.encoding);
     return new Transform({
         readableObjectMode: true,
-        writableObjectMode: true,
-        transform(chunk: string | Buffer, encoding, callback) {
-            const asString =
-                chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
-            callback(undefined, asString.replace(searchValue, replaceValue));
+        transform(chunk: Buffer, encoding, callback) {
+            const asString = decoder.write(chunk);
+            // Take care not to break up multi-byte characters spanning multiple chunks
+            if (asString !== "" || chunk.length === 0) {
+                callback(
+                    undefined,
+                    asString.replace(searchValue, replaceValue),
+                );
+            } else {
+                callback();
+            }
         },
     });
 }
 
 /**
- * Return a ReadWrite stream that parses the streamed chunks as JSON
+ * Return a ReadWrite stream that parses the streamed chunks as JSON. Each streamed chunk
+ * must be a fully defined JSON string.
  */
 export function parse(): NodeJS.ReadWriteStream {
+    const decoder = new StringDecoder("utf8"); // JSON must be utf8
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
-        async transform(chunk: string | Buffer, encoding, callback) {
+        async transform(chunk: Buffer, encoding, callback) {
             try {
-                const asString =
-                    chunk instanceof Buffer ? chunk.toString(encoding) : chunk;
+                const asString = decoder.write(chunk);
                 // Using await causes parsing errors to be emitted
                 callback(undefined, await JSON.parse(asString));
             } catch (err) {

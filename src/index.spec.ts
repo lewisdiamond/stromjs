@@ -479,7 +479,7 @@ test.cb("split() splits chunks using the specified separator", t => {
     let i = 0;
     source
         .pipe(split("|"))
-        .on("data", part => {
+        .on("data", (part: string) => {
             expect(part).to.equal(expectedParts[i]);
             t.pass();
             i++;
@@ -496,13 +496,37 @@ test.cb("split() splits chunks using the specified separator", t => {
 });
 
 test.cb(
-    "split() splits utf-8 encoded buffers using the specified separator",
+    "split() splits utf8 encoded buffers using the specified separator",
     t => {
         t.plan(3);
         const expectedElements = ["a", "b", "c"];
         let i = 0;
         const through = split(",");
         const buf = Buffer.from("a,b,c");
+        through
+            .on("data", element => {
+                expect(element).to.equal(expectedElements[i]);
+                i++;
+                t.pass();
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        for (let j = 0; j < buf.length; ++j) {
+            through.write(buf.slice(j, j + 1));
+        }
+        through.end();
+    },
+);
+
+test.cb(
+    "split() splits utf8 encoded buffers with multi-byte characters using the specified separator",
+    t => {
+        t.plan(3);
+        const expectedElements = ["一", "一", "一"];
+        let i = 0;
+        const through = split(",");
+        const buf = Buffer.from("一,一,一"); // Those spaces are multi-byte utf8 characters (code: 4E00)
         through
             .on("data", element => {
                 expect(element).to.equal(expectedElements[i]);
@@ -541,6 +565,35 @@ test.cb("join() joins chunks using the specified separator", t => {
     source.push("|f|");
     source.push(null);
 });
+
+test.cb(
+    "join() joins chunks using the specified separator without breaking up multi-byte characters " +
+        "spanning multiple chunks",
+    t => {
+        t.plan(5);
+        const source = new Readable({ objectMode: true });
+        const expectedParts = ["ø", "|", "ö", "|", "一"];
+        let i = 0;
+        source
+            .pipe(join("|"))
+            .on("data", part => {
+                expect(part).to.equal(expectedParts[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source.push(Buffer.from("ø").slice(0, 1)); // 2-byte character spanning two chunks
+        source.push(Buffer.from("ø").slice(1, 2));
+        source.push(Buffer.from("ö").slice(0, 1)); // 2-byte character spanning two chunks
+        source.push(Buffer.from("ö").slice(1, 2));
+        source.push(Buffer.from("一").slice(0, 1)); // 3-byte character spanning three chunks
+        source.push(Buffer.from("一").slice(1, 2));
+        source.push(Buffer.from("一").slice(2, 3));
+        source.push(null);
+    },
+);
 
 test.cb(
     "replace() replaces occurrences of the given string in the streamed elements with the specified " +
@@ -592,6 +645,32 @@ test.cb(
     },
 );
 
+test.cb(
+    "replace() replaces occurrences of the given multi-byte character even if it spans multiple chunks",
+    t => {
+        t.plan(3);
+        const source = new Readable({ objectMode: true });
+        const expectedElements = ["ø", "O", "a"];
+        let i = 0;
+        source
+            .pipe(replace("ö", "O"))
+            .on("data", part => {
+                expect(part).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", t.end)
+            .on("end", t.end);
+
+        source.push(Buffer.from("ø").slice(0, 1)); // 2-byte character spanning two chunks
+        source.push(Buffer.from("ø").slice(1, 2));
+        source.push(Buffer.from("ö").slice(0, 1)); // 2-byte character spanning two chunks
+        source.push(Buffer.from("ö").slice(1, 2));
+        source.push("a");
+        source.push(null);
+    },
+);
+
 test.cb("parse() parses the streamed elements as JSON", t => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
@@ -623,7 +702,7 @@ test.cb("parse() emits errors on invalid JSON", t => {
         .on("end", t.end);
 
     source.push("{}");
-    source.push("");
+    source.push({});
     source.push([]);
     source.push(null);
 });
