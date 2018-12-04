@@ -1,19 +1,15 @@
-const fs = require("fs");
-const path = require("path");
+const { Readable } = require("stream");
 const Mhysa = require("mhysa");
 
-const sourceFile1 = path.join(process.cwd(), "package.json");
-const sourceFile2 = path.join(process.cwd(), "README.md");
-const outputDir = path.join(process.cwd(), "sample_output");
-const outputFile = path.join(outputDir, "concat_files.txt");
+const source1 = new Readable();
+const source2 = new Readable();
+const expectedElements = ["a", "b", "c", "d"];
+let i = 0;
+Mhysa.concat(source1, source2).pipe(process.stdout);
 
-if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-}
-
-// Concat two source files together into one
-Mhysa.concat(
-    fs.createReadStream(sourceFile1),
-    Mhysa.fromArray(["\n"]),
-    fs.createReadStream(sourceFile2),
-).pipe(process.stdout);
+source1.push("a");
+source2.push("c");
+source1.push("b");
+source2.push("d");
+source1.push(null);
+source2.push(null);
