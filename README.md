@@ -104,6 +104,8 @@ Return a `ReadWrite` stream that splits streamed chunks using the given separato
 | Param | Type | Description |
 | --- | --- | --- |
 | `separator` | `string` | Separator to split by, defaulting to `"\n"` |
+| `options` | `object` | |
+| `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
 Mhysa.fromArray(["a,b", "c,d"])
@@ -120,6 +122,8 @@ Return a `ReadWrite` stream that joins streamed chunks using the given separator
 | Param | Type | Description |
 | --- | --- | --- |
 | `separator` | `string` | Separator to join with |
+| `options` | `object` | |
+| `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
 Mhysa.fromArray(["a", "b", "c"])
@@ -135,8 +139,10 @@ the streamed chunks with the specified replacement string
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `searchValue` |  `string | RegExp` | Search string to use |
+| `searchValue` |  `string \| RegExp` | Search string to use |
 | `replaceValue` | `string` | Replacement string to use |
+| `options` | `object` | |
+| `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
 Mhysa.fromArray(["a1", "b22", "c333"])
