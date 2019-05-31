@@ -1,6 +1,7 @@
 import * as cp from "child_process";
 import test from "ava";
 import { expect } from "chai";
+import { performance } from "perf_hooks";
 import { Readable } from "stream";
 import {
     fromArray,
@@ -19,6 +20,10 @@ import {
     child,
     reduce,
     last,
+    batch,
+    unbatch,
+    rate,
+    parallelMap,
 } from ".";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
@@ -1179,4 +1184,148 @@ test("last() resolves to the last chunk streamed by the given readable stream", 
     source.push(null);
     const lastChunk = await lastPromise;
     expect(lastChunk).to.equal("ef");
+});
+
+test.cb("batch() batches chunks together", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = [["a", "b", "c"], ["d", "e", "f"], ["g"]];
+    let i = 0;
+    source
+        .pipe(batch(3))
+        .on("data", (element: string[]) => {
+            expect(element).to.deep.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push("d");
+    source.push("e");
+    source.push("f");
+    source.push("g");
+    source.push(null);
+});
+
+test.cb("unbatch() unbatches", t => {
+    t.plan(3);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "b", "c"];
+    let i = 0;
+    source
+        .pipe(batch(3))
+        .pipe(unbatch())
+        .on("data", (element: string) => {
+            expect(element).to.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push(null);
+});
+
+test.cb("rate() sends data at desired rate", t => {
+    t.plan(9);
+    const fastRate = 500;
+    const medRate = 50;
+    const slowRate = 1;
+    const sourceFast = new Readable({ objectMode: true });
+    const sourceMed = new Readable({ objectMode: true });
+    const sourceSlow = new Readable({ objectMode: true });
+    const expectedElements = ["a", "b", "c"];
+    const start = performance.now();
+    let i = 0;
+    let j = 0;
+    let k = 0;
+
+    sourceFast
+        .pipe(rate(fastRate))
+        .on("data", (element: string[]) => {
+            const currentRate = (i / (performance.now() - start)) * 1000;
+            expect(element).to.deep.equal(expectedElements[i]);
+            expect(currentRate).lessThan(fastRate);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end);
+
+    sourceMed
+        .pipe(rate(medRate))
+        .on("data", (element: string[]) => {
+            const currentRate = (j / (performance.now() - start)) * 1000;
+            expect(element).to.deep.equal(expectedElements[j]);
+            expect(currentRate).lessThan(medRate);
+            t.pass();
+            j++;
+        })
+        .on("error", t.end);
+
+    sourceSlow
+        .pipe(rate(slowRate))
+        .on("data", (element: string[]) => {
+            const currentRate = (k / (performance.now() - start)) * 1000;
+            expect(element).to.deep.equal(expectedElements[k]);
+            expect(currentRate).lessThan(slowRate);
+            t.pass();
+            k++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    sourceFast.push("a");
+    sourceFast.push("b");
+    sourceFast.push("c");
+    sourceFast.push(null);
+    sourceMed.push("a");
+    sourceMed.push("b");
+    sourceMed.push("c");
+    sourceMed.push(null);
+    sourceSlow.push("a");
+    sourceSlow.push("b");
+    sourceSlow.push("c");
+    sourceSlow.push(null);
+});
+
+test.cb("parallel() parallel mapping", t => {
+    t.plan(5);
+    const source = new Readable({ objectMode: true });
+    const expectedElements = [
+        "a_processed",
+        "b_processed",
+        "c_processed",
+        "d_processed",
+        "e_processed",
+    ];
+    const orderedResults: string[] = [];
+    source
+        .pipe(parallelMap(2, data => data + "_processed"))
+        .on("data", (element: string) => {
+            t.true(expectedElements.includes(element));
+            orderedResults.push(element);
+        })
+        .on("error", t.end)
+        .on("end", () => {
+            expect(orderedResults[0]).to.equal("a_processed")
+            expect(orderedResults[1]).to.equal("b_processed")
+            expect(orderedResults[2]).to.equal("d_processed")
+            expect(orderedResults[3]).to.equal("c_processed")
+            expect(orderedResults[4]).to.equal("e_processed")
+            t.end();
+        });
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push("d");
+    source.push("e");
+    source.push(null);
 });

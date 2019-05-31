@@ -1,4 +1,5 @@
 import { Transform, Readable, Writable, Duplex } from "stream";
+import { performance } from "perf_hooks";
 import { ChildProcess } from "child_process";
 import { StringDecoder } from "string_decoder";
 
@@ -11,6 +12,10 @@ export interface TransformOptions {
 }
 export interface WithEncoding {
     encoding: string;
+}
+
+async function sleep(time: number) {
+    return time > 0 ? new Promise(resolve => setTimeout(resolve, time)) : null;
 }
 
 /**
@@ -497,5 +502,98 @@ export function last<T>(readable: Readable): Promise<T | null> {
         readable
             .on("data", chunk => (lastChunk = chunk))
             .on("end", () => resolve(lastChunk));
+    });
+}
+
+/**
+ * Stores chunks of data internally in array and batches when batchSize is reached.
+ *
+ * @param batchSize Size of the batches
+ */
+export function batch(batchSize: number) {
+    const buffer: any[] = [];
+    return new Transform({
+        objectMode: true,
+        transform(chunk, encoding, callback) {
+            if (buffer.length === batchSize - 1) {
+                buffer.push(chunk);
+                callback(undefined, buffer.splice(0));
+            } else {
+                buffer.push(chunk);
+                callback();
+            }
+        },
+        flush(callback) {
+            callback(undefined, buffer.splice(0));
+        },
+    });
+}
+
+/**
+ * Unbatches and sends individual chunks of data
+ */
+export function unbatch() {
+    return new Transform({
+        objectMode: true,
+        transform(data, encoding, callback) {
+            for (const d of data) {
+                this.push(d);
+            }
+            callback();
+        },
+    });
+}
+
+/**
+ * Limits date of data transferred into stream.
+ * @param rate Desired rate in ms
+ */
+export function rate(targetRate: number) {
+    const deltaMS = (1 / targetRate) * 1000;
+    let total = 0;
+    const start = performance.now();
+    return new Transform({
+        objectMode: true,
+        async transform(data, encoding, callback) {
+            const currentRate = (total / (performance.now() - start)) * 1000;
+            if (targetRate && currentRate > targetRate) {
+                await sleep(deltaMS);
+            }
+            total += 1;
+            callback(undefined, data);
+        },
+    });
+}
+
+/**
+ * Limits number of parallel processes in flight.
+ * @param parallel Max number of parallel processes.
+ * @param func Function to execute on each data chunk
+ */
+export function parallelMap<T, R>(parallel: number, func: (data: T) => R) {
+    let inflight = 0;
+    return new Transform({
+        objectMode: true,
+        async transform(data, encoding, callback) {
+            while (parallel <= inflight) {
+                await sleep(5);
+            }
+            inflight += 1;
+            callback();
+            try {
+                const res = await func(data);
+                this.push(res);
+            } catch (e) {
+                this.emit(e);
+            } finally {
+                inflight -= 1;
+            }
+        },
+        async flush(callback) {
+            while (inflight > 0) {
+                await sleep(5);
+            }
+            callback();
+        },
     });
 }
