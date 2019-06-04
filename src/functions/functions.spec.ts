@@ -25,6 +25,7 @@ import {
     rate,
     parallelMap,
 } from ".";
+import { SerializationFormats } from "./definitions";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);
@@ -682,7 +683,7 @@ test.cb("parse() parses the streamed elements as JSON", t => {
     const expectedElements = ["abc", {}, []];
     let i = 0;
     source
-        .pipe(parse())
+        .pipe(parse(SerializationFormats.utf8))
         .on("data", part => {
             expect(part).to.deep.equal(expectedElements[i]);
             t.pass();
@@ -701,7 +702,7 @@ test.cb("parse() emits errors on invalid JSON", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
-        .pipe(parse())
+        .pipe(parse(SerializationFormats.utf8))
         .resume()
         .on("error", () => t.pass())
         .on("end", t.end);
@@ -1235,7 +1236,7 @@ test.cb("unbatch() unbatches", t => {
 
 test.cb("rate() sends data at desired rate", t => {
     t.plan(9);
-    const fastRate = 500;
+    const fastRate = 150;
     const medRate = 50;
     const slowRate = 1;
     const sourceFast = new Readable({ objectMode: true });
@@ -1270,7 +1271,7 @@ test.cb("rate() sends data at desired rate", t => {
         .on("error", t.end);
 
     sourceSlow
-        .pipe(rate(slowRate))
+        .pipe(rate(slowRate, 1))
         .on("data", (element: string[]) => {
             const currentRate = (k / (performance.now() - start)) * 1000;
             expect(element).to.deep.equal(expectedElements[k]);
@@ -1306,19 +1307,20 @@ test.cb("parallel() parallel mapping", t => {
         "e_processed",
     ];
     const orderedResults: string[] = [];
+    // Record start / end times of each process and then compare to figure out # of processes ocurring and order
     source
-        .pipe(parallelMap(2, data => data + "_processed"))
+        .pipe(parallelMap(data => data + "_processed"))
         .on("data", (element: string) => {
             t.true(expectedElements.includes(element));
             orderedResults.push(element);
         })
         .on("error", t.end)
         .on("end", () => {
-            expect(orderedResults[0]).to.equal("a_processed")
-            expect(orderedResults[1]).to.equal("b_processed")
-            expect(orderedResults[2]).to.equal("d_processed")
-            expect(orderedResults[3]).to.equal("c_processed")
-            expect(orderedResults[4]).to.equal("e_processed")
+            expect(orderedResults[0]).to.equal("a_processed");
+            expect(orderedResults[1]).to.equal("b_processed");
+            expect(orderedResults[2]).to.equal("d_processed");
+            expect(orderedResults[3]).to.equal("c_processed");
+            expect(orderedResults[4]).to.equal("e_processed");
             t.end();
         });
 
