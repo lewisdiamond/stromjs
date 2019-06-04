@@ -547,7 +547,8 @@ export function unbatch() {
 
 /**
  * Limits date of data transferred into stream.
- * @param rate Desired rate in ms
+ * @param targetRate Desired rate in ms
+ * @param period Period to sleep for when rate is above or equal to targetRate
  */
 export function rate(targetRate: number = 50, period: number = 2) {
     const deltaMS = ((1 / targetRate) * 1000) / period; // Skip half a period
