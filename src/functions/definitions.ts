@@ -22,18 +22,3 @@ export interface JsonParseOptions {
     pretty: boolean;
 }
 
-export interface IBatchParams {
-    batchSize?: number;
-    maxBatchAge?: number;
-}
-
-export interface IRateParams {
-    targetRate?: number;
-    period?: number;
-}
-
-export interface IParallelMapParams<T, R> {
-    mapper: (data: T) => R;
-    parallel?: number;
-    sleepTime?: number;
-}

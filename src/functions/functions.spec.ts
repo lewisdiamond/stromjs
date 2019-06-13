@@ -25,7 +25,7 @@ import {
     rate,
     parallelMap,
 } from ".";
-import { SerializationFormats } from "./definitions";
+import { sleep } from "../helpers";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);
@@ -683,7 +683,7 @@ test.cb("parse() parses the streamed elements as JSON", t => {
     const expectedElements = ["abc", {}, []];
     let i = 0;
     source
-        .pipe(parse(SerializationFormats.utf8))
+        .pipe(parse())
         .on("data", part => {
             expect(part).to.deep.equal(expectedElements[i]);
             t.pass();
@@ -702,7 +702,7 @@ test.cb("parse() emits errors on invalid JSON", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
-        .pipe(parse(SerializationFormats.utf8))
+        .pipe(parse())
         .resume()
         .on("error", () => t.pass())
         .on("end", t.end);
@@ -1297,7 +1297,7 @@ test.cb("rate() sends data at desired rate", t => {
 });
 
 test.cb("parallel() parallel mapping", t => {
-    t.plan(5);
+    t.plan(6);
     const source = new Readable({ objectMode: true });
     const expectedElements = [
         "a_processed",
@@ -1305,22 +1305,48 @@ test.cb("parallel() parallel mapping", t => {
         "c_processed",
         "d_processed",
         "e_processed",
+        "f_processed",
     ];
-    const orderedResults: string[] = [];
+    const orderedResults: Array<{ output: string; processed: number }> = [];
     // Record start / end times of each process and then compare to figure out # of processes ocurring and order
     source
-        .pipe(parallelMap(data => data + "_processed"))
+        .pipe(
+            parallelMap(async (data: any) => {
+                const c = data + "_processed";
+                await sleep(500);
+                orderedResults.push({
+                    output: c,
+                    processed: performance.now(),
+                });
+                return c;
+            }, 2),
+        )
         .on("data", (element: string) => {
             t.true(expectedElements.includes(element));
-            orderedResults.push(element);
         })
         .on("error", t.end)
-        .on("end", () => {
-            expect(orderedResults[0]).to.equal("a_processed");
-            expect(orderedResults[1]).to.equal("b_processed");
-            expect(orderedResults[2]).to.equal("d_processed");
-            expect(orderedResults[3]).to.equal("c_processed");
-            expect(orderedResults[4]).to.equal("e_processed");
+        .on("end", async () => {
+            expect(orderedResults[0].processed).to.be.lessThan(
+                orderedResults[1].processed + 500,
+            );
+            expect(orderedResults[2].processed).to.be.lessThan(
+                orderedResults[3].processed + 500,
+            );
+            expect(orderedResults[4].processed).to.be.lessThan(
+                orderedResults[5].processed + 500,
+            );
+            expect(orderedResults[2].processed).to.be.greaterThan(
+                orderedResults[0].processed + 500,
+            );
+            expect(orderedResults[3].processed).to.be.greaterThan(
+                orderedResults[1].processed + 500,
+            );
+            expect(orderedResults[4].processed).to.be.greaterThan(
+                orderedResults[2].processed + 500,
+            );
+            expect(orderedResults[5].processed).to.be.greaterThan(
+                orderedResults[3].processed + 500,
+            );
             t.end();
         });
 
@@ -1329,5 +1355,6 @@ test.cb("parallel() parallel mapping", t => {
     source.push("c");
     source.push("d");
     source.push("e");
+    source.push("f");
     source.push(null);
 });

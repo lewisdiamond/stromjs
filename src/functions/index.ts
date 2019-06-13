@@ -7,9 +7,6 @@ import {
     TransformOptions,
     WithEncoding,
     JsonParseOptions,
-    IBatchParams,
-    IRateParams,
-    IParallelMapParams,
 } from "./definitions";
 
 /**
@@ -205,14 +202,10 @@ export function last<T>(readable: Readable): Promise<T | null> {
 
 /**
  * Stores chunks of data internally in array and batches when batchSize is reached.
- *
- * @param batchSize? Size of the batches, defaults to 1000.
+ * @param batchSize Size of the batches, defaults to 1000.
  * @param maxBatchAge? Max lifetime of a batch, defaults to 500
  */
-export function batch({
-    batchSize,
-    maxBatchAge,
-}: IBatchParams): NodeJS.ReadWriteStream {
+export function batch(batchSize: number, maxBatchAge?: number): NodeJS.ReadWriteStream {
     return baseFunctions.batch(batchSize, maxBatchAge);
 }
 
@@ -225,13 +218,11 @@ export function unbatch(): NodeJS.ReadWriteStream {
 
 /**
  * Limits date of data transferred into stream.
+ * @param options?
  * @param targetRate? Desired rate in ms
  * @param period? Period to sleep for when rate is above or equal to targetRate
  */
-export function rate({
-    targetRate,
-    period,
-}: IRateParams): NodeJS.ReadWriteStream {
+export function rate(targetRate?: number, period?: number): NodeJS.ReadWriteStream {
     return baseFunctions.rate(targetRate, period);
 }
 
@@ -241,10 +232,10 @@ export function rate({
  * @param func Function to execute on each data chunk
  * @param pause Amount of time to pause processing when max number of parallel processes are executing.
  */
-export function parallelMap<T, R>({
-    mapper,
-    parallel,
-    sleepTime,
-}: IParallelMapParams<T, R>) {
+export function parallelMap<T, R>(
+    mapper: (chunk: T) => R,
+    parallel?: number,
+    sleepTime?: number,
+) {
     return baseFunctions.parallelMap(mapper, parallel, sleepTime);
 }
