@@ -1313,7 +1313,7 @@ test.cb("parallel() parallel mapping", t => {
         .pipe(
             parallelMap(async (data: any) => {
                 const c = data + "_processed";
-                await sleep(500);
+                await sleep(50);
                 orderedResults.push({
                     output: c,
                     processed: performance.now(),
@@ -1327,25 +1327,25 @@ test.cb("parallel() parallel mapping", t => {
         .on("error", t.end)
         .on("end", async () => {
             expect(orderedResults[0].processed).to.be.lessThan(
-                orderedResults[1].processed + 500,
+                orderedResults[1].processed + 50,
             );
             expect(orderedResults[2].processed).to.be.lessThan(
-                orderedResults[3].processed + 500,
+                orderedResults[3].processed + 50,
             );
             expect(orderedResults[4].processed).to.be.lessThan(
-                orderedResults[5].processed + 500,
+                orderedResults[5].processed + 50,
             );
             expect(orderedResults[2].processed).to.be.greaterThan(
-                orderedResults[0].processed + 500,
+                orderedResults[0].processed + 50,
             );
             expect(orderedResults[3].processed).to.be.greaterThan(
-                orderedResults[1].processed + 500,
+                orderedResults[1].processed + 50,
             );
             expect(orderedResults[4].processed).to.be.greaterThan(
-                orderedResults[2].processed + 500,
+                orderedResults[2].processed + 50,
             );
             expect(orderedResults[5].processed).to.be.greaterThan(
-                orderedResults[3].processed + 500,
+                orderedResults[3].processed + 50,
             );
             t.end();
         });
