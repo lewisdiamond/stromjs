@@ -1298,6 +1298,7 @@ test.cb("rate() sends data at desired rate", t => {
 
 test.cb("parallel() parallel mapping", t => {
     t.plan(6);
+    const offset = 50;
     const source = new Readable({ objectMode: true });
     const expectedElements = [
         "a_processed",
@@ -1307,17 +1308,21 @@ test.cb("parallel() parallel mapping", t => {
         "e_processed",
         "f_processed",
     ];
-    const orderedResults: Array<{ output: string; processed: number }> = [];
-    // Record start / end times of each process and then compare to figure out # of processes ocurring and order
+    interface IPerfData {
+        start: number;
+        output?: string;
+        finish?: number;
+    }
+    const orderedResults: IPerfData[] = [];
     source
         .pipe(
             parallelMap(async (data: any) => {
+                const perfData: IPerfData = { start: performance.now() };
                 const c = data + "_processed";
-                await sleep(50);
-                orderedResults.push({
-                    output: c,
-                    processed: performance.now(),
-                });
+                perfData.output = c;
+                await sleep(offset);
+                perfData.finish = performance.now();
+                orderedResults.push(perfData);
                 return c;
             }, 2),
         )
@@ -1326,26 +1331,29 @@ test.cb("parallel() parallel mapping", t => {
         })
         .on("error", t.end)
         .on("end", async () => {
-            expect(orderedResults[0].processed).to.be.lessThan(
-                orderedResults[1].processed + 50,
+            expect(orderedResults[0].finish).to.be.lessThan(
+                orderedResults[2].start,
             );
-            expect(orderedResults[2].processed).to.be.lessThan(
-                orderedResults[3].processed + 50,
+            expect(orderedResults[1].finish).to.be.lessThan(
+                orderedResults[3].start,
             );
-            expect(orderedResults[4].processed).to.be.lessThan(
-                orderedResults[5].processed + 50,
+            expect(orderedResults[2].finish).to.be.lessThan(
+                orderedResults[4].start,
             );
-            expect(orderedResults[2].processed).to.be.greaterThan(
-                orderedResults[0].processed + 50,
+            expect(orderedResults[3].finish).to.be.lessThan(
+                orderedResults[5].start,
             );
-            expect(orderedResults[3].processed).to.be.greaterThan(
-                orderedResults[1].processed + 50,
+            expect(orderedResults[0].start).to.be.lessThan(
+                orderedResults[2].start + offset
             );
-            expect(orderedResults[4].processed).to.be.greaterThan(
-                orderedResults[2].processed + 50,
+            expect(orderedResults[1].start).to.be.lessThan(
+                orderedResults[3].start + offset
             );
-            expect(orderedResults[5].processed).to.be.greaterThan(
-                orderedResults[3].processed + 50,
+            expect(orderedResults[2].start).to.be.lessThan(
+                orderedResults[4].start + offset
+            );
+            expect(orderedResults[3].start).to.be.lessThan(
+                orderedResults[5].start + offset
             );
             t.end();
         });
