@@ -49,19 +49,12 @@ export function map<T, R>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
-            let isPromise = false;
             try {
-                const mapped = mapper(chunk, encoding);
-                isPromise = mapped instanceof Promise;
-                callback(undefined, await mapped);
+                const mapped = await mapper(chunk, encoding);
+                this.push(mapped);
+                callback();
             } catch (err) {
-                if (isPromise) {
-                    // Calling the callback asynchronously with an error wouldn't emit the error, so emit directly
-                    this.emit("error", err);
-                    callback();
-                } else {
-                    callback(err);
-                }
+                callback(err);
             }
         },
     });
@@ -504,28 +497,33 @@ export function last<T>(readable: Readable): Promise<T | null> {
  * @param maxBatchAge Max lifetime of a batch
  */
 export function batch(batchSize: number = 1000, maxBatchAge: number = 500) {
-    const buffer: any[] = [];
-    let startTime: number | null = null;
+    let buffer: any[] = [];
+    let timer: NodeJS.Timer | null = null;
+    let sendChunk = (self: Transform) => {
+        timer && clearTimeout(timer);
+        timer = null;
+        self.push(buffer);
+        buffer = [];
+    };
     return new Transform({
         objectMode: true,
         transform(chunk, encoding, callback) {
-            if (
-                buffer.length === batchSize - 1 ||
-                (startTime !== null &&
-                    startTime - performance.now() >= maxBatchAge)
-            ) {
-                buffer.push(chunk);
-                callback(undefined, buffer.splice(0));
+            buffer.push(chunk);
+            if (buffer.length === batchSize) {
+                sendChunk(this);
             } else {
-                if (startTime === null) {
-                    startTime = performance.now();
+                if (timer === null) {
+                    timer = setInterval(() => {
+                        sendChunk(this);
+                    }, maxBatchAge);
                 }
-                buffer.push(chunk);
-                callback();
             }
+            callback();
         },
         flush(callback) {
-            callback(undefined, buffer.splice(0));
+            console.error("flushing");
+            sendChunk(this);
+            callback();
         },
     });
 }

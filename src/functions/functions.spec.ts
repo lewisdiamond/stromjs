@@ -141,30 +141,35 @@ test.cb("map() emits errors during synchronous mapping", t => {
     source.push(null);
 });
 
-test.cb("map() emits errors during asynchronous mapping", t => {
-    t.plan(2);
-    const source = new Readable({ objectMode: true });
-    source
-        .pipe(
-            map(async (element: string) => {
-                await Promise.resolve();
-                if (element !== "a") {
-                    throw new Error("Failed mapping");
-                }
-                return element.toUpperCase();
-            }),
-        )
-        .resume()
-        .on("error", err => {
-            expect(err.message).to.equal("Failed mapping");
-            t.pass();
-        })
-        .on("end", t.end);
+test("map() emits errors during asynchronous mapping", t => {
+    t.plan(1);
+    return new Promise((resolve, reject) => {
+        const source = new Readable({ objectMode: true });
+        source
+            .pipe(
+                map(async (element: string) => {
+                    await Promise.resolve();
+                    if (element !== "a") {
+                        throw new Error("Failed mapping");
+                    }
+                    return element.toUpperCase();
+                }),
+            )
+            .resume()
+            .on("error", err => {
+                expect(err.message).to.equal("Failed mapping");
+                t.pass();
+                resolve();
+            })
+            .on("end", () => {
+                t.fail();
+            });
 
-    source.push("a");
-    source.push("b");
-    source.push("c");
-    source.push(null);
+        source.push("a");
+        source.push("b");
+        source.push("c");
+        source.push(null);
+    });
 });
 
 test.cb("flatMap() maps elements synchronously", t => {
@@ -1212,6 +1217,36 @@ test.cb("batch() batches chunks together", t => {
     source.push(null);
 });
 
+test.cb("batch() yields a batch after the timeout", t => {
+    t.plan(3);
+    const source = new Readable({
+        objectMode: true,
+        read(size: number) {},
+    });
+    const expectedElements = [["a", "b"], ["c"], ["d"]];
+    let i = 0;
+    source
+        .pipe(batch(3))
+        .on("data", (element: string[]) => {
+            console.error("DATA", element);
+            expect(element).to.deep.equal(expectedElements[i]);
+            t.pass();
+            i++;
+        })
+        .on("error", t.fail)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    setTimeout(() => {
+        source.push("c");
+    }, 600);
+    setTimeout(() => {
+        source.push("d");
+        source.push(null);
+    }, 600 * 2);
+});
+
 test.cb("unbatch() unbatches", t => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
@@ -1344,16 +1379,16 @@ test.cb("parallel() parallel mapping", t => {
                 orderedResults[5].start,
             );
             expect(orderedResults[0].start).to.be.lessThan(
-                orderedResults[2].start + offset
+                orderedResults[2].start + offset,
             );
             expect(orderedResults[1].start).to.be.lessThan(
-                orderedResults[3].start + offset
+                orderedResults[3].start + offset,
             );
             expect(orderedResults[2].start).to.be.lessThan(
-                orderedResults[4].start + offset
+                orderedResults[4].start + offset,
             );
             expect(orderedResults[3].start).to.be.lessThan(
-                orderedResults[5].start + offset
+                orderedResults[5].start + offset,
             );
             t.end();
         });
