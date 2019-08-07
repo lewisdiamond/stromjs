@@ -3,6 +3,7 @@ import test from "ava";
 import { expect } from "chai";
 import { performance } from "perf_hooks";
 import { Readable } from "stream";
+import { FlushStrategy } from "./definitions";
 import {
     fromArray,
     map,
@@ -24,6 +25,7 @@ import {
     unbatch,
     rate,
     parallelMap,
+    accumulator,
 } from ".";
 import { sleep } from "../helpers";
 
@@ -1399,5 +1401,40 @@ test.cb("parallel() parallel mapping", t => {
     source.push("d");
     source.push("e");
     source.push("f");
+    source.push(null);
+});
+
+test.cb.only("accumulator() buffering strategy", t => {
+    interface TestObject {
+        ts: number;
+        key: string;
+    }
+    const source = new Readable({ objectMode: true });
+    const expectedElements = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+        { ts: 2, key: "d" },
+        { ts: 3, key: "e" },
+    ];
+    source
+        .pipe(
+            accumulator(FlushStrategy.sampling, {
+                condition: (event: TestObject) => event.ts > 2,
+            }),
+        )
+        .on("data", (flush: TestObject[]) => {
+            console.log("FLUSH", flush);
+            flush.forEach(item => expectedElements.includes(item));
+        })
+        .on("error", e => {
+            console.log("Got error: ", e);
+            t.end();
+        })
+        .on("end", () => {
+            console.log("end");
+            t.end();
+        });
+    source.push(expectedElements);
     source.push(null);
 });

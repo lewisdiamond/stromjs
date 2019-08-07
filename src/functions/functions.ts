@@ -4,6 +4,10 @@ import { ChildProcess } from "child_process";
 import { StringDecoder } from "string_decoder";
 
 import {
+    FlushStrategy,
+    AccumulatorOptions,
+    SamplingFlushOptions,
+    SamplingFlushResult,
     TransformOptions,
     ThroughOptions,
     WithEncoding,
@@ -598,6 +602,67 @@ export function parallelMap<T, R>(
             while (inflight > 0) {
                 await sleep(sleepTime);
             }
+            callback();
+        },
+    });
+}
+
+function samplingFlush<T, R>(
+    event: T,
+    options: SamplingFlushOptions<T, R>,
+    buffer: Array<T>,
+): SamplingFlushResult<T> {
+    let flush = null;
+    if (options.condition(event, buffer)) {
+        flush = buffer.slice(0);
+        buffer.length = 0;
+    }
+    buffer.push(event);
+    return { flushed: true, flush };
+}
+
+function executeSamplingStrategy<T, R>(
+    events: T[],
+    options: SamplingFlushOptions<T, R>,
+    buffer: Array<T>,
+    stream: Transform,
+): void {
+    events.forEach(event => {
+        const sample = samplingFlush(event, options, buffer);
+        if (sample.flushed && sample.flush && options.flushMapper) {
+            stream.push(options.flushMapper(sample.flush));
+        } else if (sample.flushed && sample.flush) {
+            stream.push(sample.flush);
+        }
+    });
+}
+
+export function accumulator<T, R, S extends FlushStrategy>(
+    flushStrategy: S,
+    options: AccumulatorOptions<T, R, S>,
+) {
+    const buffer: Array<T> = [];
+    return new Transform({
+        objectMode: true,
+        async transform(data, encoding, callback) {
+            callback();
+            switch (flushStrategy) {
+                case FlushStrategy.sampling: {
+                    executeSamplingStrategy(
+                        data,
+                        options as SamplingFlushOptions<T, R>,
+                        buffer,
+                        this,
+                    );
+                    break;
+                }
+                case FlushStrategy.sliding: {
+                    break;
+                }
+            }
+        },
+        flush(callback) {
+            this.push(buffer);
             callback();
         },
     });

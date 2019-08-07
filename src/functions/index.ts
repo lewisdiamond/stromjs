@@ -3,6 +3,8 @@ import { ChildProcess } from "child_process";
 import * as baseFunctions from "./functions";
 
 import {
+    AccumulatorOptions,
+    FlushStrategy,
     ThroughOptions,
     TransformOptions,
     WithEncoding,
@@ -205,7 +207,10 @@ export function last<T>(readable: Readable): Promise<T | null> {
  * @param batchSize Size of the batches, defaults to 1000.
  * @param maxBatchAge? Max lifetime of a batch, defaults to 500
  */
-export function batch(batchSize: number, maxBatchAge?: number): NodeJS.ReadWriteStream {
+export function batch(
+    batchSize: number,
+    maxBatchAge?: number,
+): NodeJS.ReadWriteStream {
     return baseFunctions.batch(batchSize, maxBatchAge);
 }
 
@@ -222,7 +227,10 @@ export function unbatch(): NodeJS.ReadWriteStream {
  * @param targetRate? Desired rate in ms
  * @param period? Period to sleep for when rate is above or equal to targetRate
  */
-export function rate(targetRate?: number, period?: number): NodeJS.ReadWriteStream {
+export function rate(
+    targetRate?: number,
+    period?: number,
+): NodeJS.ReadWriteStream {
     return baseFunctions.rate(targetRate, period);
 }
 
@@ -237,5 +245,13 @@ export function parallelMap<T, R>(
     parallel?: number,
     sleepTime?: number,
 ) {
+    console.log("hi");
     return baseFunctions.parallelMap(mapper, parallel, sleepTime);
+}
+
+export function accumulator<T, R, S extends FlushStrategy>(
+    flushStrategy: S,
+    options: AccumulatorOptions<T, R, S>,
+) {
+    return baseFunctions.accumulator(flushStrategy, options);
 }
