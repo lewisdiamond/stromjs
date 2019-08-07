@@ -644,10 +644,11 @@ export function accumulator<T, R, S extends FlushStrategy>(
     const buffer: Array<T> = [];
     return new Transform({
         objectMode: true,
-        async transform(data, encoding, callback) {
+        async transform(data: T[] | T, encoding, callback) {
             callback();
             switch (flushStrategy) {
                 case FlushStrategy.sampling: {
+                    if (!Array.isArray(data)) data = [data];
                     executeSamplingStrategy(
                         data,
                         options as SamplingFlushOptions<T, R>,
