@@ -38,12 +38,14 @@ export type AccumulatorOptions<T, R, S> = S extends FlushStrategy.sampling
 
 export interface RollingFlushOptions<T, R> {
     windowLength: number;
-    afterFlush?: (flushed: Array<T>) => Array<R>;
+    flushMapper?: (flushed: Array<T>) => Array<R>;
+    timeout?: number;
 }
 
 export interface SlidingFlushOptions<T, R> {
     windowLength: number;
-    afterFlush?: (flushed: Array<T>) => Array<R>;
+    flushMapper?: (flushed: Array<T>) => Array<R>;
+    timeout?: number;
 }
 
 export interface SlidingFlushResult<T> {
@@ -53,6 +55,7 @@ export interface SlidingFlushResult<T> {
 export interface SamplingFlushOptions<T, R> {
     condition: (event: T, buffer: Array<T>) => boolean;
     flushMapper?: (flushed: Array<T>) => Array<R>;
+    timeout?: number;
 }
 
 export interface SamplingFlushResult<T> {

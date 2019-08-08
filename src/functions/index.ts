@@ -245,7 +245,6 @@ export function parallelMap<T, R>(
     parallel?: number,
     sleepTime?: number,
 ) {
-    console.log("hi");
     return baseFunctions.parallelMap(mapper, parallel, sleepTime);
 }
 

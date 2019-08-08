@@ -525,7 +525,6 @@ export function batch(batchSize: number = 1000, maxBatchAge: number = 500) {
             callback();
         },
         flush(callback) {
-            console.error("flushing");
             sendChunk(this);
             callback();
         },
@@ -642,10 +641,18 @@ export function accumulator<T, R, S extends FlushStrategy>(
     options: AccumulatorOptions<T, R, S>,
 ) {
     const buffer: Array<T> = [];
-    return new Transform({
+    let handle: NodeJS.Timer | null = null;
+    if (options.timeout) {
+        handle = setInterval(() => {
+            if (buffer.length > 0) {
+                transform.push(buffer);
+                buffer.length = 0;
+            }
+        }, options.timeout);
+    }
+    const transform = new Transform({
         objectMode: true,
         async transform(data: T[] | T, encoding, callback) {
-            callback();
             switch (flushStrategy) {
                 case FlushStrategy.sampling: {
                     if (!Array.isArray(data)) data = [data];
@@ -655,6 +662,7 @@ export function accumulator<T, R, S extends FlushStrategy>(
                         buffer,
                         this,
                     );
+                    callback();
                     break;
                 }
                 case FlushStrategy.sliding: {
@@ -663,8 +671,10 @@ export function accumulator<T, R, S extends FlushStrategy>(
             }
         },
         flush(callback) {
+            handle && clearInterval(handle);
             this.push(buffer);
             callback();
         },
     });
+    return transform;
 }

@@ -1404,20 +1404,21 @@ test.cb("parallel() parallel mapping", t => {
     source.push(null);
 });
 
-test.cb.only("accumulator() buffering strategy", t => {
+test.cb("accumulator() buffering strategy clears buffer on condition", t => {
+    t.plan(2);
     let chunkIndex = 0;
     interface TestObject {
         ts: number;
         key: string;
     }
     const source = new Readable({ objectMode: true });
-    const expectedElements = [
+    const firstFlush = [
         { ts: 0, key: "a" },
         { ts: 1, key: "b" },
         { ts: 2, key: "c" },
         { ts: 2, key: "d" },
-        { ts: 3, key: "e" },
     ];
+    const secondFlush = [{ ts: 3, key: "e" }];
 
     source
         .pipe(
@@ -1428,15 +1429,98 @@ test.cb.only("accumulator() buffering strategy", t => {
         .on("data", (flush: TestObject[]) => {
             if (chunkIndex === 0) {
                 chunkIndex++;
-                t.deepEqual(flush, expectedElements.slice(0, 4));
+                t.deepEqual(flush, firstFlush);
             } else {
-                t.deepEqual(flush, expectedElements.slice(4));
+                t.deepEqual(flush, secondFlush);
             }
         })
         .on("error", e => t.end)
         .on("end", () => {
             t.end();
         });
-    expectedElements.forEach(element => source.push(element));
+    source.push([...firstFlush, ...secondFlush]);
     source.push(null);
 });
+
+test.cb("accumulator() buffering strategy clears buffer on timeout", t => {
+    t.plan(2);
+    let chunkIndex = 0;
+    interface TestObject {
+        ts: number;
+        key: string;
+    }
+    const source = new Readable({ objectMode: true, read: () => {} });
+    const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const secondFlush = [
+        { ts: 2, key: "c" },
+        { ts: 2, key: "d" },
+        { ts: 3, key: "e" },
+    ];
+    source
+        .pipe(
+            accumulator(FlushStrategy.sampling, {
+                condition: (event: TestObject) => event.ts > 3,
+                timeout: 1000,
+            }),
+        )
+        .on("data", (flush: TestObject[]) => {
+            if (chunkIndex === 0) {
+                chunkIndex++;
+                t.deepEqual(flush, firstFlush);
+            } else {
+                t.deepEqual(flush, secondFlush);
+            }
+        })
+        .on("error", e => t.end)
+        .on("end", () => {
+            t.end();
+        });
+    source.push(firstFlush);
+    setTimeout(() => {
+        source.push(secondFlush);
+        source.push(null);
+    }, 2000);
+});
+
+test.cb(
+    "accumulator() buffering strategy clears buffer on condition or timeout",
+    t => {
+        t.plan(3);
+        let chunkIndex = 0;
+        interface TestObject {
+            ts: number;
+            key: string;
+        }
+        const source = new Readable({ objectMode: true, read: () => {} });
+        const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+        const secondFlush = [{ ts: 2, key: "c" }, { ts: 2, key: "d" }];
+        const thirdFlush = [{ ts: 3, key: "e" }];
+        source
+            .pipe(
+                accumulator(FlushStrategy.sampling, {
+                    condition: (event: TestObject) => event.ts > 2,
+                    timeout: 1000,
+                }),
+            )
+            .on("data", (flush: TestObject[]) => {
+                if (chunkIndex === 0) {
+                    chunkIndex++;
+                    t.deepEqual(flush, firstFlush);
+                } else if (chunkIndex === 1) {
+                    chunkIndex++;
+                    t.deepEqual(flush, secondFlush);
+                } else {
+                    t.deepEqual(flush, thirdFlush);
+                }
+            })
+            .on("error", e => t.end)
+            .on("end", () => {
+                t.end();
+            });
+        source.push(firstFlush);
+        setTimeout(() => {
+            source.push([...secondFlush, ...thirdFlush]);
+            source.push(null);
+        }, 2000);
+    },
+);
