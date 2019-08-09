@@ -19,4 +19,5 @@ export {
     unbatch,
     rate,
     parallelMap,
+    accumulator,
 } from "./functions";

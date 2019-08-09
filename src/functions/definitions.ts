@@ -23,9 +23,9 @@ export interface JsonParseOptions {
 }
 
 export enum FlushStrategy {
-    sampling,
-    rolling,
-    sliding,
+    sampling = "sampling",
+    rolling = "rolling",
+    sliding = "sliding",
 }
 
 export type AccumulatorOptions<T, R, S> = S extends FlushStrategy.sampling
