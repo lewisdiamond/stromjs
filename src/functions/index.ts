@@ -3,8 +3,6 @@ import { ChildProcess } from "child_process";
 import * as baseFunctions from "./functions";
 
 import {
-    AccumulatorOptions,
-    FlushStrategy,
     ThroughOptions,
     TransformOptions,
     WithEncoding,
@@ -248,9 +246,16 @@ export function parallelMap<T, R>(
     return baseFunctions.parallelMap(mapper, parallel, sleepTime);
 }
 
-export function accumulator<T, R, S extends FlushStrategy>(
-    flushStrategy: S,
-    options: AccumulatorOptions<T, R, S>,
+export function accumulator(
+    batchSize: number,
+    batchRate: number,
+    flushStrategy: "sliding" | "rolling",
+    keyBy?: string,
 ) {
-    return baseFunctions.accumulator(flushStrategy, options);
+    return baseFunctions.accumulator(
+        batchSize,
+        batchRate,
+        flushStrategy,
+        keyBy,
+    );
 }

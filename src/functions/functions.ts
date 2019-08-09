@@ -2,12 +2,7 @@ import { Transform, Readable, Writable, Duplex } from "stream";
 import { performance } from "perf_hooks";
 import { ChildProcess } from "child_process";
 import { StringDecoder } from "string_decoder";
-
 import {
-    FlushStrategy,
-    AccumulatorOptions,
-    SamplingFlushOptions,
-    SamplingFlushResult,
     TransformOptions,
     ThroughOptions,
     WithEncoding,
@@ -606,75 +601,97 @@ export function parallelMap<T, R>(
     });
 }
 
-function samplingFlush<T, R>(
-    event: T,
-    options: SamplingFlushOptions<T, R>,
-    buffer: Array<T>,
-): SamplingFlushResult<T> {
-    let flush = null;
-    if (options.condition(event, buffer)) {
-        flush = buffer.slice(0);
-        buffer.length = 0;
-    }
-    buffer.push(event);
-    return { flushed: true, flush };
-}
-
-function executeSamplingStrategy<T, R>(
-    events: T[],
-    options: SamplingFlushOptions<T, R>,
-    buffer: Array<T>,
-    stream: Transform,
-): void {
-    events.forEach(event => {
-        const sample = samplingFlush(event, options, buffer);
-        if (sample.flushed && sample.flush && options.flushMapper) {
-            stream.push(options.flushMapper(sample.flush));
-        } else if (sample.flushed && sample.flush) {
-            stream.push(sample.flush);
-        }
-    });
-}
-
-export function accumulator<T, R, S extends FlushStrategy>(
-    flushStrategy: S,
-    options: AccumulatorOptions<T, R, S>,
+function _accumulator<T>(
+    accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
 ) {
-    const buffer: Array<T> = [];
-    let handle: NodeJS.Timer | null = null;
-    if (options.timeout) {
-        handle = setInterval(() => {
-            if (buffer.length > 0) {
-                transform.push(buffer);
-                buffer.length = 0;
-            }
-        }, options.timeout);
-    }
-    const transform = new Transform({
+    const buffer: T[] = [];
+    return new Transform({
         objectMode: true,
-        async transform(data: T[] | T, encoding, callback) {
-            switch (flushStrategy) {
-                case FlushStrategy.sampling: {
-                    if (!Array.isArray(data)) data = [data];
-                    executeSamplingStrategy(
-                        data,
-                        options as SamplingFlushOptions<T, R>,
-                        buffer,
-                        this,
-                    );
-                    callback();
-                    break;
-                }
-                case FlushStrategy.sliding: {
-                    break;
-                }
-            }
+        async transform(data: any, encoding, callback) {
+            accumulateBy(data, buffer, this);
+            callback();
         },
         flush(callback) {
-            handle && clearInterval(handle);
             this.push(buffer);
             callback();
         },
     });
-    return transform;
+}
+
+function _slidingBy<T>(
+    windowLength: number,
+    rate: number,
+    key?: string,
+): (event: T, buffer: T[], stream: Transform) => void {
+    return (event: T, buffer: T[], stream: Transform) => {
+        if (key) {
+            let index = 0;
+            while (
+                buffer.length > 0 &&
+                buffer[index][key] + windowLength <= event[key]
+            ) {
+                index++;
+            }
+            buffer.splice(0, index);
+        } else if (buffer.length === windowLength) {
+            buffer.shift();
+        }
+        buffer.push(event);
+        stream.push(buffer);
+    };
+}
+
+function _rollingBy<T>(
+    windowLength: number,
+    rate: number,
+    key?: string,
+): (event: T, buffer: T[], stream: Transform) => void {
+    return (event: T, buffer: T[], stream: Transform) => {
+        if (key) {
+            if (
+                buffer.length > 0 &&
+                buffer[0][key] + windowLength <= event[key]
+            ) {
+                stream.push(buffer.slice(0));
+                buffer.length = 0;
+            }
+        } else if (buffer.length === windowLength) {
+            stream.push(buffer.slice(0));
+            buffer.length = 0;
+        }
+        buffer.push(event);
+    };
+}
+
+export function accumulator(
+    batchSize: number,
+    batchRate: number,
+    flushStrategy: "sliding" | "rolling",
+    keyBy?: string,
+): Transform {
+    if (flushStrategy === "sliding") {
+        return sliding(batchSize, batchRate, keyBy);
+    } else if (flushStrategy === "rolling") {
+        return rolling(batchSize, batchRate, keyBy);
+    } else {
+        return batch(batchSize, batchRate);
+    }
+}
+
+export function sliding(
+    windowLength: number,
+    rate: number,
+    key?: string,
+): Transform {
+    const slidingByFn = _slidingBy(windowLength, rate, key);
+    return _accumulator(slidingByFn);
+}
+
+export function rolling(
+    windowLength: number,
+    rate: number,
+    key?: string,
+): Transform {
+    const rollingByFn = _rollingBy(windowLength, rate, key);
+    return _accumulator(rollingByFn);
 }

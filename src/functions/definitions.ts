@@ -44,7 +44,7 @@ export interface RollingFlushOptions<T, R> {
 
 export interface SlidingFlushOptions<T, R> {
     windowLength: number;
-    flushMapper?: (flushed: Array<T>) => Array<R>;
+    windowMapper?: (flushed: Array<T>) => Array<R>;
     timeout?: number;
 }
 

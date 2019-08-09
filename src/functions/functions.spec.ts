@@ -3,7 +3,6 @@ import test from "ava";
 import { expect } from "chai";
 import { performance } from "perf_hooks";
 import { Readable } from "stream";
-import { FlushStrategy } from "./definitions";
 import {
     fromArray,
     map,
@@ -1404,7 +1403,36 @@ test.cb("parallel() parallel mapping", t => {
     source.push(null);
 });
 
-test.cb("accumulator() buffering strategy clears buffer on condition", t => {
+test.cb("accumulator() rolling", t => {
+    t.plan(3);
+    let chunkIndex = 0;
+    interface TestObject {
+        ts: number;
+        key: string;
+    }
+    const source = new Readable({ objectMode: true });
+    const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const secondFlush = [{ ts: 2, key: "d" }, { ts: 3, key: "e" }];
+    const thirdFlush = [{ ts: 4, key: "f" }];
+    const flushes = [firstFlush, secondFlush, thirdFlush];
+
+    source
+        .pipe(accumulator(2, 999, "rolling"))
+        .on("data", (flush: TestObject[]) => {
+            t.deepEqual(flush, flushes[chunkIndex]);
+            chunkIndex++;
+        })
+        .on("error", (e: any) => t.end)
+        .on("end", () => {
+            t.end();
+        });
+    [...firstFlush, ...secondFlush, ...thirdFlush].forEach(item => {
+        source.push(item);
+    });
+    source.push(null);
+});
+
+test.cb("accumulator() rolling with key", t => {
     t.plan(2);
     let chunkIndex = 0;
     interface TestObject {
@@ -1421,11 +1449,7 @@ test.cb("accumulator() buffering strategy clears buffer on condition", t => {
     const secondFlush = [{ ts: 3, key: "e" }];
 
     source
-        .pipe(
-            accumulator(FlushStrategy.sampling, {
-                condition: (event: TestObject) => event.ts > 2,
-            }),
-        )
+        .pipe(accumulator(3, 999, "rolling", "ts"))
         .on("data", (flush: TestObject[]) => {
             if (chunkIndex === 0) {
                 chunkIndex++;
@@ -1434,93 +1458,118 @@ test.cb("accumulator() buffering strategy clears buffer on condition", t => {
                 t.deepEqual(flush, secondFlush);
             }
         })
-        .on("error", e => t.end)
+        .on("error", (e: any) => t.end)
         .on("end", () => {
             t.end();
         });
-    source.push([...firstFlush, ...secondFlush]);
+    [...firstFlush, ...secondFlush].forEach(item => {
+        source.push(item);
+    });
     source.push(null);
 });
 
-test.cb("accumulator() buffering strategy clears buffer on timeout", t => {
-    t.plan(2);
+test.cb("accumulator() sliding", t => {
+    t.plan(5);
     let chunkIndex = 0;
     interface TestObject {
         ts: number;
         key: string;
     }
-    const source = new Readable({ objectMode: true, read: () => {} });
-    const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
-    const secondFlush = [
+    const source = new Readable({ objectMode: true });
+    const input = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
         { ts: 2, key: "c" },
-        { ts: 2, key: "d" },
-        { ts: 3, key: "e" },
+        { ts: 4, key: "d" },
+    ];
+    const firstFlush = [{ ts: 0, key: "a" }];
+    const secondFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const thirdFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+    ];
+    const fourthFlush = [
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+        { ts: 4, key: "d" },
+    ];
+
+    const flushes = [
+        firstFlush,
+        secondFlush,
+        thirdFlush,
+        fourthFlush,
+        fourthFlush,
     ];
     source
-        .pipe(
-            accumulator(FlushStrategy.sampling, {
-                condition: (event: TestObject) => event.ts > 3,
-                timeout: 1000,
-            }),
-        )
+        .pipe(accumulator(3, 999, "sliding"))
         .on("data", (flush: TestObject[]) => {
-            if (chunkIndex === 0) {
-                chunkIndex++;
-                t.deepEqual(flush, firstFlush);
-            } else {
-                t.deepEqual(flush, secondFlush);
-            }
+            t.deepEqual(flush, flushes[chunkIndex]);
+            chunkIndex++;
         })
-        .on("error", e => t.end)
+        .on("error", (e: any) => t.end)
         .on("end", () => {
             t.end();
         });
-    source.push(firstFlush);
-    setTimeout(() => {
-        source.push(secondFlush);
-        source.push(null);
-    }, 2000);
+    input.forEach(item => {
+        source.push(item);
+    });
+    source.push(null);
 });
 
-test.cb(
-    "accumulator() buffering strategy clears buffer on condition or timeout",
-    t => {
-        t.plan(3);
-        let chunkIndex = 0;
-        interface TestObject {
-            ts: number;
-            key: string;
-        }
-        const source = new Readable({ objectMode: true, read: () => {} });
-        const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
-        const secondFlush = [{ ts: 2, key: "c" }, { ts: 2, key: "d" }];
-        const thirdFlush = [{ ts: 3, key: "e" }];
-        source
-            .pipe(
-                accumulator(FlushStrategy.sampling, {
-                    condition: (event: TestObject) => event.ts > 2,
-                    timeout: 1000,
-                }),
-            )
-            .on("data", (flush: TestObject[]) => {
-                if (chunkIndex === 0) {
-                    chunkIndex++;
-                    t.deepEqual(flush, firstFlush);
-                } else if (chunkIndex === 1) {
-                    chunkIndex++;
-                    t.deepEqual(flush, secondFlush);
-                } else {
-                    t.deepEqual(flush, thirdFlush);
-                }
-            })
-            .on("error", e => t.end)
-            .on("end", () => {
-                t.end();
-            });
-        source.push(firstFlush);
-        setTimeout(() => {
-            source.push([...secondFlush, ...thirdFlush]);
-            source.push(null);
-        }, 2000);
-    },
-);
+test.cb("accumulator() sliding with key", t => {
+    t.plan(7);
+    let chunkIndex = 0;
+    interface TestObject {
+        ts: number;
+        key: string;
+    }
+    const source = new Readable({ objectMode: true });
+    const input = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+        { ts: 3, key: "d" },
+        { ts: 5, key: "f" },
+        { ts: 6, key: "g" },
+    ];
+    const firstFlush = [{ ts: 0, key: "a" }];
+    const secondFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const thirdFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+    ];
+    const fourthFlush = [
+        { ts: 1, key: "b" },
+        { ts: 2, key: "c" },
+        { ts: 3, key: "d" },
+    ];
+    const fifthFlush = [{ ts: 3, key: "d" }, { ts: 5, key: "f" }];
+    const sixthFlush = [{ ts: 5, key: "f" }, { ts: 6, key: "g" }];
+
+    const flushes = [
+        firstFlush,
+        secondFlush,
+        thirdFlush,
+        fourthFlush,
+        fifthFlush,
+        sixthFlush,
+        sixthFlush,
+    ];
+    source
+        .pipe(accumulator(3, 999, "sliding", "ts"))
+        .on("data", (flush: TestObject[]) => {
+            t.deepEqual(flush, flushes[chunkIndex]);
+            chunkIndex++;
+        })
+        .on("error", (e: any) => t.end)
+        .on("end", () => {
+            t.end();
+        });
+    input.forEach(item => {
+        source.push(item);
+    });
+    source.push(null);
+});
