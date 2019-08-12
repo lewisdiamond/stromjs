@@ -9,6 +9,7 @@ import {
     SerializationFormats,
     JsonValue,
     JsonParseOptions,
+    FlushStrategy,
 } from "./definitions";
 import { sleep } from "../helpers";
 
@@ -651,7 +652,16 @@ function _rollingBy<T>(
 ): (event: T, buffer: T[], stream: Transform) => void {
     return (event: T, buffer: T[], stream: Transform) => {
         if (key) {
-            if (
+            if (event[key] === undefined) {
+                stream.emit(
+                    "error",
+                    new Error(
+                        `Key is missing in event: (${key}, ${JSON.stringify(
+                            event,
+                        )})`,
+                    ),
+                );
+            } else if (
                 buffer.length > 0 &&
                 buffer[0][key] + windowLength <= event[key]
             ) {
@@ -669,12 +679,12 @@ function _rollingBy<T>(
 export function accumulator(
     batchSize: number,
     batchRate: number | undefined,
-    flushStrategy: "sliding" | "rolling",
+    flushStrategy: FlushStrategy,
     keyBy?: string,
 ): Transform {
-    if (flushStrategy === "sliding") {
+    if (flushStrategy === FlushStrategy.sliding) {
         return sliding(batchSize, batchRate, keyBy);
-    } else if (flushStrategy === "rolling") {
+    } else if (flushStrategy === FlushStrategy.rolling) {
         return rolling(batchSize, batchRate, keyBy);
     } else {
         return batch(batchSize, batchRate);
