@@ -10,6 +10,7 @@ import {
     JsonValue,
     JsonParseOptions,
     FlushStrategy,
+    AccumulatorByIteratee,
 } from "./definitions";
 import { sleep } from "../helpers";
 
@@ -622,7 +623,7 @@ function _accumulator<T>(
     });
 }
 
-function _slidingBy<T>(
+function _sliding<T>(
     windowLength: number,
     rate: number | undefined,
     key?: string,
@@ -631,7 +632,7 @@ function _slidingBy<T>(
         if (key) {
             let index = 0;
             while (
-                buffer.length > 0 &&
+                index < buffer.length &&
                 buffer[index][key] + windowLength <= event[key]
             ) {
                 index++;
@@ -645,7 +646,37 @@ function _slidingBy<T>(
     };
 }
 
-function _rollingBy<T>(
+function _slidingByFunction<T>(
+    rate: number | undefined,
+    iteratee: AccumulatorByIteratee<T>,
+): (event: T, buffer: T[], stream: Transform) => void {
+    return (event: T, buffer: T[], stream: Transform) => {
+        let index = 0;
+        while (index < buffer.length && iteratee(event, buffer[index])) {
+            index++;
+        }
+        buffer.splice(0, index);
+        buffer.push(event);
+        stream.push(buffer);
+    };
+}
+
+function _rollingByFunction<T>(
+    rate: number | undefined,
+    iteratee: AccumulatorByIteratee<T>,
+): (event: T, buffer: T[], stream: Transform) => void {
+    return (event: T, buffer: T[], stream: Transform) => {
+        if (iteratee) {
+            if (buffer.length > 0 && iteratee(event, buffer[0])) {
+                stream.push(buffer.slice(0));
+                buffer.length = 0;
+            }
+        }
+        buffer.push(event);
+    };
+}
+
+function _rolling<T>(
     windowLength: number,
     rate: number | undefined,
     key?: string,
@@ -691,13 +722,31 @@ export function accumulator(
     }
 }
 
+export function accumulatorBy<T, S extends FlushStrategy>(
+    batchRate: number | undefined,
+    flushStrategy: S,
+    iteratee: AccumulatorByIteratee<T>,
+): Transform {
+    if (flushStrategy === FlushStrategy.sliding) {
+        return slidingBy(batchRate, iteratee);
+    } else {
+        return rollingBy(batchRate, iteratee);
+    }
+}
+
 export function sliding(
     windowLength: number,
     rate: number | undefined,
     key?: string,
 ): Transform {
-    const slidingByFn = _slidingBy(windowLength, rate, key);
-    return _accumulator(slidingByFn, false);
+    return _accumulator(_sliding(windowLength, rate, key), false);
+}
+
+export function slidingBy<T>(
+    rate: number | undefined,
+    iteratee: AccumulatorByIteratee<T>,
+): Transform {
+    return _accumulator(_slidingByFunction(rate, iteratee), false);
 }
 
 export function rolling(
@@ -705,6 +754,12 @@ export function rolling(
     rate: number | undefined,
     key?: string,
 ): Transform {
-    const rollingByFn = _rollingBy(windowLength, rate, key);
-    return _accumulator(rollingByFn);
+    return _accumulator(_rolling(windowLength, rate, key));
+}
+
+export function rollingBy<T>(
+    rate: number | undefined,
+    iteratee: AccumulatorByIteratee<T>,
+): Transform {
+    return _accumulator(_rollingByFunction(rate, iteratee));
 }

@@ -8,6 +8,7 @@ import {
     WithEncoding,
     JsonParseOptions,
     FlushStrategy,
+    AccumulatorByIteratee,
 } from "./definitions";
 
 /**
@@ -259,4 +260,12 @@ export function accumulator(
         flushStrategy,
         keyBy,
     );
+}
+
+export function accumulatorBy<T, S extends FlushStrategy>(
+    batchRate: number | undefined,
+    flushStrategy: S,
+    iteratee: AccumulatorByIteratee<T>,
+) {
+    return baseFunctions.accumulatorBy(batchRate, flushStrategy, iteratee);
 }
