@@ -7,6 +7,7 @@ import {
     TransformOptions,
     WithEncoding,
     JsonParseOptions,
+    FlushStrategy,
 } from "./definitions";
 
 /**
@@ -249,7 +250,7 @@ export function parallelMap<T, R>(
 export function accumulator(
     batchSize: number,
     batchRate: number | undefined,
-    flushStrategy: "sliding" | "rolling",
+    flushStrategy: FlushStrategy,
     keyBy?: string,
 ) {
     return baseFunctions.accumulator(
