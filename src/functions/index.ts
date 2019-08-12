@@ -248,7 +248,7 @@ export function parallelMap<T, R>(
 
 export function accumulator(
     batchSize: number,
-    batchRate: number,
+    batchRate: number | undefined,
     flushStrategy: "sliding" | "rolling",
     keyBy?: string,
 ) {

@@ -603,6 +603,7 @@ export function parallelMap<T, R>(
 
 function _accumulator<T>(
     accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
+    shouldFlush: boolean = true,
 ) {
     const buffer: T[] = [];
     return new Transform({
@@ -612,7 +613,9 @@ function _accumulator<T>(
             callback();
         },
         flush(callback) {
-            this.push(buffer);
+            if (shouldFlush) {
+                this.push(buffer);
+            }
             callback();
         },
     });
@@ -620,7 +623,7 @@ function _accumulator<T>(
 
 function _slidingBy<T>(
     windowLength: number,
-    rate: number,
+    rate: number | undefined,
     key?: string,
 ): (event: T, buffer: T[], stream: Transform) => void {
     return (event: T, buffer: T[], stream: Transform) => {
@@ -643,7 +646,7 @@ function _slidingBy<T>(
 
 function _rollingBy<T>(
     windowLength: number,
-    rate: number,
+    rate: number | undefined,
     key?: string,
 ): (event: T, buffer: T[], stream: Transform) => void {
     return (event: T, buffer: T[], stream: Transform) => {
@@ -665,7 +668,7 @@ function _rollingBy<T>(
 
 export function accumulator(
     batchSize: number,
-    batchRate: number,
+    batchRate: number | undefined,
     flushStrategy: "sliding" | "rolling",
     keyBy?: string,
 ): Transform {
@@ -680,16 +683,16 @@ export function accumulator(
 
 export function sliding(
     windowLength: number,
-    rate: number,
+    rate: number | undefined,
     key?: string,
 ): Transform {
     const slidingByFn = _slidingBy(windowLength, rate, key);
-    return _accumulator(slidingByFn);
+    return _accumulator(slidingByFn, false);
 }
 
 export function rolling(
     windowLength: number,
-    rate: number,
+    rate: number | undefined,
     key?: string,
 ): Transform {
     const rollingByFn = _rollingBy(windowLength, rate, key);

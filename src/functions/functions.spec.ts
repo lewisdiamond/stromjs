@@ -1417,12 +1417,14 @@ test.cb("accumulator() rolling", t => {
     const flushes = [firstFlush, secondFlush, thirdFlush];
 
     source
-        .pipe(accumulator(2, 999, "rolling"))
+        .pipe(accumulator(2, undefined, "rolling"))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
         })
-        .on("error", (e: any) => t.end)
+        .on("error", (e: any) => {
+            t.end(e);
+        })
         .on("end", () => {
             t.end();
         });
@@ -1447,16 +1449,13 @@ test.cb("accumulator() rolling with key", t => {
         { ts: 2, key: "d" },
     ];
     const secondFlush = [{ ts: 3, key: "e" }];
+    const flushes = [firstFlush, secondFlush];
 
     source
-        .pipe(accumulator(3, 999, "rolling", "ts"))
+        .pipe(accumulator(3, undefined, "rolling", "ts"))
         .on("data", (flush: TestObject[]) => {
-            if (chunkIndex === 0) {
-                chunkIndex++;
-                t.deepEqual(flush, firstFlush);
-            } else {
-                t.deepEqual(flush, secondFlush);
-            }
+            t.deepEqual(flush, flushes[chunkIndex]);
+            chunkIndex++;
         })
         .on("error", (e: any) => t.end)
         .on("end", () => {
@@ -1469,7 +1468,7 @@ test.cb("accumulator() rolling with key", t => {
 });
 
 test.cb("accumulator() sliding", t => {
-    t.plan(5);
+    t.plan(4);
     let chunkIndex = 0;
     interface TestObject {
         ts: number;
@@ -1495,15 +1494,9 @@ test.cb("accumulator() sliding", t => {
         { ts: 4, key: "d" },
     ];
 
-    const flushes = [
-        firstFlush,
-        secondFlush,
-        thirdFlush,
-        fourthFlush,
-        fourthFlush,
-    ];
+    const flushes = [firstFlush, secondFlush, thirdFlush, fourthFlush];
     source
-        .pipe(accumulator(3, 999, "sliding"))
+        .pipe(accumulator(3, undefined, "sliding"))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -1519,7 +1512,7 @@ test.cb("accumulator() sliding", t => {
 });
 
 test.cb("accumulator() sliding with key", t => {
-    t.plan(7);
+    t.plan(6);
     let chunkIndex = 0;
     interface TestObject {
         ts: number;
@@ -1556,10 +1549,9 @@ test.cb("accumulator() sliding with key", t => {
         fourthFlush,
         fifthFlush,
         sixthFlush,
-        sixthFlush,
     ];
     source
-        .pipe(accumulator(3, 999, "sliding", "ts"))
+        .pipe(accumulator(3, undefined, "sliding", "ts"))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
