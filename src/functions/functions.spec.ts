@@ -1457,7 +1457,9 @@ test.cb("accumulator() rolling with key", t => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
         })
-        .on("error", (e: any) => t.end)
+        .on("error", (e: any) => {
+            t.end(e);
+        })
         .on("end", () => {
             t.end();
         });
@@ -1501,7 +1503,9 @@ test.cb("accumulator() sliding", t => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
         })
-        .on("error", (e: any) => t.end)
+        .on("error", (e: any) => {
+            t.end(e);
+        })
         .on("end", () => {
             t.end();
         });
@@ -1556,7 +1560,9 @@ test.cb("accumulator() sliding with key", t => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
         })
-        .on("error", (e: any) => t.end)
+        .on("error", (e: any) => {
+            t.end(e);
+        })
         .on("end", () => {
             t.end();
         });
