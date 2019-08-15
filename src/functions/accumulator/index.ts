@@ -35,6 +35,17 @@ function _sliding<T>(
     return (event: T, buffer: T[], stream: Transform) => {
         if (key) {
             let index = 0;
+            if (event[key] === undefined) {
+                stream.emit(
+                    "error",
+                    new Error(
+                        `Key is missing in event: (${key}, ${JSON.stringify(
+                            event,
+                        )})`,
+                    ),
+                );
+                return;
+            }
             while (
                 index < buffer.length &&
                 buffer[index][key] + windowLength <= event[key]
@@ -96,6 +107,7 @@ function _rolling<T>(
                         )})`,
                     ),
                 );
+                return;
             } else if (
                 buffer.length > 0 &&
                 buffer[0][key] + windowLength <= event[key]

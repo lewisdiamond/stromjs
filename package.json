@@ -22,11 +22,12 @@
         "type": "git"
     },
     "scripts": {
-        "test": "ava",
-        "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
-        "lint": "tslint -p tsconfig.json",
-        "validate:tslint": "tslint-config-prettier-check ./tslint.json",
-        "prepublishOnly": "yarn lint && yarn test && yarn tsc"
+    "test": "NODE_PATH=src node node_modules/.bin/ava 'src/**/**/*.spec.ts' -e",
+    "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.ts",
+    "test:all": "NODE_PATH=src node node_modules/.bin/ava",
+    "lint": "tslint -p tsconfig.json",
+    "validate:tslint": "tslint-config-prettier-check ./tslint.json",
+    "prepublishOnly": "yarn lint && yarn test && yarn tsc"
     },
     "dependencies": {},
     "devDependencies": {
