@@ -44,6 +44,7 @@ function _sliding<T>(
                         )})`,
                     ),
                 );
+                stream.resume();
                 return;
             }
             while (
@@ -107,6 +108,7 @@ function _rolling<T>(
                         )})`,
                     ),
                 );
+                stream.resume();
                 return;
             } else if (
                 buffer.length > 0 &&
