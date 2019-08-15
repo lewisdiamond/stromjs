@@ -1,7 +1,7 @@
 import { Transform } from "stream";
 import { performance } from "perf_hooks";
 import { sleep } from "../../helpers";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Limits date of data transferred into stream.
  * @param targetRate Desired rate in ms

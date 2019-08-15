@@ -1,6 +1,6 @@
 import { Transform } from "stream";
 import { sleep } from "../../helpers";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Limits number of parallel processes in flight.
  * @param parallel Max number of parallel processes.

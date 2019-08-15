@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { ThroughOptions } from "../definitions";
+import { ThroughOptions } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that collects streamed chunks into an array or buffer
  * @param options

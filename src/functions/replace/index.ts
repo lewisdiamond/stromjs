@@ -1,6 +1,6 @@
 import { Transform } from "stream";
 import { StringDecoder } from "string_decoder";
-import { WithEncoding } from "../definitions";
+import { WithEncoding } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that replaces occurrences of the given string or regular expression  in
  * the streamed chunks with the specified replacement string

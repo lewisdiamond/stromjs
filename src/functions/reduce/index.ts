@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that reduces streamed chunks down to a single value and yield that
  * value

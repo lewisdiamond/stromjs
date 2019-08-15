@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Stores chunks of data internally in array and batches when batchSize is reached.
  *

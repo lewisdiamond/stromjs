@@ -1,15 +1,19 @@
 import { Transform } from "stream";
 import { AccumulatorByIteratee, FlushStrategy } from "./definitions";
+import { TransformOptions } from "../baseDefinitions";
 import { batch } from "../../index";
 
 function _accumulator<T>(
     accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
     shouldFlush: boolean = true,
+    options: TransformOptions = {
+        readableObjectMode: true,
+        writableObjectMode: true,
+    },
 ) {
     const buffer: T[] = [];
     return new Transform({
-        readableObjectMode: true,
-        writableObjectMode: true,
+        ...options,
         transform(data: any, encoding, callback) {
             try {
                 accumulateBy(data, buffer, this);

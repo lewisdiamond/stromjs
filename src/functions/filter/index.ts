@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { ThroughOptions } from "../definitions";
+import { ThroughOptions } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that filters out streamed chunks for which the predicate does not hold
  * @param predicate Predicate with which to filter scream chunks

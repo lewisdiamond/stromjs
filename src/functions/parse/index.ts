@@ -1,6 +1,6 @@
 import { Transform } from "stream";
 import { StringDecoder } from "string_decoder";
-import { SerializationFormats } from "../definitions";
+import { SerializationFormats } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that parses the streamed chunks as JSON. Each streamed chunk
  * must be a fully defined JSON string.

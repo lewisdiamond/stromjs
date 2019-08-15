@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { JsonValue, JsonParseOptions } from "../definitions";
+import { JsonValue, JsonParseOptions } from "../baseDefinitions";
 
 /**
  * Return a ReadWrite stream that stringifies the streamed chunks to JSON

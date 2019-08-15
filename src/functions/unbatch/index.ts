@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Unbatches and sends individual chunks of data
  */

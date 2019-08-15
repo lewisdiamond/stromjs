@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { TransformOptions } from "../definitions";
+import { TransformOptions } from "../baseDefinitions";
 /**
  * Return a ReadWrite stream that flat maps streamed chunks
  * @param mapper Mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
