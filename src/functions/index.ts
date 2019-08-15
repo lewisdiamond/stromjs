@@ -1,6 +1,6 @@
-import { Readable, Writable } from "stream";
+import { Readable, Writable, Transform } from "stream";
 import { ChildProcess } from "child_process";
-import * as baseFunctions from "./functions";
+import * as baseFunctions from "./baseFunctions";
 
 import {
     ThroughOptions,
@@ -29,7 +29,7 @@ export function fromArray(array: any[]): NodeJS.ReadableStream {
 export function map<T, R>(
     mapper: (chunk: T, encoding?: string) => R,
     options?: TransformOptions,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.map(mapper, options);
 }
 
@@ -207,10 +207,7 @@ export function last<T>(readable: Readable): Promise<T | null> {
  * @param batchSize Size of the batches, defaults to 1000.
  * @param maxBatchAge? Max lifetime of a batch, defaults to 500
  */
-export function batch(
-    batchSize: number,
-    maxBatchAge?: number,
-): NodeJS.ReadWriteStream {
+export function batch(batchSize: number, maxBatchAge?: number): Transform {
     return baseFunctions.batch(batchSize, maxBatchAge);
 }
 

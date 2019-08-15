@@ -1,0 +1,33 @@
+import { Transform } from "stream";
+import { StringDecoder } from "string_decoder";
+import { WithEncoding } from "../definitions";
+/**
+ * Return a ReadWrite stream that replaces occurrences of the given string or regular expression  in
+ * the streamed chunks with the specified replacement string
+ * @param searchValue Search string to use
+ * @param replaceValue Replacement string to use
+ * @param options
+ * @param options.encoding Encoding written chunks are assumed to use
+ */
+export function replace(
+    searchValue: string | RegExp,
+    replaceValue: string,
+    options: WithEncoding = { encoding: "utf8" },
+): NodeJS.ReadWriteStream {
+    const decoder = new StringDecoder(options.encoding);
+    return new Transform({
+        readableObjectMode: true,
+        transform(chunk: Buffer, encoding, callback) {
+            const asString = decoder.write(chunk);
+            // Take care not to break up multi-byte characters spanning multiple chunks
+            if (asString !== "" || chunk.length === 0) {
+                callback(
+                    undefined,
+                    asString.replace(searchValue, replaceValue),
+                );
+            } else {
+                callback();
+            }
+        },
+    });
+}
