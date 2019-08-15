@@ -15,6 +15,7 @@ export { parallelMap } from "./parallelMap";
 export { parse } from "./parse";
 export { rate } from "./rate";
 export { reduce } from "./reduce";
+export { replace } from "./replace";
 export { split } from "./split";
 export { stringify } from "./stringify";
 export { unbatch } from "./unbatch";
