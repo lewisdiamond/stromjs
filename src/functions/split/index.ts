@@ -10,7 +10,7 @@ import { WithEncoding } from "../baseDefinitions";
 export function split(
     separator: string | RegExp = "\n",
     options: WithEncoding = { encoding: "utf8" },
-): NodeJS.ReadWriteStream {
+): Transform {
     let buffered = "";
     const decoder = new StringDecoder(options.encoding);
 

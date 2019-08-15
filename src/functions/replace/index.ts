@@ -13,7 +13,7 @@ export function replace(
     searchValue: string | RegExp,
     replaceValue: string,
     options: WithEncoding = { encoding: "utf8" },
-): NodeJS.ReadWriteStream {
+): Transform {
     const decoder = new StringDecoder(options.encoding);
     return new Transform({
         readableObjectMode: true,

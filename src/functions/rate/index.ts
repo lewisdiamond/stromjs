@@ -14,11 +14,12 @@ export function rate(
         readableObjectMode: true,
         writableObjectMode: true,
     },
-) {
+): Transform {
     const deltaMS = ((1 / targetRate) * 1000) / period; // Skip half a period
     let total = 0;
     const start = performance.now();
     return new Transform({
+        ...options,
         async transform(data, encoding, callback) {
             const currentRate = (total / (performance.now() - start)) * 1000;
             if (targetRate && currentRate > targetRate) {

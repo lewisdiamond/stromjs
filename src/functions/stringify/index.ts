@@ -6,7 +6,7 @@ import { JsonValue, JsonParseOptions } from "../baseDefinitions";
  */
 export function stringify(
     options: JsonParseOptions = { pretty: false },
-): NodeJS.ReadWriteStream {
+): Transform {
     return new Transform({
         readableObjectMode: true,
         writableObjectMode: true,

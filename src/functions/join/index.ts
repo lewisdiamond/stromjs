@@ -10,7 +10,7 @@ import { WithEncoding } from "../baseDefinitions";
 export function join(
     separator: string,
     options: WithEncoding = { encoding: "utf8" },
-): NodeJS.ReadWriteStream {
+): Transform {
     let isFirstChunk = true;
     const decoder = new StringDecoder(options.encoding);
     return new Transform({

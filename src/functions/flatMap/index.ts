@@ -15,7 +15,7 @@ export function flatMap<T, R>(
         readableObjectMode: true,
         writableObjectMode: true,
     },
-): NodeJS.ReadWriteStream {
+): Transform {
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {

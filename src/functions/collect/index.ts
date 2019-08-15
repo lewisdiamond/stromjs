@@ -7,7 +7,7 @@ import { ThroughOptions } from "../baseDefinitions";
  */
 export function collect(
     options: ThroughOptions = { objectMode: false },
-): NodeJS.ReadWriteStream {
+): Transform {
     const collected: any[] = [];
     return new Transform({
         readableObjectMode: options.objectMode,

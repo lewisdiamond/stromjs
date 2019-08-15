@@ -1,4 +1,4 @@
-import { Readable, Writable, Transform } from "stream";
+import { Readable, Writable, Transform, Duplex } from "stream";
 import { ChildProcess } from "child_process";
 import * as baseFunctions from "./baseFunctions";
 
@@ -7,15 +7,18 @@ import {
     TransformOptions,
     WithEncoding,
     JsonParseOptions,
+} from "./baseDefinitions";
+
+import {
     FlushStrategy,
     AccumulatorByIteratee,
-} from "./definitions";
+} from "./accumulator/definitions";
 
 /**
  * Convert an array into a Readable stream of its elements
  * @param array Array of elements to stream
  */
-export function fromArray(array: any[]): NodeJS.ReadableStream {
+export function fromArray(array: any[]): Readable {
     return baseFunctions.fromArray(array);
 }
 
@@ -45,7 +48,7 @@ export function flatMap<T, R>(
         | ((chunk: T, encoding: string) => R[])
         | ((chunk: T, encoding: string) => Promise<R[]>),
     options?: TransformOptions,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.flatMap(mapper, options);
 }
 
@@ -60,7 +63,7 @@ export function filter<T>(
         | ((chunk: T, encoding: string) => boolean)
         | ((chunk: T, encoding: string) => Promise<boolean>),
     options?: ThroughOptions,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.filter(mapper, options);
 }
 
@@ -79,7 +82,7 @@ export function reduce<T, R>(
         | ((previousValue: R, chunk: T, encoding: string) => Promise<R>),
     initialValue: R,
     options?: TransformOptions,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.reduce(iteratee, initialValue, options);
 }
 
@@ -92,7 +95,7 @@ export function reduce<T, R>(
 export function split(
     separator?: string | RegExp,
     options?: WithEncoding,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.split(separator, options);
 }
 
@@ -102,10 +105,7 @@ export function split(
  * @param options? Defaults to encoding: utf8
  * @param options.encoding? Encoding written chunks are assumed to use
  */
-export function join(
-    separator: string,
-    options?: WithEncoding,
-): NodeJS.ReadWriteStream {
+export function join(separator: string, options?: WithEncoding): Transform {
     return baseFunctions.join(separator, options);
 }
 
@@ -121,7 +121,7 @@ export function replace(
     searchValue: string | RegExp,
     replaceValue: string,
     options?: WithEncoding,
-): NodeJS.ReadWriteStream {
+): Transform {
     return baseFunctions.replace(searchValue, replaceValue, options);
 }
 
@@ -129,7 +129,7 @@ export function replace(
  * Return a ReadWrite stream that parses the streamed chunks as JSON. Each streamed chunk
  * must be a fully defined JSON string in utf8.
  */
-export function parse(): NodeJS.ReadWriteStream {
+export function parse(): Transform {
     return baseFunctions.parse();
 }
 
@@ -139,7 +139,7 @@ export function parse(): NodeJS.ReadWriteStream {
  * @param options.pretty If true, whitespace is inserted into the stringified chunks.
  *
  */
-export function stringify(options?: JsonParseOptions): NodeJS.ReadWriteStream {
+export function stringify(options?: JsonParseOptions): Transform {
     return baseFunctions.stringify(options);
 }
 
@@ -148,7 +148,7 @@ export function stringify(options?: JsonParseOptions): NodeJS.ReadWriteStream {
  * @param options?
  * @param options.objectMode? Whether this stream should behave as a stream of objects
  */
-export function collect(options?: ThroughOptions): NodeJS.ReadWriteStream {
+export function collect(options?: ThroughOptions): Transform {
     return baseFunctions.collect(options);
 }
 
@@ -156,9 +156,7 @@ export function collect(options?: ThroughOptions): NodeJS.ReadWriteStream {
  * Return a Readable stream of readable streams concatenated together
  * @param streams Readable streams to concatenate
  */
-export function concat(
-    ...streams: NodeJS.ReadableStream[]
-): NodeJS.ReadableStream {
+export function concat(...streams: Readable[]): Readable {
     return baseFunctions.concat(...streams);
 }
 
@@ -166,9 +164,7 @@ export function concat(
  * Return a Readable stream of readable streams concatenated together
  * @param streams Readable streams to merge
  */
-export function merge(
-    ...streams: NodeJS.ReadableStream[]
-): NodeJS.ReadableStream {
+export function merge(...streams: Readable[]): Readable {
     return baseFunctions.merge(...streams);
 }
 
@@ -178,10 +174,7 @@ export function merge(
  * @param writable Writable stream assumed to cause the readable stream to yield chunks when written to
  * @param readable Readable stream assumed to yield chunks when the writable stream is written to
  */
-export function duplex(
-    writable: Writable,
-    readable: Readable,
-): NodeJS.ReadWriteStream {
+export function duplex(writable: Writable, readable: Readable): Duplex {
     return baseFunctions.duplex(writable, readable);
 }
 
@@ -189,7 +182,7 @@ export function duplex(
  * Return a Duplex stream from a child process' stdin and stdout
  * @param childProcess Child process from which to create duplex stream
  */
-export function child(childProcess: ChildProcess): NodeJS.ReadWriteStream {
+export function child(childProcess: ChildProcess): Duplex {
     return baseFunctions.child(childProcess);
 }
 
@@ -214,7 +207,7 @@ export function batch(batchSize: number, maxBatchAge?: number): Transform {
 /**
  * Unbatches and sends individual chunks of data
  */
-export function unbatch(): NodeJS.ReadWriteStream {
+export function unbatch(): Transform {
     return baseFunctions.unbatch();
 }
 
@@ -224,10 +217,7 @@ export function unbatch(): NodeJS.ReadWriteStream {
  * @param targetRate? Desired rate in ms
  * @param period? Period to sleep for when rate is above or equal to targetRate
  */
-export function rate(
-    targetRate?: number,
-    period?: number,
-): NodeJS.ReadWriteStream {
+export function rate(targetRate?: number, period?: number): Transform {
     return baseFunctions.rate(targetRate, period);
 }
 

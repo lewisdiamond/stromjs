@@ -1,11 +1,14 @@
-import { Duplex, Writable, Readable } from "stream";
+import { Duplex } from "stream";
 /**
  * Return a Duplex stream from a writable stream that is assumed to somehow, when written to,
  * cause the given readable stream to yield chunks
  * @param writable Writable stream assumed to cause the readable stream to yield chunks when written to
  * @param readable Readable stream assumed to yield chunks when the writable stream is written to
  */
-export function duplex(writable: Writable, readable: Readable) {
+export function duplex(
+    writable: NodeJS.WritableStream,
+    readable: NodeJS.ReadableStream,
+) {
     const wrapper = new Duplex({
         readableObjectMode: true,
         writableObjectMode: true,

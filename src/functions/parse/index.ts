@@ -8,7 +8,7 @@ import { SerializationFormats } from "../baseDefinitions";
  */
 export function parse(
     format: SerializationFormats = SerializationFormats.utf8,
-): NodeJS.ReadWriteStream {
+): Transform {
     const decoder = new StringDecoder(format);
     return new Transform({
         readableObjectMode: true,

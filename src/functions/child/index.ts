@@ -1,3 +1,5 @@
+import { ChildProcess } from "child_process";
+import { duplex } from "../baseFunctions";
 /**
  * Return a Duplex stream from a child process' stdin and stdout
  * @param childProcess Child process from which to create duplex stream
