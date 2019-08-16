@@ -7,12 +7,9 @@ import {
     TransformOptions,
     WithEncoding,
     JsonParseOptions,
-} from "./baseDefinitions";
-
-import {
     FlushStrategy,
     AccumulatorByIteratee,
-} from "./accumulator/definitions";
+} from "./baseDefinitions";
 
 /**
  * Convert an array into a Readable stream of its elements

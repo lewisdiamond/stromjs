@@ -22,7 +22,7 @@
         "type": "git"
     },
     "scripts": {
-    "test": "NODE_PATH=src node node_modules/.bin/ava 'src/**/**/*.spec.ts' -e",
+    "test": "NODE_PATH=src node node_modules/.bin/ava 'tests/*.spec.ts' -e",
     "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.ts",
     "test:all": "NODE_PATH=src node node_modules/.bin/ava",
     "lint": "tslint -p tsconfig.json",
@@ -45,7 +45,7 @@
     },
     "ava": {
         "files": [
-            "src/**/*.spec.ts"
+            "tests/*.spec.ts"
         ],
         "sources": [
             "src/**/*.ts"

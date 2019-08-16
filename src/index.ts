@@ -20,4 +20,5 @@ export {
     rate,
     parallelMap,
     accumulator,
+    accumulatorBy,
 } from "./functions";

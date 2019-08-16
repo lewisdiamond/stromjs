@@ -21,3 +21,9 @@ export type JsonValue = JsonPrimitive | JsonPrimitive[];
 export interface JsonParseOptions {
     pretty: boolean;
 }
+export enum FlushStrategy {
+    rolling = "rolling",
+    sliding = "sliding",
+}
+
+export type AccumulatorByIteratee<T> = (event: T, bufferChunk: T) => boolean;
