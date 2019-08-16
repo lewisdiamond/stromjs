@@ -11,8 +11,7 @@ test.cb("batch() batches chunks together", t => {
     source
         .pipe(batch(3))
         .on("data", (element: string[]) => {
-            expect(element).to.deep.equal(expectedElements[i]);
-            t.pass();
+            t.deepEqual(element, expectedElements[i]);
             i++;
         })
         .on("error", t.end)
@@ -39,8 +38,7 @@ test.cb("batch() yields a batch after the timeout", t => {
     source
         .pipe(batch(3))
         .on("data", (element: string[]) => {
-            expect(element).to.deep.equal(expectedElements[i]);
-            t.pass();
+            t.deepEqual(element, expectedElements[i]);
             i++;
         })
         .on("error", t.fail)

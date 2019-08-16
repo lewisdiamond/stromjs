@@ -26,9 +26,7 @@ test.cb("accumulator() rolling", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     [...firstFlush, ...secondFlush, ...thirdFlush].forEach(item => {
         source.push(item);
     });
@@ -61,9 +59,7 @@ test.cb("accumulator() rolling with key", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     [...firstFlush, ...secondFlush].forEach(item => {
         source.push(item);
     });
@@ -105,9 +101,7 @@ test.cb(
                 index++;
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
         input.forEach(item => {
             source.push(item);
         });
@@ -162,9 +156,7 @@ test.cb(
                 );
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
         input.forEach(item => {
             source.push(item);
         });
@@ -209,9 +201,7 @@ test.cb("accumulator() sliding", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     input.forEach(item => {
         source.push(item);
     });
@@ -266,9 +256,7 @@ test.cb("accumulator() sliding with key", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     input.forEach(item => {
         source.push(item);
     });
@@ -309,9 +297,7 @@ test.cb(
                 index++;
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
         input.forEach(item => {
             source.push(item);
         });
@@ -372,9 +358,7 @@ test.cb(
                 );
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
         input.forEach(item => {
             source.push(item);
         });
@@ -416,9 +400,7 @@ test.cb("accumulatorBy() rolling", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     [...firstFlush, ...secondFlush].forEach(item => {
         source.push(item);
     });
@@ -457,9 +439,7 @@ test.cb(
                 expect(err.message).to.equal("Failed mapping");
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
 
         input.forEach(item => {
             source.push(item);
@@ -524,9 +504,7 @@ test.cb("accumulatorBy() sliding", t => {
         .on("error", (e: any) => {
             t.end(e);
         })
-        .on("end", () => {
-            t.end();
-        });
+        .on("end", t.end);
     input.forEach(item => {
         source.push(item);
     });
@@ -565,9 +543,7 @@ test.cb(
                 expect(err.message).to.equal("Failed mapping");
                 t.pass();
             })
-            .on("end", () => {
-                t.end();
-            });
+            .on("end", t.end);
 
         input.forEach(item => {
             source.push(item);

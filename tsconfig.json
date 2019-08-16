@@ -9,15 +9,11 @@
     "suppressImplicitAnyIndexErrors": true,
     "outDir": "./dist",
     "module": "commonjs"
-    },
-    "target": "es5",
-    "lib": [
-      "es2016"
-    ],
-    "sourceMap": true,
-    "declaration": true
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "target": "es5",
+  "lib": [
+    "es2016"
+  ],
+  "sourceMap": true,
+  "declaration": true
 }

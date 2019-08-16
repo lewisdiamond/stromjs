@@ -202,17 +202,17 @@ export function batch(batchSize: number, maxBatchAge?: number): Transform {
 }
 
 /**
- * Unbatches and sends individual chunks of data
+ * Unbatches and sends individual chunks of data.
  */
 export function unbatch(): Transform {
     return baseFunctions.unbatch();
 }
 
 /**
- * Limits date of data transferred into stream.
+ * Limits rate of data transferred into stream.
  * @param options?
- * @param targetRate? Desired rate in ms
- * @param period? Period to sleep for when rate is above or equal to targetRate
+ * @param targetRate? Desired rate in ms.
+ * @param period? Period to sleep for when rate is above or equal to targetRate.
  */
 export function rate(targetRate?: number, period?: number): Transform {
     return baseFunctions.rate(targetRate, period);
@@ -221,7 +221,7 @@ export function rate(targetRate?: number, period?: number): Transform {
 /**
  * Limits number of parallel processes in flight.
  * @param parallel Max number of parallel processes.
- * @param func Function to execute on each data chunk
+ * @param func Function to execute on each data chunk.
  * @param pause Amount of time to pause processing when max number of parallel processes are executing.
  */
 export function parallelMap<T, R>(
@@ -232,6 +232,26 @@ export function parallelMap<T, R>(
     return baseFunctions.parallelMap(mapper, parallel, sleepTime);
 }
 
+/**
+ * Accummulates and sends batches of data. Each chunk that flows into the stream is checked against items
+ * in the buffer. How the buffer is mutated is based on 1 of 2 possible buffering strategies:
+ * 	1. Sliding
+ * 		- If the buffer is larger than the batchSize, the front of the buffer is popped to maintain
+ * 		the batchSize. When no key is provided, the batchSize is effectively the buffer length. When
+ * 		a key is provided, the batchSize is based on the value at that key. For example, given a key
+ * 		of `timestamp` and a batchSize of 3000, each item in the buffer will be guaranteed to be
+ * 		within 3000 timestamp units from the first element. This means that with a key, multiple elements
+ * 		may be spliced off the front of the buffer. The buffer is then pushed into the stream.
+ * 	2. Rolling
+ * 		- If the buffer is larger than the batchSize, the buffer is cleared and pushed into the stream.
+ * 		When no key is provided, the batchSize is the buffer length. When a key is provided, the batchSize
+ * 		is based on the value at that key. For example, given a key of `timestamp` and a batchSize of 3000,
+ * 		each item in the buffer will be guaranteed to be within 3000 timestamp units from the first element.
+ * @param batchSize Size of the batch (in units of buffer length or value at key).
+ * @param batchRate Desired rate of data transfer to next stream.
+ * @param flushStrategy Buffering strategy to use.
+ * @param keyBy Key to determine if element fits into buffer or items need to be cleared from buffer.
+ */
 export function accumulator(
     batchSize: number,
     batchRate: number | undefined,
@@ -246,6 +266,20 @@ export function accumulator(
     );
 }
 
+/**
+ * Accummulates and sends batches of data. Each chunk that flows into the stream is checked against items
+ * in the buffer. How the buffer is mutated is based on 1 of 2 possible buffering strategies:
+ * 	1. Sliding
+ * 		- If the iteratee returns false, the front of the buffer is popped until iteratee returns true. The
+ * 		item is pushed into the buffer and buffer is pushed into stream.
+ * 	2. Rolling
+ * 		- If the iteratee returns false, the buffer is cleared and pushed into stream. The item is
+ * 		then pushed into the buffer.
+ * @param batchRate Desired rate of data transfer to next stream.
+ * @param flushStrategy Buffering strategy to use.
+ * @param iteratee Function applied to buffer when a chunk of data enters stream to determine if element fits into
+ * or items need to be cleared from buffer.
+ */
 export function accumulatorBy<T, S extends FlushStrategy>(
     batchRate: number | undefined,
     flushStrategy: S,
