@@ -9,13 +9,13 @@ import { TransformOptions } from "./baseDefinitions";
  */
 export function rate(
     targetRate: number = 50,
-    period: number = 2,
+    period: number = 1,
     options: TransformOptions = {
         readableObjectMode: true,
         writableObjectMode: true,
     },
 ): Transform {
-    const deltaMS = ((1 / targetRate) * 1000) / period; // Skip half a period
+    const deltaMS = ((1 / targetRate) * 1000) / period; // Skip a full period
     let total = 0;
     const start = performance.now();
     return new Transform({

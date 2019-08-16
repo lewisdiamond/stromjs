@@ -19,7 +19,7 @@ test.cb("rate() sends data at desired rate", t => {
     let k = 0;
 
     sourceFast
-        .pipe(rate(fastRate, 1))
+        .pipe(rate(fastRate))
         .on("data", (element: string[]) => {
             const currentRate = (i / (performance.now() - start)) * 1000;
             expect(element).to.deep.equal(expectedElements[i]);
@@ -30,7 +30,7 @@ test.cb("rate() sends data at desired rate", t => {
         .on("error", t.end);
 
     sourceMed
-        .pipe(rate(medRate, 1))
+        .pipe(rate(medRate))
         .on("data", (element: string[]) => {
             const currentRate = (j / (performance.now() - start)) * 1000;
             expect(element).to.deep.equal(expectedElements[j]);
@@ -41,7 +41,7 @@ test.cb("rate() sends data at desired rate", t => {
         .on("error", t.end);
 
     sourceSlow
-        .pipe(rate(slowRate, 1))
+        .pipe(rate(slowRate))
         .on("data", (element: string[]) => {
             const currentRate = (k / (performance.now() - start)) * 1000;
             expect(element).to.deep.equal(expectedElements[k]);
