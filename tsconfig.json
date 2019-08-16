@@ -8,12 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "suppressImplicitAnyIndexErrors": true,
     "outDir": "./dist",
-    "module": "commonjs",
-    "baseUrl": ".",
-    "paths": {
-      "src/*": [
-        "src/*"
-      ]
+    "module": "commonjs"
     },
     "target": "es5",
     "lib": [
