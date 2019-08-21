@@ -1,4 +1,4 @@
-import { Readable, Writable, Transform, Duplex } from "stream";
+import { Readable, Writable, WritableOptions, Transform, Duplex } from "stream";
 import { ChildProcess } from "child_process";
 import * as baseFunctions from "./baseFunctions";
 
@@ -286,4 +286,14 @@ export function accumulatorBy<T, S extends FlushStrategy>(
     iteratee: AccumulatorByIteratee<T>,
 ) {
     return baseFunctions.accumulatorBy(batchRate, flushStrategy, iteratee);
+}
+
+export function compose(
+    streams: Array<Writable | Transform>,
+    options?: WritableOptions,
+) {
+    return baseFunctions.compose(
+        streams,
+        options,
+    );
 }

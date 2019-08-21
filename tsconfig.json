@@ -15,5 +15,7 @@
     "es2016"
   ],
   "sourceMap": true,
-  "declaration": true
+  "declaration": true,
+  "include": ["src/**/*"],
+  "exclude": ["tests", "node_modules"]
 }

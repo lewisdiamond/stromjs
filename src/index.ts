@@ -21,4 +21,5 @@ export {
     parallelMap,
     accumulator,
     accumulatorBy,
+    compose,
 } from "./functions";

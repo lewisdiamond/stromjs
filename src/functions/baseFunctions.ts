@@ -19,3 +19,4 @@ export { replace } from "./replace";
 export { split } from "./split";
 export { stringify } from "./stringify";
 export { unbatch } from "./unbatch";
+export { compose } from "./compose";
