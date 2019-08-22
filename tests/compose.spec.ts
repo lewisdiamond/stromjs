@@ -1,54 +1,68 @@
 const test = require("ava");
+const { expect } = require("chai");
 const { compose, composeDuplex, map } = require("../src");
 
-test.cb("compose()", t => {
-    const first = map((chunk: number) => chunk + "x");
-    const second = map((chunk: number) => chunk + "y");
+test.cb("compose() chains two streams together in the correct order", t => {
+    t.plan(3);
+    let i = 0;
+    const first = map((chunk: number) => chunk + 1);
+    const second = map((chunk: number) => chunk * 2);
 
     const composed = compose(
         [first, second],
         { objectMode: true },
     );
-    const third = map((chunk: number) => chunk + "z");
-    composed
-        .pipe(third)
-        .on("data", data => console.log("Piped composed: ", data));
 
     composed.on("data", data => {
-        console.log("data on composed", data);
+        expect(data).to.equal(result[i]);
+        t.pass();
+        i++;
+        if (i === 3) {
+            t.end();
+        }
+    });
+    composed.on("error", err => {
+        t.end(err);
+    });
+    composed.on("end", () => {
         t.end();
     });
-    composed.on("error", data => {
-        console.log("ERROR", data);
-    });
-    composed.on("end", data => {
-        console.log("end", data);
-    });
 
-    composed.write(1);
-    composed.write(2);
+    const input = [1, 2, 3];
+    const result = [4, 6, 8];
+
+    input.forEach(item => composed.write(item));
 });
-test.cb.only("composeDuplex()", t => {
-    const first = map((chunk: number) => chunk + "x");
-    const second = map((chunk: number) => chunk + "y");
 
-    const composed = composeDuplex([first, second], { objectMode: true });
-    const third = map((chunk: number) => chunk + "z");
-    // composed
-    // .pipe(third)
-    // .on("data", data => console.log("Piped composed: ", data));
+test.cb(
+    "compose() followed by pipe chains streams together in the correct order",
+    t => {
+        t.plan(3);
+        let i = 0;
+        const first = map((chunk: number) => chunk + 1);
+        const second = map((chunk: number) => chunk * 2);
 
-    composed.on("data", data => {
-        console.log("data on composed", data);
-        t.end();
-    });
-    composed.on("error", data => {
-        console.log("ERROR", data);
-    });
-    composed.on("end", data => {
-        console.log("end", data);
-    });
+        const composed = compose(
+            [first, second],
+            { objectMode: true },
+        );
+        const third = map((chunk: number) => chunk + 1);
+        composed.pipe(third).on("data", data => {
+            expect(data).to.equal(result[i]);
+            t.pass();
+            i++;
+            if (i === 3) {
+                t.end();
+            }
+        });
 
-    composed.write(1);
-    composed.write(2);
-});
+        composed.on("error", err => {
+            t.end(err);
+        });
+
+        const input = [1, 2, 3];
+        const result = [5, 7, 9];
+
+        input.forEach(item => composed.write(item));
+    },
+);

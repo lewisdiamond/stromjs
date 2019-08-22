@@ -297,9 +297,3 @@ export function compose(
         options,
     );
 }
-export function composeDuplex(
-    streams: Array<Writable | Transform>,
-    options?: WritableOptions,
-) {
-    return baseFunctions.composeDuplex(streams, options);
-}

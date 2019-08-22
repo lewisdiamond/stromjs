@@ -22,5 +22,4 @@ export {
     accumulator,
     accumulatorBy,
     compose,
-    composeDuplex,
 } from "./functions";
