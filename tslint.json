@@ -9,6 +9,7 @@
         "no-implicit-dependencies": [true, "dev"],
         "prettier": [true, ".prettierrc"],
         "ordered-imports": false,
-        "interface-name": false
+        "interface-name": false,
+	"object-literal-sort-keys": false
     }
 }

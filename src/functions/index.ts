@@ -297,3 +297,13 @@ export function compose(
         options,
     );
 }
+
+export function demux(
+    construct: (
+        destKey?: string,
+    ) => NodeJS.WritableStream | NodeJS.ReadWriteStream,
+    demuxer: { key?: string; keyBy?: (chunk: any) => string },
+    options?: DuplexOptions,
+) {
+    return baseFunctions.demux(construct, demuxer, options);
+}
