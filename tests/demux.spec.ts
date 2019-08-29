@@ -26,14 +26,10 @@ test.cb("should spread per key", t => {
     const sink = new Writable({
         objectMode: true,
         write(chunk, enc, cb) {
-            i++;
             expect(results).to.deep.include(chunk);
             expect(input).to.not.deep.include(chunk);
             t.pass();
             cb();
-            if (i === 4) {
-                t.end();
-            }
         },
     });
     const construct = (destKey: string) => {
@@ -53,6 +49,7 @@ test.cb("should spread per key", t => {
     demuxed.on("finish", () => {
         expect(destinationStreamKeys).to.deep.equal(["a", "b", "c"]);
         t.pass();
+        t.end();
     });
 
     input.forEach(event => demuxed.write(event));
@@ -74,18 +71,13 @@ test.cb("should spread per key using keyBy", t => {
         { key: "c", val: 5 },
     ];
     const destinationStreamKeys = [];
-    let i = 0;
     const sink = new Writable({
         objectMode: true,
         write(chunk, enc, cb) {
-            i++;
             expect(results).to.deep.include(chunk);
             expect(input).to.not.deep.include(chunk);
             t.pass();
             cb();
-            if (i === 4) {
-                t.end();
-            }
         },
     });
     const construct = (destKey: string) => {
@@ -109,6 +101,7 @@ test.cb("should spread per key using keyBy", t => {
     demuxed.on("finish", () => {
         expect(destinationStreamKeys).to.deep.equal(["a", "b", "c"]);
         t.pass();
+        t.end();
     });
 
     input.forEach(event => demuxed.write(event));
