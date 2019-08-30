@@ -14,6 +14,7 @@ export function map<T, R>(
         writableObjectMode: true,
     },
 ): Transform {
+    // remove try catch
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
@@ -22,6 +23,7 @@ export function map<T, R>(
                 this.push(mapped);
                 callback();
             } catch (err) {
+                console.log("caught error", err.message);
                 callback(err);
             }
         },
