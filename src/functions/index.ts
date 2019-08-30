@@ -288,12 +288,4 @@ export function accumulatorBy<T, S extends FlushStrategy>(
     return baseFunctions.accumulatorBy(batchRate, flushStrategy, iteratee);
 }
 
-export function compose(
-    streams: Array<Writable | Transform>,
-    options?: DuplexOptions,
-) {
-    return baseFunctions.compose(
-        streams,
-        options,
-    );
-}
+export const compose = baseFunctions.compose;
