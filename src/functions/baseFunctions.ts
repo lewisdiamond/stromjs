@@ -20,3 +20,4 @@ export { split } from "./split";
 export { stringify } from "./stringify";
 export { unbatch } from "./unbatch";
 export { compose } from "./compose";
+export { demux } from "./demux";

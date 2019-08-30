@@ -74,8 +74,10 @@ export class Compose extends Duplex {
         return (this.last as NodeJS.ReadableStream).pipe(dest);
     }
 
-    public write(chunk: any) {
-        return (this.first as NodeJS.WritableStream).write(chunk);
+    public _write(chunk: any, encoding: string, cb: any) {
+        const res = (this.first as NodeJS.WritableStream).write(chunk);
+        cb();
+        return res;
     }
 
     public bubble(...events: string[]) {

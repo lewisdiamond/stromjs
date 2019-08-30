@@ -22,4 +22,5 @@ export {
     accumulator,
     accumulatorBy,
     compose,
+    demux,
 } from "./functions";

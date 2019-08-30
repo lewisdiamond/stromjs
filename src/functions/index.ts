@@ -289,3 +289,13 @@ export function accumulatorBy<T, S extends FlushStrategy>(
 }
 
 export const compose = baseFunctions.compose;
+
+export function demux(
+    construct: (
+        destKey?: string,
+    ) => NodeJS.WritableStream | NodeJS.ReadWriteStream,
+    demuxer: { key?: string; keyBy?: (chunk: any) => string },
+    options?: DuplexOptions,
+) {
+    return baseFunctions.demux(construct, demuxer, options);
+}
