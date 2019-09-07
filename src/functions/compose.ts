@@ -1,11 +1,4 @@
-import {
-    pipeline,
-    Duplex,
-    Transform,
-    Readable,
-    Writable,
-    DuplexOptions,
-} from "stream";
+import { pipeline, Duplex, DuplexOptions } from "stream";
 
 /**
  * Return a Readable stream of readable streams concatenated together
@@ -39,7 +32,7 @@ enum EventSubscription {
 const eventsTarget = {
     close: EventSubscription.Last,
     data: EventSubscription.Last,
-    drain: EventSubscription.First,
+    drain: EventSubscription.Self,
     end: EventSubscription.Last,
     error: EventSubscription.Self,
     finish: EventSubscription.Last,
@@ -56,6 +49,7 @@ type AllStreams =
     | NodeJS.WritableStream;
 
 export class Compose extends Duplex {
+    public writable: boolean;
     private first: AllStreams;
     private last: AllStreams;
     private streams: AllStreams[];
@@ -75,9 +69,7 @@ export class Compose extends Duplex {
     }
 
     public _write(chunk: any, encoding: string, cb: any) {
-        const res = (this.first as NodeJS.WritableStream).write(chunk);
-        cb();
-        return res;
+        (this.first as NodeJS.WritableStream).write(chunk, encoding, cb);
     }
 
     public bubble(...events: string[]) {

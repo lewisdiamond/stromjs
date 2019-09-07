@@ -1,5 +1,4 @@
-import { Transform } from "stream";
-import { ThroughOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 /**
  * Return a ReadWrite stream that filters out streamed chunks for which the predicate does not hold
  * @param predicate Predicate with which to filter scream chunks
@@ -10,20 +9,17 @@ export function filter<T>(
     predicate:
         | ((chunk: T, encoding: string) => boolean)
         | ((chunk: T, encoding: string) => Promise<boolean>),
-    options: ThroughOptions = {
-        objectMode: true,
-    },
+    options?: TransformOptions,
 ) {
     return new Transform({
-        readableObjectMode: options.objectMode,
-        writableObjectMode: options.objectMode,
-        async transform(chunk: T, encoding, callback) {
+        ...options,
+        async transform(chunk: T, encoding?: any, callback?: any) {
             let isPromise = false;
             try {
                 const result = predicate(chunk, encoding);
                 isPromise = result instanceof Promise;
                 if (!!(await result)) {
-                    callback(undefined, chunk);
+                    callback(null, chunk);
                 } else {
                     callback();
                 }

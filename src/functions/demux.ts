@@ -14,6 +14,7 @@ export function demux(
 }
 
 class Demux extends Writable {
+    public isWritable: boolean;
     private streamsByKey: {
         [key: string]: {
             stream: NodeJS.WritableStream | NodeJS.ReadWriteStream;
@@ -21,7 +22,6 @@ class Demux extends Writable {
         };
     };
     private demuxer: (chunk: any) => string;
-    private isWritable: boolean;
     private nonWritableStreams: Array<string>;
     private construct: (
         destKey?: string,
@@ -43,9 +43,10 @@ class Demux extends Writable {
         this.construct = construct;
         this.streamsByKey = {};
         this.isWritable = true;
+        this.nonWritableStreams = [];
     }
 
-    public _write(chunk: any, encoding: string, cb: any) {
+    public _write(chunk: any, encoding?: any, cb?: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
             this.streamsByKey[destKey] = {
@@ -57,35 +58,22 @@ class Demux extends Writable {
         // Set writable to false
         // keep state of all the streams, if one is not writable demux shouldnt be writable
         // Small optimization is to keep writing until you get a following event to the unwritable destination
-
         let res = false;
-        if (this.isWritable && this.streamsByKey[destKey].writable) {
+        if (this.streamsByKey[destKey].writable && this.isWritable) {
             res = this.streamsByKey[destKey].stream.write(chunk, encoding, cb);
-        } else if (this.isWritable) {
-            this.isWritable = false;
-            // Buffer chunk?
-            return this.isWritable;
         }
-
-        /* If write above returns false and the stream written to was writable previously, we need to make demux
-         * non-writable and update state to know the stream is nonWritable.
-         * If write returns true and the stream was previously not writable, we need to update which streams
-         * are non writable and determine if it is safe for demux to become writable (all streams are writable)
-         */
-        if (!res) {
+        if (!res && this.isWritable) {
+            this.isWritable = false;
             this.streamsByKey[destKey].writable = false;
             this.nonWritableStreams.push(destKey);
-            this.isWritable = false;
             this.streamsByKey[destKey].stream.once("drain", () => {
-                this.streamsByKey[destKey].writable = true;
-                this.nonWritableStreams = this.nonWritableStreams.filter(
-                    key => key !== destKey,
-                );
-
+                this.nonWritableStreams.filter(key => key !== destKey);
                 this.isWritable = this.nonWritableStreams.length === 0;
+                this.streamsByKey[destKey].stream.write(chunk, encoding, cb);
+                if (this.isWritable) {
+                    this.emit("drain");
+                }
             });
         }
-
-        return this.writable;
     }
 }

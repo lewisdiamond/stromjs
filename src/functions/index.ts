@@ -59,7 +59,7 @@ export function filter<T>(
     mapper:
         | ((chunk: T, encoding: string) => boolean)
         | ((chunk: T, encoding: string) => Promise<boolean>),
-    options?: ThroughOptions,
+    options?: TransformOptions,
 ): Transform {
     return baseFunctions.filter(mapper, options);
 }

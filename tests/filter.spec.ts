@@ -9,7 +9,12 @@ test.cb("filter() filters elements synchronously", t => {
     const expectedElements = ["a", "c"];
     let i = 0;
     source
-        .pipe(filter((element: string) => element !== "b"))
+        .pipe(
+            filter((element: string) => element !== "b", {
+                readableObjectMode: true,
+                writableObjectMode: true,
+            }),
+        )
         .on("data", (element: string) => {
             expect(element).to.equal(expectedElements[i]);
             t.pass();
@@ -31,10 +36,13 @@ test.cb("filter() filters elements asynchronously", t => {
     let i = 0;
     source
         .pipe(
-            filter(async (element: string) => {
-                await Promise.resolve();
-                return element !== "b";
-            }),
+            filter(
+                async (element: string) => {
+                    await Promise.resolve();
+                    return element !== "b";
+                },
+                { readableObjectMode: true, writableObjectMode: true },
+            ),
         )
         .on("data", (element: string) => {
             expect(element).to.equal(expectedElements[i]);
@@ -55,12 +63,15 @@ test.cb("filter() emits errors during synchronous filtering", t => {
     const source = new Readable({ objectMode: true });
     source
         .pipe(
-            filter((element: string) => {
-                if (element !== "a") {
-                    throw new Error("Failed filtering");
-                }
-                return true;
-            }),
+            filter(
+                (element: string) => {
+                    if (element !== "a") {
+                        throw new Error("Failed filtering");
+                    }
+                    return true;
+                },
+                { readableObjectMode: true, writableObjectMode: true },
+            ),
         )
         .resume()
         .on("error", err => {
@@ -80,13 +91,16 @@ test.cb("filter() emits errors during asynchronous filtering", t => {
     const source = new Readable({ objectMode: true });
     source
         .pipe(
-            filter(async (element: string) => {
-                await Promise.resolve();
-                if (element !== "a") {
-                    throw new Error("Failed filtering");
-                }
-                return true;
-            }),
+            filter(
+                async (element: string) => {
+                    await Promise.resolve();
+                    if (element !== "a") {
+                        throw new Error("Failed filtering");
+                    }
+                    return true;
+                },
+                { readableObjectMode: true, writableObjectMode: true },
+            ),
         )
         .resume()
         .on("error", err => {

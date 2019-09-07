@@ -20,8 +20,7 @@ export function map<T, R>(
         async transform(chunk: T, encoding, callback) {
             try {
                 const mapped = await mapper(chunk, encoding);
-                this.push(mapped);
-                callback();
+                callback(null, mapped);
             } catch (err) {
                 console.log("caught error", err.message);
                 callback(err);
