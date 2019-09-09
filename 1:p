@@ -438,8 +438,8 @@ test.cb(
     },
 );
 
-test("demux() should only emit drain event when all streams are writable", t => {
-    t.plan(1);
+test.only("demux() should only emit drain event when all streams are writable", t => {
+    t.plan(3);
     const highWaterMark = 2;
     interface Chunk {
         key: string;
@@ -449,12 +449,10 @@ test("demux() should only emit drain event when all streams are writable", t => 
         const sink = new Writable({
             objectMode: true,
             write(chunk, encoding, cb) {
+                t.pass();
                 cb();
+                console.log(chunk);
                 pendingReads--;
-                if (chunk.key === "b") {
-                    expect(performance.now() - start).to.be.greaterThan(150);
-                    t.pass();
-                }
                 if (pendingReads === 0) {
                     resolve();
                 }
@@ -471,7 +469,7 @@ test("demux() should only emit drain event when all streams are writable", t => 
 
             const second = map(
                 async (chunk: Chunk) => {
-                    await sleep(50);
+                    await sleep(25);
                     chunk.mapped.push(2);
                     return chunk;
                 },
@@ -493,11 +491,15 @@ test("demux() should only emit drain event when all streams are writable", t => 
             reject();
         });
 
+        _demux.on("drain", () => {
+            expect(_demux._writableState.length).to.be.equal(0);
+            expect(performance.now() - start).to.be.lessThan(50);
+            t.pass();
+        });
+
         const input = [
             { key: "a", mapped: [] },
             { key: "a", mapped: [] },
-            { key: "c", mapped: [] },
-            { key: "c", mapped: [] },
             { key: "b", mapped: [] }, // should only be recieved after a becomes writable
         ];
 
@@ -506,7 +508,8 @@ test("demux() should only emit drain event when all streams are writable", t => 
         for (const item of input) {
             const res = _demux.write(item);
             if (!res) {
-                await sleep(50);
+                await sleep(100);
+                start = performance.now();
             }
         }
     });

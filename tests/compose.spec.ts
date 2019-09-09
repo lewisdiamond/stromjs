@@ -219,10 +219,10 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
 
         const input = [
             { key: "a", mapped: [] },
-            { key: "b", mapped: [] },
-            { key: "c", mapped: [] },
-            { key: "d", mapped: [] },
-            { key: "e", mapped: [] },
+            { key: "a", mapped: [] },
+            { key: "a", mapped: [] },
+            { key: "a", mapped: [] },
+            { key: "a", mapped: [] },
         ];
 
         let start = performance.now();
