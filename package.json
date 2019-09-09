@@ -22,21 +22,23 @@
         "type": "git"
     },
     "scripts": {
-    "test": "NODE_PATH=src node node_modules/.bin/ava 'tests/*.spec.ts' -e",
-    "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
-    "test:all": "NODE_PATH=src node node_modules/.bin/ava",
-    "lint": "tslint -p tsconfig.json",
-    "validate:tslint": "tslint-config-prettier-check ./tslint.json",
-    "prepublishOnly": "yarn lint && yarn test && yarn tsc"
+        "test": "NODE_PATH=src node node_modules/.bin/ava 'tests/*.spec.ts' -e",
+        "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
+        "test:all": "NODE_PATH=src node node_modules/.bin/ava",
+        "lint": "tslint -p tsconfig.json",
+        "validate:tslint": "tslint-config-prettier-check ./tslint.json",
+        "prepublishOnly": "yarn lint && yarn test && yarn tsc"
     },
     "dependencies": {},
     "devDependencies": {
         "@types/chai": "^4.1.7",
         "@types/node": "^12.7.2",
+        "@types/sinon": "^7.0.13",
         "ava": "^1.0.0-rc.2",
         "chai": "^4.2.0",
         "mhysa": "./",
         "prettier": "^1.14.3",
+        "sinon": "^7.4.2",
         "ts-node": "^8.3.0",
         "tslint": "^5.11.0",
         "tslint-config-prettier": "^1.16.0",

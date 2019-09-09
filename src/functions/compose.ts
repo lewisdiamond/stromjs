@@ -29,6 +29,7 @@ enum EventSubscription {
     All,
     Self,
 }
+
 const eventsTarget = {
     close: EventSubscription.Last,
     data: EventSubscription.Last,

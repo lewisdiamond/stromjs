@@ -1,6 +1,6 @@
 const test = require("ava");
 const { expect } = require("chai");
-const { compose, composeDuplex, map, rate } = require("../src");
+const { compose, map } = require("../src");
 const { sleep } = require("../src/helpers");
 import { performance } from "perf_hooks";
 
@@ -308,12 +308,12 @@ test.cb(
     t => {
         t.plan(6);
         interface Chunk {
-            index: number;
-            mapped: string[];
+            key: string;
+            mapped: number[];
         }
         const first = map(
             async (chunk: Chunk) => {
-                chunk.mapped.push("first");
+                chunk.mapped.push(1);
                 return chunk;
             },
             {
@@ -324,9 +324,10 @@ test.cb(
         const second = map(
             async (chunk: Chunk) => {
                 pendingReads--;
-                await sleep(500);
+                await sleep(200);
+                expect(second._writableState.length).to.be.equal(1);
                 expect(first._readableState.length).to.equal(pendingReads);
-                chunk.mapped.push("second");
+                chunk.mapped.push(2);
                 return chunk;
             },
             { objectMode: true, highWaterMark: 1 },
@@ -342,27 +343,25 @@ test.cb(
 
         composed.on("drain", () => {
             expect(composed._writableState.length).to.be.equal(0);
-            expect(performance.now() - start).to.be.lessThan(100);
+            expect(performance.now() - start).to.be.lessThan(50);
             t.pass();
         });
 
         composed.on("data", (chunk: Chunk) => {
             // Since second is bottleneck, composed will write into first immediately. Buffer should be empty.
             expect(composed._writableState.length).to.be.equal(0);
-            expect(chunk.mapped.length).to.equal(2);
-            expect(chunk.mapped).to.deep.equal(["first", "second"]);
             t.pass();
-            if (chunk.index === 5) {
+            if (chunk.key === "e") {
                 t.end();
             }
         });
 
         const input = [
-            { index: 1, mapped: [] },
-            { index: 2, mapped: [] },
-            { index: 3, mapped: [] },
-            { index: 4, mapped: [] },
-            { index: 5, mapped: [] },
+            { key: "a", mapped: [] },
+            { key: "b", mapped: [] },
+            { key: "c", mapped: [] },
+            { key: "d", mapped: [] },
+            { key: "e", mapped: [] },
         ];
         let pendingReads = input.length;
 
