@@ -118,4 +118,23 @@ class Demux extends Writable {
         }
         return this;
     }
+    public once(event: string, cb: any) {
+        switch (eventsTarget[event]) {
+            case EventSubscription.Self:
+                super.once(event, cb);
+                break;
+            case EventSubscription.All:
+                Object.keys(this.streamsByKey).forEach(key =>
+                    this.streamsByKey[key].stream.once(event, cb),
+                );
+                break;
+            case EventSubscription.Unhandled:
+                throw new Error(
+                    "Stream must be multiplexed before handling this event",
+                );
+            default:
+                super.once(event, cb);
+        }
+        return this;
+    }
 }

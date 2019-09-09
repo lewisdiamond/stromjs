@@ -10,6 +10,7 @@ interface Test {
     key: string;
     visited: number[];
 }
+
 test.cb("demux() constructor should be called once per key", t => {
     t.plan(1);
     const input = [
@@ -502,7 +503,7 @@ test("demux() should only emit drain event when all streams are writable", t => 
         ];
 
         let pendingReads = input.length;
-        let start = performance.now();
+        const start = performance.now();
         for (const item of input) {
             const res = _demux.write(item);
             if (!res) {
@@ -511,6 +512,7 @@ test("demux() should only emit drain event when all streams are writable", t => 
         }
     });
 });
+
 test("demux() should emit drain event and first should contain up to highWaterMark items in readable state when second is bottleneck", t => {
     t.plan(6);
     const highWaterMark = 5;
