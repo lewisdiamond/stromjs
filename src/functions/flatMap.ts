@@ -1,12 +1,6 @@
 import { Transform } from "stream";
 import { TransformOptions } from "./baseDefinitions";
-/**
- * Return a ReadWrite stream that flat maps streamed chunks
- * @param mapper Mapper function, mapping each (chunk, encoding) to an array of new chunks (or a promise of such)
- * @param options
- * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
- * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
- */
+
 export function flatMap<T, R>(
     mapper:
         | ((chunk: T, encoding: string) => R[])

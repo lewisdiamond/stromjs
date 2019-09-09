@@ -1,8 +1,6 @@
 import { Transform } from "stream";
 import { TransformOptions } from "./baseDefinitions";
-/**
- * Unbatches and sends individual chunks of data
- */
+
 export function unbatch(
     options: TransformOptions = {
         readableObjectMode: true,

@@ -1,8 +1,5 @@
 import { Readable } from "stream";
-/**
- * Return a Readable stream of readable streams concatenated together
- * @param streams Readable streams to concatenate
- */
+
 export function concat(...streams: NodeJS.ReadableStream[]): Readable {
     let isStarted = false;
     let currentStreamIndex = 0;

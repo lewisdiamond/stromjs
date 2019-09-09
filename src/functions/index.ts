@@ -1,13 +1,5 @@
-import { Readable, Writable, Transform, Duplex } from "stream";
-import { ChildProcess } from "child_process";
+import { Transform } from "stream";
 import * as baseFunctions from "./baseFunctions";
-
-import {
-    ThroughOptions,
-    TransformOptions,
-    WithEncoding,
-    JsonParseOptions,
-} from "./baseDefinitions";
 
 /**
  * Convert an array into a Readable stream of its elements
@@ -206,7 +198,7 @@ export const accumulatorBy = baseFunctions.accumulatorBy;
  * Composes multiple streams together. Writing occurs on first stream, piping occurs from last stream.
  * @param streams Array of streams to compose. Minimum of two.
  * @param options Transform stream options
- **/
+ */
 export const compose = baseFunctions.compose;
 
 /**
@@ -216,5 +208,5 @@ export const compose = baseFunctions.compose;
  * @param demuxBy.key? Key to fetch value from source chunks to demultiplex source.
  * @param demuxBy.keyBy? Function to fetch value from source chunks to demultiplex source.
  * @param options Writable stream options
- **/
+ */
 export const demux = baseFunctions.demux;

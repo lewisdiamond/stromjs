@@ -1,14 +1,6 @@
 import { Transform } from "stream";
 import { TransformOptions } from "./baseDefinitions";
-/**
- * Return a ReadWrite stream that reduces streamed chunks down to a single value and yield that
- * value
- * @param iteratee Reducer function to apply on each streamed chunk
- * @param initialValue Initial value
- * @param options
- * @param options.readableObjectMode Whether this stream should behave as a readable stream of objects
- * @param options.writableObjectMode Whether this stream should behave as a writable stream of objects
- */
+
 export function reduce<T, R>(
     iteratee:
         | ((previousValue: R, chunk: T, encoding: string) => R)

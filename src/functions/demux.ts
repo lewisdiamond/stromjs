@@ -22,11 +22,6 @@ const eventsTarget = {
     unpipe: EventSubscription.Unhandled,
 };
 
-/**
- * Return a Duplex stream that is pushed data from multiple sources
- * @param streams Source streams to multiplex
- * @param options Duplex stream options
- */
 export function demux(
     construct: () => NodeJS.WritableStream | NodeJS.ReadWriteStream,
     demuxBy: { key?: string; keyBy?: (chunk: any) => string },

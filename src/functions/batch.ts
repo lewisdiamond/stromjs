@@ -1,11 +1,6 @@
 import { Transform } from "stream";
 import { TransformOptions } from "./baseDefinitions";
-/**
- * Stores chunks of data internally in array and batches when batchSize is reached.
- *
- * @param batchSize Size of the batches
- * @param maxBatchAge Max lifetime of a batch in seconds
- */
+
 export function batch(
     batchSize: number = 1000,
     maxBatchAge: number = 500,

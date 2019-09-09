@@ -1,8 +1,5 @@
 import { Readable } from "stream";
-/**
- * Return a Readable stream of readable streams merged together in chunk arrival order
- * @param streams Readable streams to merge
- */
+
 export function merge(...streams: Readable[]): Readable {
     let isStarted = false;
     let streamEndedCount = 0;

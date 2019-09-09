@@ -1,10 +1,6 @@
 import { Transform } from "stream";
 import { ThroughOptions } from "./baseDefinitions";
-/**
- * Return a ReadWrite stream that collects streamed chunks into an array or buffer
- * @param options
- * @param options.objectMode Whether this stream should behave as a stream of objects
- */
+
 export function collect(
     options: ThroughOptions = { objectMode: false },
 ): Transform {

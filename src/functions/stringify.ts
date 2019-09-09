@@ -1,9 +1,6 @@
 import { Transform } from "stream";
 import { JsonValue, JsonParseOptions } from "./baseDefinitions";
 
-/**
- * Return a ReadWrite stream that stringifies the streamed chunks to JSON
- */
 export function stringify(
     options: JsonParseOptions = { pretty: false },
 ): Transform {

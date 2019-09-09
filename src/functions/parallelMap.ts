@@ -1,12 +1,7 @@
 import { Transform } from "stream";
 import { sleep } from "../helpers";
 import { TransformOptions } from "./baseDefinitions";
-/**
- * Limits number of parallel processes in flight.
- * @param parallel Max number of parallel processes.
- * @param func Function to execute on each data chunk
- * @param pause Amount of time to pause processing when max number of parallel processes are executing.
- */
+
 export function parallelMap<T, R>(
     mapper: (data: T) => R,
     parallel: number = 10,

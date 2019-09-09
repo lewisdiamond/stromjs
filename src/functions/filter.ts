@@ -1,10 +1,5 @@
 import { Transform, TransformOptions } from "stream";
-/**
- * Return a ReadWrite stream that filters out streamed chunks for which the predicate does not hold
- * @param predicate Predicate with which to filter scream chunks
- * @param options
- * @param options.objectMode Whether this stream should behave as a stream of objects
- */
+
 export function filter<T>(
     predicate:
         | ((chunk: T, encoding: string) => boolean)

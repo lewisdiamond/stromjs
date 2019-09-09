@@ -1,9 +1,5 @@
 import { pipeline, Duplex, DuplexOptions } from "stream";
 
-/**
- * Return a Readable stream of readable streams concatenated together
- * @param streams Readable streams to concatenate
- */
 export function compose(
     streams: Array<
         NodeJS.ReadableStream | NodeJS.ReadWriteStream | NodeJS.WritableStream
