@@ -118,6 +118,7 @@ class Demux extends Writable {
         }
         return this;
     }
+
     public once(event: string, cb: any) {
         switch (eventsTarget[event]) {
             case EventSubscription.Self:

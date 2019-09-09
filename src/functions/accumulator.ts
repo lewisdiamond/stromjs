@@ -17,7 +17,7 @@ function _accumulator<T>(
     const buffer: T[] = [];
     return new Transform({
         ...options,
-        transform(data: any, encoding, callback) {
+        transform(data: T, encoding, callback) {
             try {
                 accumulateBy(data, buffer, this);
                 callback();
