@@ -4,23 +4,17 @@ import { pipeline, Duplex, DuplexOptions } from "stream";
  * Return a Readable stream of readable streams concatenated together
  * @param streams Readable streams to concatenate
  */
-// First Readable --> Readable
-// First Transform | Duplex, Last Writable --> Writable
-//
 export function compose(
     streams: Array<
         NodeJS.ReadableStream | NodeJS.ReadWriteStream | NodeJS.WritableStream
     >,
     options?: DuplexOptions,
 ): Compose {
-    // Maybe just return a new stream here
     if (streams.length < 2) {
         throw new Error("At least two streams are required to compose");
     }
 
-    const composed = new Compose(streams, options);
-
-    return composed;
+    return new Compose(streams, options);
 }
 
 enum EventSubscription {
@@ -94,6 +88,23 @@ export class Compose extends Duplex {
                 break;
             default:
                 super.on(event, cb);
+        }
+        return this;
+    }
+
+    public once(event: string, cb: any) {
+        switch (eventsTarget[event]) {
+            case EventSubscription.First:
+                this.first.once(event, cb);
+                break;
+            case EventSubscription.Last:
+                this.last.once(event, cb);
+                break;
+            case EventSubscription.All:
+                this.streams.forEach(s => s.once(event, cb));
+                break;
+            default:
+                super.once(event, cb);
         }
         return this;
     }

@@ -57,9 +57,7 @@ class Demux extends Writable {
     ) {
         super(options);
         if (demuxBy.keyBy === undefined && demuxBy.key === undefined) {
-            throw new Error(
-                "keyBy or key must be provided in second parameter",
-            );
+            throw new Error("keyBy or key must be provided in second argument");
         }
         this.demuxer = demuxBy.keyBy || ((chunk: any) => chunk[demuxBy.key!]);
         this.construct = construct;
@@ -68,6 +66,7 @@ class Demux extends Writable {
         this.nonWritableStreams = [];
     }
 
+    // Throttles when one stream is not writable
     public _write(chunk: any, encoding?: any, cb?: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
@@ -76,10 +75,6 @@ class Demux extends Writable {
                 writable: true,
             };
         }
-        // Throttle when one stream is not writable anymore
-        // Set writable to false
-        // keep state of all the streams, if one is not writable demux shouldnt be writable
-        // Small optimization is to keep writing until you get a following event to the unwritable destination
         let res = false;
         if (this.streamsByKey[destKey].writable && this.isWritable) {
             res = this.streamsByKey[destKey].stream.write(chunk, encoding, cb);

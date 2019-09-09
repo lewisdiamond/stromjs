@@ -212,7 +212,8 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
         });
 
         composed.on("data", (chunk: Chunk) => {
-            if (chunk.key === "e") {
+            pendingReads--;
+            if (pendingReads === 0) {
                 resolve();
             }
         });
@@ -226,6 +227,7 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
         ];
 
         let start = performance.now();
+        let pendingReads = input.length;
         for (const item of input) {
             const res = composed.write(item);
             expect(composed._writableState.length).to.be.at.most(2);

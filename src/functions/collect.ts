@@ -10,8 +10,7 @@ export function collect(
 ): Transform {
     const collected: any[] = [];
     return new Transform({
-        readableObjectMode: options.objectMode,
-        writableObjectMode: options.objectMode,
+        ...options,
         transform(data, encoding, callback) {
             collected.push(data);
             callback();
