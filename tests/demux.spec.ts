@@ -44,6 +44,49 @@ test.cb("demux() constructor should be called once per key", t => {
     demuxed.end();
 });
 
+test.cb("demux() should send input through correct pipeline", t => {
+    t.plan(6);
+    const input = [
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+        { key: "a", visited: [] },
+        { key: "c", visited: [] },
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+    ];
+    const pipelineSpies = {};
+    const construct = (destKey: string) => {
+        const mapper = sinon.spy((chunk: Test) => {
+            return { ...chunk, visited: [1] };
+        });
+        const dest = map(mapper);
+        pipelineSpies[destKey] = mapper;
+
+        return dest;
+    };
+
+    const demuxed = demux(construct, { key: "key" }, { objectMode: true });
+
+    demuxed.on("finish", () => {
+        pipelineSpies["a"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("a");
+            t.pass();
+        });
+        pipelineSpies["b"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("b");
+            t.pass();
+        });
+        pipelineSpies["c"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("c");
+            t.pass();
+        });
+        t.end();
+    });
+
+    input.forEach(event => demuxed.write(event));
+    demuxed.end();
+});
+
 test.cb("demux() constructor should be called once per key using keyBy", t => {
     t.plan(1);
     const input = [
@@ -75,6 +118,53 @@ test.cb("demux() constructor should be called once per key using keyBy", t => {
         expect(construct.withArgs("b").callCount).to.equal(1);
         expect(construct.withArgs("c").callCount).to.equal(1);
         t.pass();
+        t.end();
+    });
+
+    input.forEach(event => demuxed.write(event));
+    demuxed.end();
+});
+
+test.cb("demux() should send input through correct pipeline using keyBy", t => {
+    t.plan(6);
+    const input = [
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+        { key: "a", visited: [] },
+        { key: "c", visited: [] },
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+    ];
+    const pipelineSpies = {};
+    const construct = (destKey: string) => {
+        const mapper = sinon.spy((chunk: Test) => {
+            return { ...chunk, visited: [1] };
+        });
+        const dest = map(mapper);
+        pipelineSpies[destKey] = mapper;
+
+        return dest;
+    };
+
+    const demuxed = demux(
+        construct,
+        { keyBy: item => item.key },
+        { objectMode: true },
+    );
+
+    demuxed.on("finish", () => {
+        pipelineSpies["a"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("a");
+            t.pass();
+        });
+        pipelineSpies["b"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("b");
+            t.pass();
+        });
+        pipelineSpies["c"].getCalls().forEach(call => {
+            expect(call.args[0].key).to.equal("c");
+            t.pass();
+        });
         t.end();
     });
 
@@ -367,6 +457,7 @@ test.cb(
     t => {
         t.plan(6);
         const highWaterMark = 5;
+        const _rate = 200;
         interface Chunk {
             key: string;
             mapped: number[];
@@ -393,7 +484,7 @@ test.cb(
             const second = map(
                 async (chunk: Chunk) => {
                     pendingReads--;
-                    await sleep(200);
+                    await sleep(_rate);
                     chunk.mapped.push(2);
                     expect(second._writableState.length).to.be.equal(1);
                     expect(first._readableState.length).to.equal(pendingReads);
@@ -419,7 +510,7 @@ test.cb(
 
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
-            expect(performance.now() - start).to.be.lessThan(50);
+            expect(performance.now() - start).to.be.lessThan(_rate);
             t.pass();
         });
 

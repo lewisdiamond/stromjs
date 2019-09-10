@@ -16,7 +16,6 @@ export function map<T, R>(
                 const mapped = await mapper(chunk, encoding);
                 callback(null, mapped);
             } catch (err) {
-                console.log("caught error", err.message);
                 callback(err);
             }
         },

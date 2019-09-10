@@ -40,7 +40,6 @@ type AllStreams =
     | NodeJS.WritableStream;
 
 export class Compose extends Duplex {
-    public writable: boolean;
     private first: AllStreams;
     private last: AllStreams;
     private streams: AllStreams[];
