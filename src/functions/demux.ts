@@ -62,7 +62,7 @@ class Demux extends Writable {
     }
 
     // Throttles when one stream is not writable
-    public _write(chunk: any, encoding?: any, cb?: any) {
+    public async _write(chunk: any, encoding: any, cb: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
             this.streamsByKey[destKey] = {
@@ -70,21 +70,12 @@ class Demux extends Writable {
                 writable: true,
             };
         }
-        let res = false;
-        if (this.streamsByKey[destKey].writable && this.isWritable) {
-            res = this.streamsByKey[destKey].stream.write(chunk, encoding, cb);
-        }
-        if (!res && this.isWritable) {
-            this.isWritable = false;
-            this.streamsByKey[destKey].writable = false;
-            this.nonWritableStreams.push(destKey);
-            this.streamsByKey[destKey].stream.once("drain", () => {
-                this.nonWritableStreams.filter(key => key !== destKey);
-                this.isWritable = this.nonWritableStreams.length === 0;
-                this.streamsByKey[destKey].stream.write(chunk, encoding, cb);
-                if (this.isWritable) {
+        if (!this.streamsByKey[destKey].stream.write(chunk, encoding, cb)) {
+            await new Promise((resolve, reject) => {
+                this.streamsByKey[destKey].stream.once("drain", () => {
+                    resolve();
                     this.emit("drain");
-                }
+                });
             });
         }
     }
