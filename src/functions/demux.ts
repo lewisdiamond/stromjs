@@ -31,15 +31,10 @@ export function demux(
 }
 
 class Demux extends Writable {
-    public isWritable: boolean;
     private streamsByKey: {
-        [key: string]: {
-            stream: NodeJS.WritableStream | NodeJS.ReadWriteStream;
-            writable: boolean;
-        };
+        [key: string]: NodeJS.WritableStream | NodeJS.ReadWriteStream;
     };
     private demuxer: (chunk: any) => string;
-    private nonWritableStreams: Array<string>;
     private construct: (
         destKey?: string,
     ) => NodeJS.WritableStream | NodeJS.ReadWriteStream;
@@ -57,26 +52,19 @@ class Demux extends Writable {
         this.demuxer = demuxBy.keyBy || ((chunk: any) => chunk[demuxBy.key!]);
         this.construct = construct;
         this.streamsByKey = {};
-        this.isWritable = true;
-        this.nonWritableStreams = [];
     }
 
-    // Throttles when one stream is not writable
     public async _write(chunk: any, encoding: any, cb: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
-            this.streamsByKey[destKey] = {
-                stream: this.construct(destKey),
-                writable: true,
-            };
+            this.streamsByKey[destKey] = this.construct(destKey);
         }
-        if (!this.streamsByKey[destKey].stream.write(chunk, encoding, cb)) {
-            await new Promise((resolve, reject) => {
-                this.streamsByKey[destKey].stream.once("drain", () => {
-                    resolve();
-                    this.emit("drain");
-                });
+        if (!this.streamsByKey[destKey].write(chunk, encoding)) {
+            this.streamsByKey[destKey].once("drain", () => {
+                cb();
             });
+        } else {
+            cb();
         }
     }
 
@@ -87,7 +75,7 @@ class Demux extends Writable {
                 break;
             case EventSubscription.All:
                 Object.keys(this.streamsByKey).forEach(key =>
-                    this.streamsByKey[key].stream.on(event, cb),
+                    this.streamsByKey[key].on(event, cb),
                 );
                 break;
             case EventSubscription.Unhandled:
@@ -107,7 +95,7 @@ class Demux extends Writable {
                 break;
             case EventSubscription.All:
                 Object.keys(this.streamsByKey).forEach(key =>
-                    this.streamsByKey[key].stream.once(event, cb),
+                    this.streamsByKey[key].once(event, cb),
                 );
                 break;
             case EventSubscription.Unhandled:

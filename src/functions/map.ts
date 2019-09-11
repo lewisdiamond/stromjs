@@ -12,12 +12,7 @@ export function map<T, R>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
-            try {
-                const mapped = await mapper(chunk, encoding);
-                callback(null, mapped);
-            } catch (err) {
-                callback(err);
-            }
+            callback(null, await mapper(chunk, encoding));
         },
     });
 }
