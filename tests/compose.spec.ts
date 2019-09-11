@@ -332,7 +332,6 @@ test.cb(
                 expect(second._writableState.length).to.be.equal(1);
                 expect(first._readableState.length).to.equal(pendingReads);
                 chunk.mapped.push(2);
-                console.log("returning chunk from second map", chunk);
                 return chunk;
             },
             { objectMode: true, highWaterMark: 1 },
@@ -343,7 +342,6 @@ test.cb(
             { objectMode: true, highWaterMark: 5 },
         );
         composed.on("error", err => {
-            console.log("ending tests and got error", err);
             t.end(err);
         });
 
@@ -353,9 +351,7 @@ test.cb(
             t.pass();
         });
 
-        // Check if this is causing double cb
         composed.on("data", (chunk: Chunk) => {
-            // Since second is bottleneck, composed will write into first immediately. Buffer should be empty.
             expect(composed._writableState.length).to.be.equal(0);
             t.pass();
             if (chunk.key === "e") {
