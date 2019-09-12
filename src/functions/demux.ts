@@ -58,21 +58,7 @@ class Demux extends Writable {
             this.streamsByKey[destKey] = this.construct(destKey);
         }
         if (!this.streamsByKey[destKey].write(chunk, encoding)) {
-            console.log(
-                "waiting drain",
-                chunk,
-                this._writableState.length,
-                this.streamsByKey[destKey]._writableState.length,
-                this.streamsByKey[destKey]._readableState.length,
-            );
             this.streamsByKey[destKey].once("drain", () => {
-                console.log(
-                    "calling cb after drain",
-                    chunk,
-                    this._writableState.length,
-                    this.streamsByKey[destKey]._writableState.length,
-                    this.streamsByKey[destKey]._readableState.length,
-                );
                 cb();
             });
         } else {
