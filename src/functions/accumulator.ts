@@ -4,11 +4,10 @@ import {
     FlushStrategy,
     TransformOptions,
 } from "./baseDefinitions";
-import { batch, rate as _rate } from ".";
+import { batch } from ".";
 
 function _accumulator<T>(
     accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
-    rate?: number,
     shouldFlush: boolean = true,
     options: TransformOptions = {
         readableObjectMode: true,
@@ -16,7 +15,7 @@ function _accumulator<T>(
     },
 ) {
     const buffer: T[] = [];
-    const stream = new Transform({
+    return new Transform({
         ...options,
         transform(data: T, encoding, callback) {
             accumulateBy(data, buffer, this);
@@ -29,10 +28,6 @@ function _accumulator<T>(
             callback();
         },
     });
-    if (rate) {
-        stream.pipe(_rate(rate));
-    }
-    return stream;
 }
 
 function _sliding<T>(
@@ -133,7 +128,7 @@ export function accumulator(
     flushStrategy: FlushStrategy,
     batchSize: number,
     keyBy?: string,
-    options: TransformOptions & { rate?: number } = {
+    options: TransformOptions = {
         readableObjectMode: true,
         writableObjectMode: true,
     },
@@ -143,14 +138,14 @@ export function accumulator(
     } else if (flushStrategy === FlushStrategy.rolling) {
         return rolling(batchSize, keyBy, options);
     } else {
-        return batch(batchSize, options.rate);
+        return batch(batchSize);
     }
 }
 
 export function accumulatorBy<T, S extends FlushStrategy>(
     flushStrategy: S,
     iteratee: AccumulatorByIteratee<T>,
-    options: TransformOptions & { rate?: number } = {
+    options: TransformOptions = {
         readableObjectMode: true,
         writableObjectMode: true,
     },
@@ -165,49 +160,29 @@ export function accumulatorBy<T, S extends FlushStrategy>(
 function sliding(
     windowLength: number,
     key?: string,
-    options?: TransformOptions & { rate?: number },
+    options?: TransformOptions,
 ): Transform {
-    return _accumulator(
-        _sliding(windowLength, key),
-        options && options.rate,
-        false,
-        options,
-    );
+    return _accumulator(_sliding(windowLength, key), false, options);
 }
 
 function slidingBy<T>(
     iteratee: AccumulatorByIteratee<T>,
-    options?: TransformOptions & { rate?: number },
+    options?: TransformOptions,
 ): Transform {
-    return _accumulator(
-        _slidingByFunction(iteratee),
-        options && options.rate,
-        false,
-        options,
-    );
+    return _accumulator(_slidingByFunction(iteratee), false, options);
 }
 
 function rolling(
     windowLength: number,
     key?: string,
-    options?: TransformOptions & { rate?: number },
+    options?: TransformOptions,
 ): Transform {
-    return _accumulator(
-        _rolling(windowLength, key),
-        options && options.rate,
-        true,
-        options,
-    );
+    return _accumulator(_rolling(windowLength, key), true, options);
 }
 
 function rollingBy<T>(
     iteratee: AccumulatorByIteratee<T>,
-    options?: TransformOptions & { rate?: number },
+    options?: TransformOptions,
 ): Transform {
-    return _accumulator(
-        _rollingByFunction(iteratee),
-        options && options.rate,
-        true,
-        options,
-    );
+    return _accumulator(_rollingByFunction(iteratee), true, options);
 }
