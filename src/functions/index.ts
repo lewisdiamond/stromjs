@@ -171,10 +171,11 @@ export const parallelMap = baseFunctions.parallelMap;
  * 		When no key is provided, the batchSize is the buffer length. When a key is provided, the batchSize
  * 		is based on the value at that key. For example, given a key of `timestamp` and a batchSize of 3000,
  * 		each item in the buffer will be guaranteed to be within 3000 timestamp units from the first element.
+ * @param flushStrategy Buffering strategy to use.
  * @param batchSize Size of the batch (in units of buffer length or value at key).
  * @param batchRate Desired rate of data transfer to next stream.
- * @param flushStrategy Buffering strategy to use.
  * @param keyBy Key to determine if element fits into buffer or items need to be cleared from buffer.
+ * @param options Transform stream options
  */
 export const accumulator = baseFunctions.accumulator;
 
@@ -187,10 +188,11 @@ export const accumulator = baseFunctions.accumulator;
  * 	2. Rolling
  * 		- If the iteratee returns false, the buffer is cleared and pushed into stream. The item is
  * 		then pushed into the buffer.
- * @param batchRate Desired rate of data transfer to next stream.
  * @param flushStrategy Buffering strategy to use.
  * @param iteratee Function applied to buffer when a chunk of data enters stream to determine if element fits into
  * or items need to be cleared from buffer.
+ * @param batchRate Desired rate of data transfer to next stream.
+ * @param options Transform stream options
  */
 export const accumulatorBy = baseFunctions.accumulatorBy;
 

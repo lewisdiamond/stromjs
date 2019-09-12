@@ -18,7 +18,7 @@ test.cb("accumulator() rolling", t => {
     const flushes = [firstFlush, secondFlush, thirdFlush];
 
     source
-        .pipe(accumulator(2, undefined, FlushStrategy.rolling))
+        .pipe(accumulator(FlushStrategy.rolling, 2))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -51,7 +51,7 @@ test.cb("accumulator() rolling with key", t => {
     const flushes = [firstFlush, secondFlush];
 
     source
-        .pipe(accumulator(3, undefined, FlushStrategy.rolling, "ts"))
+        .pipe(accumulator(FlushStrategy.rolling, 3, "ts"))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -77,9 +77,8 @@ test.cb(
         }
         const source = new Readable({ objectMode: true });
         const accumulatorStream = accumulator(
-            3,
-            undefined,
             FlushStrategy.rolling,
+            3,
             "nonExistingKey",
         );
         const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
@@ -119,12 +118,7 @@ test.cb(
             key: string;
         }
         const source = new Readable({ objectMode: true });
-        const accumulatorStream = accumulator(
-            3,
-            undefined,
-            FlushStrategy.rolling,
-            "ts",
-        );
+        const accumulatorStream = accumulator(FlushStrategy.rolling, 3, "ts");
         const input = [
             { ts: 0, key: "a" },
             { ts: 1, key: "b" },
@@ -193,7 +187,7 @@ test.cb("accumulator() sliding", t => {
 
     const flushes = [firstFlush, secondFlush, thirdFlush, fourthFlush];
     source
-        .pipe(accumulator(3, undefined, FlushStrategy.sliding))
+        .pipe(accumulator(FlushStrategy.sliding, 3))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -248,7 +242,7 @@ test.cb("accumulator() sliding with key", t => {
         sixthFlush,
     ];
     source
-        .pipe(accumulator(3, undefined, FlushStrategy.sliding, "ts"))
+        .pipe(accumulator(FlushStrategy.sliding, 3, "ts"))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -274,9 +268,8 @@ test.cb(
         }
         const source = new Readable({ objectMode: true });
         const accumulatorStream = accumulator(
-            3,
-            undefined,
             FlushStrategy.sliding,
+            3,
             "nonExistingKey",
         );
         const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
@@ -315,12 +308,7 @@ test.cb(
             key: string;
         }
         const source = new Readable({ objectMode: true });
-        const accumulatorStream = accumulator(
-            3,
-            undefined,
-            FlushStrategy.sliding,
-            "ts",
-        );
+        const accumulatorStream = accumulator(FlushStrategy.sliding, 3, "ts");
         const input = [
             { ts: 0, key: "a" },
             { key: "b" },
@@ -386,7 +374,6 @@ test.cb("accumulatorBy() rolling", t => {
     source
         .pipe(
             accumulatorBy(
-                undefined,
                 FlushStrategy.rolling,
                 (event: TestObject, bufferChunk: TestObject) => {
                     return bufferChunk.ts + 3 <= event.ts;
@@ -422,7 +409,6 @@ test.cb.skip(
             { ts: 2, key: "c" },
         ];
         const accumulaterStream = accumulatorBy(
-            undefined,
             FlushStrategy.rolling,
             (event: TestObject, bufferChunk: TestObject) => {
                 if (event.key !== "a") {
@@ -490,7 +476,6 @@ test.cb("accumulatorBy() sliding", t => {
     source
         .pipe(
             accumulatorBy(
-                undefined,
                 FlushStrategy.sliding,
                 (event: TestObject, bufferChunk: TestObject) => {
                     return bufferChunk.ts + 3 <= event.ts ? true : false;
@@ -526,7 +511,6 @@ test.cb.skip(
             { ts: 2, key: "c" },
         ];
         const accumulaterStream = accumulatorBy(
-            undefined,
             FlushStrategy.sliding,
             (event: TestObject, bufferChunk: TestObject) => {
                 if (event.key !== "a") {
