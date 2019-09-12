@@ -16,21 +16,8 @@ export function reduce<T, R>(
         readableObjectMode: options.readableObjectMode,
         writableObjectMode: options.writableObjectMode,
         async transform(chunk: T, encoding, callback) {
-            let isPromise = false;
-            try {
-                const result = iteratee(value, chunk, encoding);
-                isPromise = result instanceof Promise;
-                value = await result;
-                callback();
-            } catch (err) {
-                if (isPromise) {
-                    // Calling the callback asynchronously with an error wouldn't emit the error, so emit directly
-                    this.emit("error", err);
-                    callback();
-                } else {
-                    callback(err);
-                }
-            }
+            value = await iteratee(value, chunk, encoding);
+            callback();
         },
         flush(callback) {
             // Best effort attempt at yielding the final value (will throw if e.g. yielding an object and

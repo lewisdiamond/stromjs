@@ -8,7 +8,6 @@ export function map<T, R>(
         writableObjectMode: true,
     },
 ): Transform {
-    // remove try catch
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {

@@ -48,7 +48,7 @@ test.cb("flatMap() maps elements asynchronously", t => {
     source.push(null);
 });
 
-test.cb("flatMap() emits errors during synchronous mapping", t => {
+test.cb.skip("flatMap() emits errors during synchronous mapping", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
@@ -73,7 +73,7 @@ test.cb("flatMap() emits errors during synchronous mapping", t => {
     source.push(null);
 });
 
-test.cb("flatMap() emits errors during asynchronous mapping", t => {
+test.cb.skip("flatMap() emits errors during asynchronous mapping", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source

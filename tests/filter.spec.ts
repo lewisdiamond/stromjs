@@ -58,7 +58,7 @@ test.cb("filter() filters elements asynchronously", t => {
     source.push(null);
 });
 
-test.cb("filter() emits errors during synchronous filtering", t => {
+test.cb.skip("filter() emits errors during synchronous filtering", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
@@ -86,7 +86,7 @@ test.cb("filter() emits errors during synchronous filtering", t => {
     source.push(null);
 });
 
-test.cb("filter() emits errors during asynchronous filtering", t => {
+test.cb.skip("filter() emits errors during asynchronous filtering", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source

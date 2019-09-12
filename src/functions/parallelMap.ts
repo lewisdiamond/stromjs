@@ -20,14 +20,9 @@ export function parallelMap<T, R>(
             }
             inflight += 1;
             callback();
-            try {
-                const res = await mapper(data);
-                this.push(res);
-            } catch (e) {
-                this.emit(e);
-            } finally {
-                inflight -= 1;
-            }
+            const res = await mapper(data);
+            this.push(res);
+            inflight -= 1;
         },
         async flush(callback) {
             while (inflight > 0) {

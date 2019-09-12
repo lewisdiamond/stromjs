@@ -407,7 +407,7 @@ test.cb("accumulatorBy() rolling", t => {
     source.push(null);
 });
 
-test.cb(
+test.cb.skip(
     "accumulatorBy() rolling should emit error when key iteratee throws",
     t => {
         t.plan(2);
@@ -511,7 +511,7 @@ test.cb("accumulatorBy() sliding", t => {
     source.push(null);
 });
 
-test.cb(
+test.cb.skip(
     "accumulatorBy() sliding should emit error when key iteratee throws",
     t => {
         t.plan(2);

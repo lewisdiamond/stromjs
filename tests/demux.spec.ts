@@ -354,7 +354,7 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
     });
 });
 
-test.cb(
+test.cb.only(
     "demux() should emit drain event when third stream is bottleneck",
     t => {
         t.plan(8);
@@ -405,7 +405,7 @@ test.cb(
             t.end(err);
         });
 
-        // This event should be received after at least 3 * slowProcessorSpeed (two are read immediately by first)
+        // This event should be received after at least 5 * slowProcessorSpeed (two are read immediately by first and second, 5 remaining in demux before drain event)
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(
@@ -445,7 +445,7 @@ test.cb(
         const sink = new Writable({
             objectMode: true,
             write(chunk, encoding, cb) {
-                expect(chunk.mapped).to.deep.equal([1, 2, 3]);
+                expect(chunk.mapped).to.deep.equal([1, 2]);
                 t.pass();
                 pendingReads--;
                 if (pendingReads === 0) {
@@ -493,7 +493,7 @@ test.cb(
             t.end(err);
         });
 
-        // This event should be received after at least 3 * slowProcessorSpeed (two are read immediately by first)
+        // This event should be received after at least 3 * slowProcessorSpeed (two are read immediately by first and second, 3 remaining in demux before drain event)
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(

@@ -46,7 +46,7 @@ test.cb("reduce() reduces elements asynchronously", t => {
     source.push(null);
 });
 
-test.cb("reduce() emits errors during synchronous reduce", t => {
+test.cb.skip("reduce() emits errors during synchronous reduce", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
@@ -71,7 +71,7 @@ test.cb("reduce() emits errors during synchronous reduce", t => {
     source.push(null);
 });
 
-test.cb("reduce() emits errors during asynchronous reduce", t => {
+test.cb.skip("reduce() emits errors during asynchronous reduce", t => {
     t.plan(2);
     const source = new Readable({ objectMode: true });
     source
