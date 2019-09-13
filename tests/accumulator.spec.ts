@@ -19,7 +19,11 @@ test.cb("accumulator() rolling", t => {
     const flushes = [firstFlush, secondFlush, thirdFlush];
 
     source
-        .pipe(accumulator(FlushStrategy.rolling, 2))
+        .pipe(
+            accumulator(FlushStrategy.rolling, 2, undefined, {
+                objectMode: true,
+            }),
+        )
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -52,7 +56,7 @@ test.cb("accumulator() rolling with key", t => {
     const flushes = [firstFlush, secondFlush];
 
     source
-        .pipe(accumulator(FlushStrategy.rolling, 3, "ts"))
+        .pipe(accumulator(FlushStrategy.rolling, 3, "ts", { objectMode: true }))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -81,6 +85,7 @@ test.cb(
             FlushStrategy.rolling,
             3,
             "nonExistingKey",
+            { objectMode: true },
         );
         const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
 
@@ -119,7 +124,9 @@ test.cb(
             key: string;
         }
         const source = new Readable({ objectMode: true });
-        const accumulatorStream = accumulator(FlushStrategy.rolling, 3, "ts");
+        const accumulatorStream = accumulator(FlushStrategy.rolling, 3, "ts", {
+            objectMode: true,
+        });
         const input = [
             { ts: 0, key: "a" },
             { ts: 1, key: "b" },
@@ -188,7 +195,11 @@ test.cb("accumulator() sliding", t => {
 
     const flushes = [firstFlush, secondFlush, thirdFlush, fourthFlush];
     source
-        .pipe(accumulator(FlushStrategy.sliding, 3))
+        .pipe(
+            accumulator(FlushStrategy.sliding, 3, undefined, {
+                objectMode: true,
+            }),
+        )
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -243,7 +254,7 @@ test.cb("accumulator() sliding with key", t => {
         sixthFlush,
     ];
     source
-        .pipe(accumulator(FlushStrategy.sliding, 3, "ts"))
+        .pipe(accumulator(FlushStrategy.sliding, 3, "ts", { objectMode: true }))
         .on("data", (flush: TestObject[]) => {
             t.deepEqual(flush, flushes[chunkIndex]);
             chunkIndex++;
@@ -272,6 +283,7 @@ test.cb(
             FlushStrategy.sliding,
             3,
             "nonExistingKey",
+            { objectMode: true },
         );
         const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
 
@@ -309,7 +321,9 @@ test.cb(
             key: string;
         }
         const source = new Readable({ objectMode: true });
-        const accumulatorStream = accumulator(FlushStrategy.sliding, 3, "ts");
+        const accumulatorStream = accumulator(FlushStrategy.sliding, 3, "ts", {
+            objectMode: true,
+        });
         const input = [
             { ts: 0, key: "a" },
             { key: "b" },
@@ -379,6 +393,7 @@ test.cb("accumulatorBy() rolling", t => {
                 (event: TestObject, bufferChunk: TestObject) => {
                     return bufferChunk.ts + 3 <= event.ts;
                 },
+                { objectMode: true },
             ),
         )
         .on("data", (flush: TestObject[]) => {
@@ -417,6 +432,7 @@ test.cb.skip(
                 }
                 return bufferChunk.ts + 3 <= event.ts;
             },
+            { objectMode: true },
         );
         source
             .pipe(accumulaterStream)
@@ -481,6 +497,7 @@ test.cb("accumulatorBy() sliding", t => {
                 (event: TestObject, bufferChunk: TestObject) => {
                     return bufferChunk.ts + 3 <= event.ts ? true : false;
                 },
+                { objectMode: true },
             ),
         )
         .on("data", (flush: TestObject[]) => {
@@ -519,6 +536,7 @@ test.cb.skip(
                 }
                 return bufferChunk.ts + 3 <= event.ts ? true : false;
             },
+            { objectMode: true },
         );
         source
             .pipe(accumulaterStream)

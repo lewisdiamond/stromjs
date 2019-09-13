@@ -1,18 +1,11 @@
-import { Transform } from "stream";
-import {
-    AccumulatorByIteratee,
-    FlushStrategy,
-    TransformOptions,
-} from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
+import { AccumulatorByIteratee, FlushStrategy } from "./baseDefinitions";
 import { batch } from ".";
 
 function _accumulator<T>(
     accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
     shouldFlush: boolean = true,
-    options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
-    },
+    options: TransformOptions = {},
 ) {
     const buffer: T[] = [];
     return new Transform({
@@ -128,10 +121,7 @@ export function accumulator(
     flushStrategy: FlushStrategy,
     batchSize: number,
     keyBy?: string,
-    options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
-    },
+    options?: TransformOptions,
 ): Transform {
     if (flushStrategy === FlushStrategy.sliding) {
         return sliding(batchSize, keyBy, options);
@@ -145,10 +135,7 @@ export function accumulator(
 export function accumulatorBy<T, S extends FlushStrategy>(
     flushStrategy: S,
     iteratee: AccumulatorByIteratee<T>,
-    options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
-    },
+    options?: TransformOptions,
 ): Transform {
     if (flushStrategy === FlushStrategy.sliding) {
         return slidingBy(iteratee, options);

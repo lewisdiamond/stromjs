@@ -43,7 +43,7 @@ class Demux extends Writable {
             destKey?: string,
         ) => NodeJS.WritableStream | NodeJS.ReadWriteStream,
         demuxBy: string | ((chunk: any) => string),
-        options?: WritableOptions,
+        options: WritableOptions = {},
     ) {
         super(options);
         this.demuxer =
