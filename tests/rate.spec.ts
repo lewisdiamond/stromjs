@@ -4,64 +4,86 @@ import test from "ava";
 import { expect } from "chai";
 import { rate } from "../src";
 
-test.cb("rate() sends data at desired rate", t => {
-    t.plan(9);
-    const fastRate = 150;
-    const medRate = 50;
-    const slowRate = 1;
-    const sourceFast = new Readable({ objectMode: true });
-    const sourceMed = new Readable({ objectMode: true });
-    const sourceSlow = new Readable({ objectMode: true });
-    const expectedElements = ["a", "b", "c"];
+test.cb("rate() sends data at a rate of 150", t => {
+    t.plan(5);
+    const targetRate = 150;
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "b", "c", "d", "e"];
     const start = performance.now();
     let i = 0;
-    let j = 0;
-    let k = 0;
 
-    sourceFast
-        .pipe(rate(fastRate))
+    source
+        .pipe(rate(targetRate))
         .on("data", (element: string[]) => {
             const currentRate = (i / (performance.now() - start)) * 1000;
             expect(element).to.deep.equal(expectedElements[i]);
-            expect(currentRate).lessThan(fastRate);
+            expect(currentRate).lessThan(targetRate);
             t.pass();
             i++;
-        })
-        .on("error", t.end);
-
-    sourceMed
-        .pipe(rate(medRate))
-        .on("data", (element: string[]) => {
-            const currentRate = (j / (performance.now() - start)) * 1000;
-            expect(element).to.deep.equal(expectedElements[j]);
-            expect(currentRate).lessThan(medRate);
-            t.pass();
-            j++;
-        })
-        .on("error", t.end);
-
-    sourceSlow
-        .pipe(rate(slowRate))
-        .on("data", (element: string[]) => {
-            const currentRate = (k / (performance.now() - start)) * 1000;
-            expect(element).to.deep.equal(expectedElements[k]);
-            expect(currentRate).lessThan(slowRate);
-            t.pass();
-            k++;
         })
         .on("error", t.end)
         .on("end", t.end);
 
-    sourceFast.push("a");
-    sourceFast.push("b");
-    sourceFast.push("c");
-    sourceFast.push(null);
-    sourceMed.push("a");
-    sourceMed.push("b");
-    sourceMed.push("c");
-    sourceMed.push(null);
-    sourceSlow.push("a");
-    sourceSlow.push("b");
-    sourceSlow.push("c");
-    sourceSlow.push(null);
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push("d");
+    source.push("e");
+    source.push(null);
+});
+
+test.cb("rate() sends data at a rate of 50", t => {
+    t.plan(5);
+    const targetRate = 50;
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "b", "c", "d", "e"];
+    const start = performance.now();
+    let i = 0;
+
+    source
+        .pipe(rate(targetRate))
+        .on("data", (element: string[]) => {
+            const currentRate = (i / (performance.now() - start)) * 1000;
+            expect(element).to.deep.equal(expectedElements[i]);
+            expect(currentRate).lessThan(targetRate);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push("d");
+    source.push("e");
+    source.push(null);
+});
+
+test.cb("rate() sends data at a rate of 1", t => {
+    t.plan(5);
+    const targetRate = 1;
+    const source = new Readable({ objectMode: true });
+    const expectedElements = ["a", "b", "c", "d", "e"];
+    const start = performance.now();
+    let i = 0;
+
+    source
+        .pipe(rate(targetRate))
+        .on("data", (element: string[]) => {
+            const currentRate = (i / (performance.now() - start)) * 1000;
+            expect(element).to.deep.equal(expectedElements[i]);
+            expect(currentRate).lessThan(targetRate);
+            t.pass();
+            i++;
+        })
+        .on("error", t.end)
+        .on("end", t.end);
+
+    source.push("a");
+    source.push("b");
+    source.push("c");
+    source.push("d");
+    source.push("e");
+    source.push(null);
 });
