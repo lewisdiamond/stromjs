@@ -1,14 +1,12 @@
-import { Transform } from "stream";
+import { Transform, TransformOptions } from "stream";
 import { performance } from "perf_hooks";
 import { sleep } from "../helpers";
-import { TransformOptions } from "./baseDefinitions";
 
 export function rate(
     targetRate: number = 50,
     period: number = 1,
     options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
+        objectMode: true,
     },
 ): Transform {
     const deltaMS = ((1 / targetRate) * 1000) / period; // Skip a full period

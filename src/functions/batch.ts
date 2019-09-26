@@ -1,12 +1,10 @@
-import { Transform } from "stream";
-import { TransformOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 
 export function batch(
     batchSize: number = 1000,
     maxBatchAge: number = 500,
     options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
+        objectMode: true,
     },
 ): Transform {
     let buffer: any[] = [];

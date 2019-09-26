@@ -2,7 +2,7 @@ import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
 import { accumulator, accumulatorBy } from "../src";
-import { FlushStrategy } from "../src/functions/baseDefinitions";
+import { FlushStrategy } from "../src/functions/accumulator";
 import { performance } from "perf_hooks";
 
 test.cb("accumulator() rolling", t => {

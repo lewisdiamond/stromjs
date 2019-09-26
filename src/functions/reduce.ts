@@ -1,5 +1,4 @@
-import { Transform } from "stream";
-import { TransformOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 
 export function reduce<T, R>(
     iteratee:
@@ -7,14 +6,12 @@ export function reduce<T, R>(
         | ((previousValue: R, chunk: T, encoding: string) => Promise<R>),
     initialValue: R,
     options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
+        objectMode: true,
     },
 ) {
     let value = initialValue;
     return new Transform({
-        readableObjectMode: options.readableObjectMode,
-        writableObjectMode: options.writableObjectMode,
+        ...options,
         async transform(chunk: T, encoding, callback) {
             value = await iteratee(value, chunk, encoding);
             callback();

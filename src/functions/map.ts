@@ -1,12 +1,8 @@
-import { Transform } from "stream";
-import { TransformOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 
 export function map<T, R>(
     mapper: (chunk: T, encoding: string) => R,
-    options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
-    },
+    options: TransformOptions = { objectMode: true },
 ): Transform {
     return new Transform({
         ...options,

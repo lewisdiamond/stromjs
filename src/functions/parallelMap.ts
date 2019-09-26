@@ -1,14 +1,12 @@
-import { Transform } from "stream";
+import { Transform, TransformOptions } from "stream";
 import { sleep } from "../helpers";
-import { TransformOptions } from "./baseDefinitions";
 
 export function parallelMap<T, R>(
     mapper: (data: T) => R,
     parallel: number = 10,
     sleepTime: number = 5,
     options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
+        objectMode: true,
     },
 ) {
     let inflight = 0;

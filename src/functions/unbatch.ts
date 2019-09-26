@@ -1,10 +1,8 @@
-import { Transform } from "stream";
-import { TransformOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 
 export function unbatch(
     options: TransformOptions = {
-        readableObjectMode: true,
-        writableObjectMode: true,
+        objectMode: true,
     },
 ) {
     return new Transform({

@@ -1,9 +1,6 @@
-import { Transform } from "stream";
-import { ThroughOptions } from "./baseDefinitions";
+import { Transform, TransformOptions } from "stream";
 
-export function collect(
-    options: ThroughOptions = { objectMode: false },
-): Transform {
+export function collect(options: TransformOptions = {}): Transform {
     const collected: any[] = [];
     return new Transform({
         ...options,

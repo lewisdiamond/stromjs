@@ -1,6 +1,12 @@
 import { Transform, TransformOptions } from "stream";
-import { AccumulatorByIteratee, FlushStrategy } from "./baseDefinitions";
 import { batch } from ".";
+
+export enum FlushStrategy {
+    rolling = "rolling",
+    sliding = "sliding",
+}
+
+export type AccumulatorByIteratee<T> = (event: T, bufferChunk: T) => boolean;
 
 function _accumulator<T>(
     accumulateBy: (data: T, buffer: T[], stream: Transform) => void,
