@@ -172,7 +172,8 @@ test("compose() writable length should be less than highWaterMark when handing w
 
 test("compose() should emit drain event ~rate * highWaterMark ms for every write that causes backpressure", async t => {
     t.plan(7);
-    const _rate = 25;
+    const _rate = 100;
+    const highWaterMark = 2;
     return new Promise(async (resolve, reject) => {
         interface Chunk {
             key: string;
@@ -199,7 +200,7 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
 
         const composed = compose(
             [first, second],
-            { objectMode: true, highWaterMark: 2 },
+            { objectMode: true, highWaterMark },
         );
         composed.on("error", err => {
             reject();
@@ -208,7 +209,10 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
         composed.on("drain", () => {
             t.pass();
             expect(composed._writableState.length).to.be.equal(0);
-            expect(performance.now() - start).to.be.greaterThan(_rate);
+            expect(performance.now() - start).to.be.closeTo(
+                _rate * highWaterMark,
+                10,
+            );
         });
 
         composed.on("data", (chunk: Chunk) => {
@@ -220,21 +224,22 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
 
         const input = [
             { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
+            { key: "b", mapped: [] },
+            { key: "c", mapped: [] },
+            { key: "d", mapped: [] },
+            { key: "e", mapped: [] },
         ];
 
         let start = performance.now();
         let pendingReads = input.length;
+        start = performance.now();
         for (const item of input) {
             const res = composed.write(item);
-            expect(composed._writableState.length).to.be.at.most(2);
+            expect(composed._writableState.length).to.be.at.most(highWaterMark);
             t.pass();
             if (!res) {
+                await sleep(_rate * highWaterMark * 2);
                 start = performance.now();
-                await sleep(100);
             }
         }
     });
@@ -279,8 +284,9 @@ test.cb(
 
         composed.on("drain", () => {
             expect(composed._writableState.length).to.be.equal(0);
-            expect(performance.now() - start).to.be.greaterThan(
+            expect(performance.now() - start).to.be.closeTo(
                 _rate * input.length,
+                25,
             );
             t.pass();
         });
