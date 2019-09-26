@@ -379,7 +379,6 @@ test.cb.only(
         const construct = (destKey: string) => {
             const first = map(
                 (chunk: Chunk) => {
-                    console.log("1: ", chunk);
                     chunk.mapped.push(1);
                     return chunk;
                 },
@@ -388,9 +387,7 @@ test.cb.only(
 
             const second = map(
                 async (chunk: Chunk) => {
-                    console.log("2: ", chunk);
                     await sleep(slowProcessorSpeed);
-                    console.log("2 done ", chunk);
                     chunk.mapped.push(2);
                     return chunk;
                 },
@@ -411,7 +408,6 @@ test.cb.only(
         // This event should be received after at least 5 * slowProcessorSpeed (two are read immediately by first and second, 5 remaining in demux before drain event)
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
-            console.log(performance.now() - start);
             expect(performance.now() - start).to.be.greaterThan(
                 slowProcessorSpeed * (input.length - 2),
             );
@@ -431,7 +427,7 @@ test.cb.only(
 
         const start = performance.now();
         input.forEach(item => {
-            console.log(_demux.write(item));
+            _demux.write(item);
         });
     },
 );
@@ -461,7 +457,6 @@ test.cb(
         const construct = (destKey: string) => {
             const first = map(
                 (chunk: Chunk) => {
-                    console.log("1: ", chunk);
                     chunk.mapped.push(1);
                     return chunk;
                 },
@@ -469,7 +464,6 @@ test.cb(
             );
             const second = map(
                 (chunk: Chunk) => {
-                    console.log("2: ", chunk);
                     chunk.mapped.push(2);
                     return chunk;
                 },
@@ -478,9 +472,7 @@ test.cb(
 
             const third = map(
                 async (chunk: Chunk) => {
-                    console.log("3: ", chunk);
                     await sleep(slowProcessorSpeed);
-                    console.log(" 3 done ", chunk);
                     chunk.mapped.push(3);
                     return chunk;
                 },
@@ -504,7 +496,6 @@ test.cb(
         // This event should be received after at least 3 * slowProcessorSpeed (two are read immediately by first and second, 3 remaining in demux before drain event)
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
-            console.log(performance.now() - start);
             expect(performance.now() - start).to.be.greaterThan(
                 slowProcessorSpeed * (input.length - 4),
             );
@@ -524,7 +515,7 @@ test.cb(
 
         const start = performance.now();
         input.forEach(item => {
-            console.log(_demux.write(item));
+            _demux.write(item);
         });
     },
 );
