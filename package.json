@@ -1,6 +1,6 @@
 {
     "name": "mhysa",
-    "version": "1.0.2",
+    "version": "0.0.1-alpha",
     "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",
@@ -11,14 +11,27 @@
     "author": {
         "name": "Wenzil"
     },
+    "contributors": [
+        {
+            "name": "jerry",
+            "email": "jerry@jogogo.co"
+        },
+        {
+            "name": "lewis",
+            "email": "lewis@jogogo.co"
+        }
+    ],
     "license": "MIT",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "registry": "https://npm.dev.jogogo.co/"
+    },
     "repository": {
-        "url": "git@github.com:Wenzil/Mhysa.git",
+        "url": "git@github.com:Jogogoplay/analytics-client.git",
         "type": "git"
     },
     "scripts": {
