@@ -16,32 +16,31 @@ const eventsTarget = {
     error: EventSubscription.Self,
     finish: EventSubscription.Self,
     pause: EventSubscription.Self,
-    pipe: EventSubscription.Unhandled,
+    pipe: EventSubscription.Self,
     readable: EventSubscription.Self,
     resume: EventSubscription.Self,
-    unpipe: EventSubscription.Unhandled,
+    unpipe: EventSubscription.Self,
 };
 
+type DemuxStreams = NodeJS.WritableStream | NodeJS.ReadWriteStream;
+
 export function demux(
-    construct: () => NodeJS.WritableStream | NodeJS.ReadWriteStream,
+    construct: () => DemuxStreams,
     demuxBy: string | ((chunk: any) => string),
     options?: WritableOptions,
 ): Writable {
     return new Demux(construct, demuxBy, options);
 }
 
+// @TODO handle pipe event ie) Multiplex
 class Demux extends Writable {
     private streamsByKey: {
-        [key: string]: NodeJS.WritableStream | NodeJS.ReadWriteStream;
+        [key: string]: DemuxStreams;
     };
     private demuxer: (chunk: any) => string;
-    private construct: (
-        destKey?: string,
-    ) => NodeJS.WritableStream | NodeJS.ReadWriteStream;
+    private construct: (destKey?: string) => DemuxStreams;
     constructor(
-        construct: (
-            destKey?: string,
-        ) => NodeJS.WritableStream | NodeJS.ReadWriteStream,
+        construct: (destKey?: string) => DemuxStreams,
         demuxBy: string | ((chunk: any) => string),
         options: WritableOptions = {},
     ) {
@@ -76,10 +75,6 @@ class Demux extends Writable {
                     this.streamsByKey[key].on(event, cb),
                 );
                 break;
-            case EventSubscription.Unhandled:
-                throw new Error(
-                    "Stream must be multiplexed before handling this event",
-                );
             default:
                 super.on(event, cb);
         }
@@ -96,10 +91,6 @@ class Demux extends Writable {
                     this.streamsByKey[key].once(event, cb),
                 );
                 break;
-            case EventSubscription.Unhandled:
-                throw new Error(
-                    "Stream must be multiplexed before handling this event",
-                );
             default:
                 super.once(event, cb);
         }
