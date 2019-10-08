@@ -7,8 +7,9 @@
     "rules": {
         "no-console": false,
         "no-implicit-dependencies": [true, "dev"],
-        "prettier": true,
+        "prettier": [true, ".prettierrc"],
         "ordered-imports": false,
-        "interface-name": false
+        "interface-name": false,
+	"object-literal-sort-keys": false
     }
 }

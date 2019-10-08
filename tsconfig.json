@@ -1,18 +1,21 @@
 {
-    "compilerOptions": {
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "noImplicitThis": true,
-        "forceConsistentCasingInFileNames": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "outDir": "./dist",
-        "module": "commonjs",
-        "target": "es5",
-        "lib": ["es2016"],
-        "sourceMap": true,
-        "declaration": true
-    },
-    "include": ["src/**/*.ts"]
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "outDir": "./dist",
+    "module": "commonjs"
+  },
+  "target": "es5",
+  "lib": [
+    "es2016"
+  ],
+  "sourceMap": true,
+  "declaration": true,
+  "include": ["src/**/*"],
+  "exclude": ["tests", "node_modules"]
 }
