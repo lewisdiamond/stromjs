@@ -211,7 +211,7 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
             expect(composed._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.closeTo(
                 _rate * highWaterMark,
-                10,
+                20,
             );
         });
 
