@@ -59,7 +59,7 @@ function _sliding<T>(
             buffer.shift();
         }
         buffer.push(event);
-        stream.push(buffer);
+        stream.push([...buffer]);
     };
 }
 
@@ -73,7 +73,7 @@ function _slidingByFunction<T>(
         }
         buffer.splice(0, index);
         buffer.push(event);
-        stream.push(buffer);
+        stream.push([...buffer]);
     };
 }
 
