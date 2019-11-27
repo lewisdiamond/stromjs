@@ -51,10 +51,10 @@ class Demux extends Writable {
         this.streamsByKey = {};
     }
 
-    public _write(chunk: any, encoding: any, cb: any) {
+    public async _write(chunk: any, encoding: any, cb: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
-            this.streamsByKey[destKey] = this.construct(destKey);
+            this.streamsByKey[destKey] = await this.construct(destKey);
         }
         if (!this.streamsByKey[destKey].write(chunk, encoding)) {
             this.streamsByKey[destKey].once("drain", () => {
