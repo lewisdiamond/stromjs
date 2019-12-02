@@ -10,7 +10,6 @@ export function rate(
     const deltaMS = ((1 / targetRate) * 1000) / period; // Skip a full period
     let total = 0;
     const start = performance.now();
-    console.log(options);
     return new Transform({
         ...options,
         async transform(data, encoding, callback) {
