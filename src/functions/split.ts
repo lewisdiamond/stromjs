@@ -2,6 +2,10 @@ import { Transform } from "stream";
 import { StringDecoder } from "string_decoder";
 import { WithEncoding } from "./baseDefinitions";
 
+interface SplitParams {
+    separator?: string | RegExp;
+    options?: WithEncoding;
+}
 export function split(
     separator: string | RegExp = "\n",
     options: WithEncoding = { encoding: "utf8" },

@@ -25,7 +25,7 @@ const eventsTarget = {
 type DemuxStreams = NodeJS.WritableStream | NodeJS.ReadWriteStream;
 
 export function demux(
-    construct: () => DemuxStreams,
+    construct: (destKey?: string) => DemuxStreams,
     demuxBy: string | ((chunk: any) => string),
     options?: WritableOptions,
 ): Writable {

@@ -2,8 +2,9 @@ import { Readable } from "stream";
 import { performance } from "perf_hooks";
 import test from "ava";
 import { expect } from "chai";
-import { parallelMap } from "../src";
+import mhysa from "../src";
 import { sleep } from "../src/helpers";
+const { parallelMap } = mhysa({ objectMode: true });
 
 test.cb("parallelMap() parallel mapping", t => {
     t.plan(6);

@@ -5,9 +5,7 @@ export function reduce<T, R>(
         | ((previousValue: R, chunk: T, encoding: string) => R)
         | ((previousValue: R, chunk: T, encoding: string) => Promise<R>),
     initialValue: R,
-    options: TransformOptions = {
-        objectMode: true,
-    },
+    options?: TransformOptions,
 ) {
     let value = initialValue;
     return new Transform({

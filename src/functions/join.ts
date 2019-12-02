@@ -1,10 +1,10 @@
-import { Transform } from "stream";
+import { Transform, TransformOptions } from "stream";
 import { StringDecoder } from "string_decoder";
 import { WithEncoding } from "./baseDefinitions";
 
 export function join(
     separator: string,
-    options: WithEncoding = { encoding: "utf8" },
+    options?: WithEncoding & TransformOptions,
 ): Transform {
     let isFirstChunk = true;
     const decoder = new StringDecoder(options.encoding);

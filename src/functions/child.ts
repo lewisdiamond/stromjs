@@ -1,5 +1,5 @@
 import { ChildProcess } from "child_process";
-import { duplex } from "./baseFunctions";
+import { duplex } from "./duplex";
 
 export function child(childProcess: ChildProcess) {
     if (childProcess.stdin === null) {

@@ -1,10 +1,11 @@
 import test from "ava";
 import { expect } from "chai";
-const { demux, map } = require("../src");
+import mhysa from "../src";
 import { Writable } from "stream";
 const sinon = require("sinon");
 const { sleep } = require("../src/helpers");
 import { performance } from "perf_hooks";
+const { demux, map } = mhysa();
 
 interface Test {
     key: string;

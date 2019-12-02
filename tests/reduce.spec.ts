@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { reduce } from "../src";
+import mhysa from "../src";
+const { reduce } = mhysa({ objectMode: true });
 
 test.cb("reduce() reduces elements synchronously", t => {
     t.plan(1);

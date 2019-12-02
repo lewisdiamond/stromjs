@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { replace } from "../src";
+import mhysa from "../src";
+const { replace } = mhysa();
 
 test.cb(
     "replace() replaces occurrences of the given string in the streamed elements with the specified " +

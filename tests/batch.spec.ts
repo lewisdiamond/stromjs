@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { batch } from "../src";
+import mhysa from "../src";
+const { batch } = mhysa({ objectMode: true });
 
 test.cb("batch() batches chunks together", t => {
     t.plan(3);
@@ -31,7 +32,9 @@ test.cb("batch() yields a batch after the timeout", t => {
     t.plan(3);
     const source = new Readable({
         objectMode: true,
-        read(size: number) {},
+        read(size: number) {
+            return;
+        },
     });
     const expectedElements = [["a", "b"], ["c"], ["d"]];
     let i = 0;

@@ -1,7 +1,6 @@
 import { Transform } from "stream";
 import { StringDecoder } from "string_decoder";
 import { WithEncoding } from "./baseDefinitions";
-
 export function replace(
     searchValue: string | RegExp,
     replaceValue: string,

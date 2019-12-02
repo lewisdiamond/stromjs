@@ -1,12 +1,15 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { map } from "../src";
+import mhysa from "../src";
+const { map } = mhysa();
 
 test.cb("map() maps elements synchronously", t => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
-    const mapStream = map((element: string) => element.toUpperCase());
+    const mapStream = map((element: string) => element.toUpperCase(), {
+        objectMode: true,
+    });
     const expectedElements = ["A", "B", "C"];
     let i = 0;
     source
@@ -28,10 +31,13 @@ test.cb("map() maps elements synchronously", t => {
 test.cb("map() maps elements asynchronously", t => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
-    const mapStream = map(async (element: string) => {
-        await Promise.resolve();
-        return element.toUpperCase();
-    });
+    const mapStream = map(
+        async (element: string) => {
+            await Promise.resolve();
+            return element.toUpperCase();
+        },
+        { objectMode: true },
+    );
     const expectedElements = ["A", "B", "C"];
     let i = 0;
     source

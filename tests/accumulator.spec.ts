@@ -1,9 +1,10 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import { accumulator, accumulatorBy } from "../src";
+import mhysa from "../src";
 import { FlushStrategy } from "../src/functions/accumulator";
 import { performance } from "perf_hooks";
+const { accumulator, accumulatorBy } = mhysa({ objectMode: true });
 
 test.cb("accumulator() rolling", t => {
     t.plan(3);
