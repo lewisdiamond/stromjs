@@ -1,0 +1,81 @@
+{
+    "name": "@jogogo/mhysa",
+<<<<<<< HEAD
+    "version": "0.0.1-beta.4",
+=======
+    "version": "0.0.1-beta.3",
+>>>>>>> DefaultOptions implemented as module factory
+    "description": "Streams and event emitter utils for Node.js",
+    "keywords": [
+        "promise",
+        "stream",
+        "event emitter",
+        "utils"
+    ],
+    "author": {
+        "name": "Wenzil"
+    },
+    "contributors": [
+        {
+            "name": "jerry",
+            "email": "jerry@jogogo.co"
+        },
+        {
+            "name": "lewis",
+            "email": "lewis@jogogo.co"
+        }
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "publishConfig": {
+        "registry": "https://npm.dev.jogogo.co/"
+    },
+    "repository": {
+        "url": "git@github.com:Jogogoplay/mhysa.git",
+        "type": "git"
+    },
+    "scripts": {
+        "test": "NODE_PATH=src node node_modules/.bin/ava 'tests/*.spec.ts' -e",
+        "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
+        "test:all": "NODE_PATH=src node node_modules/.bin/ava",
+        "lint": "tslint -p tsconfig.json",
+        "validate:tslint": "tslint-config-prettier-check ./tslint.json",
+        "prepublishOnly": "yarn lint && yarn test && yarn tsc -d"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/chai": "^4.1.7",
+        "@types/node": "^12.7.2",
+        "@types/sinon": "^7.0.13",
+        "ava": "^1.0.0-rc.2",
+        "chai": "^4.2.0",
+        "mhysa": "./",
+        "prettier": "^1.14.3",
+        "sinon": "^7.4.2",
+        "ts-node": "^8.3.0",
+        "tslint": "^5.11.0",
+        "tslint-config-prettier": "^1.16.0",
+        "tslint-plugin-prettier": "^2.0.1",
+        "typescript": "^3.5.3"
+    },
+    "ava": {
+        "files": [
+            "tests/*.spec.ts"
+        ],
+        "sources": [
+            "src/**/*.ts"
+        ],
+        "compileEnhancements": false,
+        "failWithoutAssertions": false,
+        "extensions": [
+            "ts"
+        ],
+        "require": [
+            "ts-node/register/transpile-only"
+        ]
+    }
+}
