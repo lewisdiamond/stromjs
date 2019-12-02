@@ -3,9 +3,7 @@ import { Transform, TransformOptions } from "stream";
 export function batch(
     batchSize: number = 1000,
     maxBatchAge: number = 500,
-    options: TransformOptions = {
-        objectMode: true,
-    },
+    options: TransformOptions = {},
 ): Transform {
     let buffer: any[] = [];
     let timer: NodeJS.Timer | null = null;

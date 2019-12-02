@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { flatMap } from "../src";
+import mhysa from "../src";
+const { flatMap } = mhysa({ objectMode: true });
 
 test.cb("flatMap() maps elements synchronously", t => {
     t.plan(6);

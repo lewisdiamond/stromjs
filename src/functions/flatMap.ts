@@ -4,9 +4,7 @@ export function flatMap<T, R>(
     mapper:
         | ((chunk: T, encoding: string) => R[])
         | ((chunk: T, encoding: string) => Promise<R[]>),
-    options: TransformOptions = {
-        objectMode: true,
-    },
+    options?: TransformOptions,
 ): Transform {
     return new Transform({
         ...options,

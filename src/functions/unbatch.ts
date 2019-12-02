@@ -1,10 +1,6 @@
 import { Transform, TransformOptions } from "stream";
 
-export function unbatch(
-    options: TransformOptions = {
-        objectMode: true,
-    },
-) {
+export function unbatch(options?: TransformOptions) {
     return new Transform({
         ...options,
         transform(data, encoding, callback) {

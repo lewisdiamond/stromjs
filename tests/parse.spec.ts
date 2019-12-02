@@ -1,7 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { parse } from "../src";
+import mhysa from "../src";
+const { parse } = mhysa();
 
 test.cb("parse() parses the streamed elements as JSON", t => {
     t.plan(3);

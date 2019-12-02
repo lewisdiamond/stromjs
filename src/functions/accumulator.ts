@@ -1,5 +1,4 @@
 import { Transform, TransformOptions } from "stream";
-import { batch } from ".";
 
 export enum FlushStrategy {
     rolling = "rolling",
@@ -129,24 +128,24 @@ export function accumulator(
     keyBy?: string,
     options?: TransformOptions,
 ): Transform {
-    if (flushStrategy === FlushStrategy.sliding) {
-        return sliding(batchSize, keyBy, options);
-    } else if (flushStrategy === FlushStrategy.rolling) {
-        return rolling(batchSize, keyBy, options);
-    } else {
-        return batch(batchSize);
+    switch (flushStrategy) {
+        case FlushStrategy.sliding:
+            return sliding(batchSize, keyBy, options);
+        case FlushStrategy.rolling:
+            return rolling(batchSize, keyBy, options);
     }
 }
 
-export function accumulatorBy<T, S extends FlushStrategy>(
-    flushStrategy: S,
+export function accumulatorBy<T>(
+    flushStrategy: FlushStrategy,
     iteratee: AccumulatorByIteratee<T>,
     options?: TransformOptions,
 ): Transform {
-    if (flushStrategy === FlushStrategy.sliding) {
-        return slidingBy(iteratee, options);
-    } else {
-        return rollingBy(iteratee, options);
+    switch (flushStrategy) {
+        case FlushStrategy.sliding:
+            return slidingBy(iteratee, options);
+        case FlushStrategy.rolling:
+            return rollingBy(iteratee, options);
     }
 }
 

@@ -2,7 +2,8 @@ import * as cp from "child_process";
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { child } from "../src";
+import mhysa from "../src";
+const { child } = mhysa();
 
 test.cb(
     "child() allows easily writing to child process stdin and reading from its stdout",

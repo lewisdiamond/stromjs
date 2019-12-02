@@ -1,8 +1,9 @@
 const test = require("ava");
 const { expect } = require("chai");
-const { compose, map } = require("../src");
 const { sleep } = require("../src/helpers");
+import mhysa from "../src";
 import { performance } from "perf_hooks";
+const { compose, map } = mhysa({ objectMode: true });
 
 test.cb("compose() chains two streams together in the correct order", t => {
     t.plan(3);
@@ -211,7 +212,7 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
             expect(composed._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.closeTo(
                 _rate * highWaterMark,
-                20,
+                40,
             );
         });
 
@@ -286,7 +287,7 @@ test.cb(
             expect(composed._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.closeTo(
                 _rate * input.length,
-                25,
+                50,
             );
             t.pass();
         });

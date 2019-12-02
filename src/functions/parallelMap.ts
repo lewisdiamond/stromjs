@@ -4,10 +4,8 @@ import { sleep } from "../helpers";
 export function parallelMap<T, R>(
     mapper: (data: T) => R,
     parallel: number = 10,
-    sleepTime: number = 5,
-    options: TransformOptions = {
-        objectMode: true,
-    },
+    sleepTime: number = 1,
+    options?: TransformOptions,
 ) {
     let inflight = 0;
     return new Transform({
