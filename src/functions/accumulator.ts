@@ -136,7 +136,7 @@ export function accumulator(
     }
 }
 
-export function accumulatorBy<T, S extends FlushStrategy>(
+export function accumulatorBy<T>(
     flushStrategy: FlushStrategy,
     iteratee: AccumulatorByIteratee<T>,
     options?: TransformOptions,
