@@ -1,6 +1,6 @@
 {
     "name": "@jogogo/mhysa",
-    "version": "0.1.0-alpha.1",
+    "version": "2.0.0-alpha.1",
     "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",
@@ -35,9 +35,7 @@
         "type": "git"
     },
     "scripts": {
-        "test": "NODE_PATH=src node node_modules/.bin/ava tests/*.spec.ts -e",
-        "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
-        "test:all": "NODE_PATH=src node node_modules/.bin/ava",
+        "test": "ava",
         "lint": "tslint -p tsconfig.json",
         "validate:tslint": "tslint-config-prettier-check ./tslint.json",
         "prepublishOnly": "yarn lint && yarn test && yarn tsc -d"
