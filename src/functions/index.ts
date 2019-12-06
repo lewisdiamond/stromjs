@@ -121,6 +121,10 @@ export default function mhysa(defaultOptions?: TransformOptions) {
         /**
          * Return a ReadWrite stream that parses the streamed chunks as JSON. Each streamed chunk
          * must be a fully defined JSON string in utf8.
+         * @param format: @type SerializationFormats defaults SerializationFormats.utf8
+         * @param emitError: @type boolean Whether or not to emit an error when
+         * failing to parse. An error will automatically close the stream.
+         * Defaults to true.
          */
         parse,
 
@@ -245,9 +249,10 @@ export default function mhysa(defaultOptions?: TransformOptions) {
         /**
          * Composes multiple streams together. Writing occurs on first stream, piping occurs from last stream.
          * @param streams Array of streams to compose. Minimum of two.
+         * @param errorCallback a function that handles any error coming out of the pipeline
          * @param options Transform stream options
          */
-        compose: withDefaultOptions(1, compose),
+        compose: withDefaultOptions(2, compose),
 
         /**
          * Composes multiple streams together. Writing occurs on first stream, piping occurs from last stream.

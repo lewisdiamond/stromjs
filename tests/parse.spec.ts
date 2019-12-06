@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import { Readable, finished } from "stream";
 import test from "ava";
 import { expect } from "chai";
 import mhysa from "../src";
@@ -26,13 +26,17 @@ test.cb("parse() parses the streamed elements as JSON", t => {
 });
 
 test.cb("parse() emits errors on invalid JSON", t => {
-    t.plan(2);
+    t.plan(1);
     const source = new Readable({ objectMode: true });
+
     source
         .pipe(parse())
         .resume()
-        .on("error", () => t.pass())
-        .on("end", t.end);
+        .on("error", (d: any) => {
+            t.pass();
+            t.end();
+        })
+        .on("end", t.fail);
 
     source.push("{}");
     source.push({});

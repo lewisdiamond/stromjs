@@ -1,6 +1,7 @@
-const test = require("ava");
-const { expect } = require("chai");
-const { sleep } = require("../src/helpers");
+import * as test from "ava";
+import { expect } from "chai";
+import { sleep } from "../src/helpers";
+import { Readable, Writable } from "stream";
 import mhysa from "../src";
 import { performance } from "perf_hooks";
 const { compose, map } = mhysa({ objectMode: true });
@@ -22,10 +23,7 @@ test.cb("compose() chains two streams together in the correct order", t => {
         return chunk;
     });
 
-    const composed = compose(
-        [first, second],
-        { objectMode: true },
-    );
+    const composed = compose([first, second]);
 
     composed.on("data", data => {
         expect(data).to.deep.equal(result[i]);
@@ -34,12 +32,6 @@ test.cb("compose() chains two streams together in the correct order", t => {
         if (i === 3) {
             t.end();
         }
-    });
-    composed.on("error", err => {
-        t.end(err);
-    });
-    composed.on("end", () => {
-        t.end();
     });
 
     const input = [
@@ -72,10 +64,7 @@ test.cb("piping compose() maintains correct order", t => {
         return chunk;
     });
 
-    const composed = compose(
-        [first, second],
-        { objectMode: true },
-    );
+    const composed = compose([first, second]);
     const third = map((chunk: Chunk) => {
         chunk.visited.push(3);
         return chunk;
@@ -115,28 +104,19 @@ test("compose() writable length should be less than highWaterMark when handing w
             key: string;
             mapped: number[];
         }
-        const first = map(
-            async (chunk: Chunk) => {
-                chunk.mapped.push(1);
-                return chunk;
-            },
-            {
-                objectMode: true,
-            },
-        );
+        const first = map(async (chunk: Chunk) => {
+            chunk.mapped.push(1);
+            return chunk;
+        });
 
-        const second = map(
-            async (chunk: Chunk) => {
-                chunk.mapped.push(2);
-                return chunk;
-            },
-            { objectMode: true },
-        );
+        const second = map(async (chunk: Chunk) => {
+            chunk.mapped.push(2);
+            return chunk;
+        });
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark: 2 },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 2,
+        });
         composed.on("error", err => {
             reject();
         });
@@ -180,29 +160,20 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
             key: string;
             mapped: number[];
         }
-        const first = map(
-            async (chunk: Chunk) => {
-                await sleep(_rate);
-                chunk.mapped.push(1);
-                return chunk;
-            },
-            {
-                objectMode: true,
-            },
-        );
+        const first = map(async (chunk: Chunk) => {
+            await sleep(_rate);
+            chunk.mapped.push(1);
+            return chunk;
+        });
 
-        const second = map(
-            async (chunk: Chunk) => {
-                chunk.mapped.push(2);
-                return chunk;
-            },
-            { objectMode: true },
-        );
+        const second = map(async (chunk: Chunk) => {
+            chunk.mapped.push(2);
+            return chunk;
+        });
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark,
+        });
         composed.on("error", err => {
             reject();
         });
@@ -255,29 +226,20 @@ test.cb(
             key: string;
             mapped: number[];
         }
-        const first = map(
-            async (chunk: Chunk) => {
-                await sleep(_rate);
-                chunk.mapped.push(1);
-                return chunk;
-            },
-            {
-                objectMode: true,
-            },
-        );
+        const first = map(async (chunk: Chunk) => {
+            await sleep(_rate);
+            chunk.mapped.push(1);
+            return chunk;
+        });
 
-        const second = map(
-            async (chunk: Chunk) => {
-                chunk.mapped.push(2);
-                return chunk;
-            },
-            { objectMode: true },
-        );
+        const second = map(async (chunk: Chunk) => {
+            chunk.mapped.push(2);
+            return chunk;
+        });
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark: 5 },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
 
         composed.on("error", err => {
             t.end(err);
@@ -322,15 +284,10 @@ test.cb(
             key: string;
             mapped: number[];
         }
-        const first = map(
-            (chunk: Chunk) => {
-                chunk.mapped.push(1);
-                return chunk;
-            },
-            {
-                objectMode: true,
-            },
-        );
+        const first = map((chunk: Chunk) => {
+            chunk.mapped.push(1);
+            return chunk;
+        });
 
         const second = map(
             async (chunk: Chunk) => {
@@ -341,13 +298,12 @@ test.cb(
                 chunk.mapped.push(2);
                 return chunk;
             },
-            { objectMode: true, highWaterMark: 1 },
+            { highWaterMark: 1 },
         );
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark: 5 },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
         composed.on("error", err => {
             t.end(err);
         });
@@ -398,7 +354,6 @@ test.cb(
                 return chunk;
             },
             {
-                objectMode: true,
                 highWaterMark: 2,
             },
         );
@@ -410,13 +365,12 @@ test.cb(
                 chunk.mapped.push("second");
                 return chunk;
             },
-            { objectMode: true, highWaterMark: 2 },
+            { highWaterMark: 2 },
         );
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark: 5 },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
         composed.on("error", err => {
             t.end(err);
         });
@@ -458,29 +412,20 @@ test.cb(
             key: string;
             mapped: number[];
         }
-        const first = map(
-            async (chunk: Chunk) => {
-                await sleep(_rate);
-                chunk.mapped.push(1);
-                return chunk;
-            },
-            {
-                objectMode: true,
-            },
-        );
+        const first = map(async (chunk: Chunk) => {
+            await sleep(_rate);
+            chunk.mapped.push(1);
+            return chunk;
+        });
 
-        const second = map(
-            async (chunk: Chunk) => {
-                chunk.mapped.push(2);
-                return chunk;
-            },
-            { objectMode: true },
-        );
+        const second = map(async (chunk: Chunk) => {
+            chunk.mapped.push(2);
+            return chunk;
+        });
 
-        const composed = compose(
-            [first, second],
-            { objectMode: true, highWaterMark: 6 },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 6,
+        });
 
         composed.on("error", err => {
             t.end(err);
@@ -510,3 +455,124 @@ test.cb(
         });
     },
 );
+
+test.cb("compose() should be 'destroyable'", t => {
+    t.plan(3);
+    const _sleep = 100;
+    interface Chunk {
+        key: string;
+        mapped: number[];
+    }
+
+    const first = map(async (chunk: Chunk) => {
+        await sleep(_sleep);
+        chunk.mapped.push(1);
+        return chunk;
+    });
+
+    const second = map(async (chunk: Chunk) => {
+        chunk.mapped.push(2);
+        return chunk;
+    });
+
+    const composed = compose([first, second], (err: any) => {
+        t.pass();
+    });
+
+    const fakeSource = new Readable({
+        objectMode: true,
+        read() {
+            return;
+        },
+    });
+
+    const fakeSink = new Writable({
+        objectMode: true,
+        write(data, enc, cb) {
+            const cur = input.shift();
+            t.is(cur.key, data.key);
+            t.deepEqual(cur.mapped, [1, 2]);
+            if (cur.key === "a") {
+                composed.destroy();
+            }
+            cb();
+        },
+    });
+
+    composed.on("close", t.end);
+    fakeSource.pipe(composed).pipe(fakeSink);
+
+    const input = [
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+        { key: "c", mapped: [] },
+        { key: "d", mapped: [] },
+        { key: "e", mapped: [] },
+    ];
+    fakeSource.push(input[0]);
+    fakeSource.push(input[1]);
+    fakeSource.push(input[2]);
+    fakeSource.push(input[3]);
+    fakeSource.push(input[4]);
+});
+
+test.cb("compose() `finish` and `end` propagates", t => {
+    interface Chunk {
+        key: string;
+        mapped: number[];
+    }
+
+    t.plan(8);
+    const first = map(async (chunk: Chunk) => {
+        chunk.mapped.push(1);
+        return chunk;
+    });
+
+    const second = map(async (chunk: Chunk) => {
+        chunk.mapped.push(2);
+        return chunk;
+    });
+
+    const composed = compose([first, second], undefined, {
+        highWaterMark: 3,
+    });
+
+    const fakeSource = new Readable({
+        objectMode: true,
+        read() {
+            return;
+        },
+    });
+    const sink = map((d: Chunk) => {
+        const curr = input.shift();
+        t.is(curr.key, d.key);
+        t.deepEqual(d.mapped, [1, 2]);
+    });
+
+    fakeSource.pipe(composed).pipe(sink);
+
+    fakeSource.on("end", () => {
+        t.pass();
+    });
+    composed.on("finish", () => {
+        t.pass();
+    });
+    composed.on("end", () => {
+        t.pass();
+        t.end();
+    });
+    sink.on("finish", () => {
+        t.pass();
+    });
+
+    const input = [
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+        { key: "c", mapped: [] },
+        { key: "d", mapped: [] },
+        { key: "e", mapped: [] },
+    ];
+    fakeSource.push(input[0]);
+    fakeSource.push(input[1]);
+    fakeSource.push(null);
+});

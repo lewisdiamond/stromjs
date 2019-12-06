@@ -1,16 +1,17 @@
-import { pipeline, Duplex, DuplexOptions } from "stream";
+import { pipeline, TransformOptions, Transform } from "stream";
 
 export function compose(
     streams: Array<
         NodeJS.ReadableStream | NodeJS.ReadWriteStream | NodeJS.WritableStream
     >,
-    options?: DuplexOptions,
+    errorCallback?: (err: any) => void,
+    options?: TransformOptions,
 ): Compose {
     if (streams.length < 2) {
         throw new Error("At least two streams are required to compose");
     }
 
-    return new Compose(streams, options);
+    return new Compose(streams, errorCallback, options);
 }
 
 enum EventSubscription {
@@ -20,46 +21,72 @@ enum EventSubscription {
     Self,
 }
 
-const eventsTarget = {
-    close: EventSubscription.Last,
-    data: EventSubscription.Last,
-    drain: EventSubscription.Self,
-    end: EventSubscription.Last,
-    error: EventSubscription.Self,
-    finish: EventSubscription.Last,
-    pause: EventSubscription.Last,
-    pipe: EventSubscription.First,
-    readable: EventSubscription.Last,
-    resume: EventSubscription.Last,
-    unpipe: EventSubscription.First,
-};
-
 type AllStreams =
     | NodeJS.ReadableStream
     | NodeJS.ReadWriteStream
     | NodeJS.WritableStream;
 
-export class Compose extends Duplex {
+function isReadable(stream: AllStreams): stream is NodeJS.WritableStream {
+    return (
+        (stream as NodeJS.ReadableStream).pipe !== undefined &&
+        (stream as any).readable === true
+    );
+}
+
+export class Compose extends Transform {
     private first: AllStreams;
     private last: AllStreams;
     private streams: AllStreams[];
+    private inputStream: ReadableStream;
 
-    constructor(streams: AllStreams[], options?: DuplexOptions) {
+    constructor(
+        streams: AllStreams[],
+        errorCallback?: (err: any) => void,
+        options?: TransformOptions,
+    ) {
         super(options);
         this.first = streams[0];
         this.last = streams[streams.length - 1];
         this.streams = streams;
-        pipeline(streams, (err: any) => {
-            this.emit("error", err);
+        pipeline(
+            streams,
+            errorCallback ||
+                ((error: any) => {
+                    if (error) {
+                        this.emit("error", error);
+                    }
+                }),
+        );
+
+        if (isReadable(this.last)) {
+            (this.last as NodeJS.ReadWriteStream).pipe(
+                new Transform({
+                    ...options,
+                    transform: (d: any, encoding, cb) => {
+                        this.push(d);
+                        cb();
+                    },
+                }),
+            );
+        }
+    }
+
+    public _transform(chunk: any, encoding: string, cb: any) {
+        (this.first as NodeJS.WritableStream).write(chunk, encoding, cb);
+    }
+
+    public _flush(cb: any) {
+        if (isReadable(this.first)) {
+            (this.first as any).push(null);
+        }
+        this.last.once("end", () => {
+            cb();
         });
     }
 
-    public pipe<T extends NodeJS.WritableStream>(dest: T) {
-        return (this.last as NodeJS.ReadableStream).pipe(dest);
-    }
-
-    public _write(chunk: any, encoding: string, cb: any) {
-        (this.first as NodeJS.WritableStream).write(chunk, encoding, cb);
+    public _destroy(error: any, cb: (error?: any) => void) {
+        this.streams.forEach(s => (s as any).destroy());
+        cb(error);
     }
 
     public bubble(...events: string[]) {
@@ -68,39 +95,5 @@ export class Compose extends Duplex {
                 s.on(e, (...args) => super.emit(e, ...args));
             });
         });
-    }
-
-    public on(event: string, cb: any) {
-        switch (eventsTarget[event]) {
-            case EventSubscription.First:
-                this.first.on(event, cb);
-                break;
-            case EventSubscription.Last:
-                this.last.on(event, cb);
-                break;
-            case EventSubscription.All:
-                this.streams.forEach(s => s.on(event, cb));
-                break;
-            default:
-                super.on(event, cb);
-        }
-        return this;
-    }
-
-    public once(event: string, cb: any) {
-        switch (eventsTarget[event]) {
-            case EventSubscription.First:
-                this.first.once(event, cb);
-                break;
-            case EventSubscription.Last:
-                this.last.once(event, cb);
-                break;
-            case EventSubscription.All:
-                this.streams.forEach(s => s.once(event, cb));
-                break;
-            default:
-                super.once(event, cb);
-        }
-        return this;
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "@jogogo/mhysa",
-    "version": "0.0.1-beta.4",
+    "version": "0.1.0-alpha.1",
     "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",
@@ -35,7 +35,7 @@
         "type": "git"
     },
     "scripts": {
-        "test": "NODE_PATH=src node node_modules/.bin/ava 'tests/*.spec.ts' -e",
+        "test": "NODE_PATH=src node node_modules/.bin/ava tests/*.spec.ts -e",
         "test:debug": "NODE_PATH=src node inspect node_modules/ava/profile.js",
         "test:all": "NODE_PATH=src node node_modules/.bin/ava",
         "lint": "tslint -p tsconfig.json",
@@ -47,7 +47,7 @@
         "@types/chai": "^4.1.7",
         "@types/node": "^12.7.2",
         "@types/sinon": "^7.0.13",
-        "ava": "^1.0.0-rc.2",
+        "ava": "^2.4.0",
         "chai": "^4.2.0",
         "mhysa": "./",
         "prettier": "^1.14.3",
