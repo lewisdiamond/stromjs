@@ -60,8 +60,8 @@ class Demux extends Writable {
                 (this.streamsByKey[destKey] as any).pipe(this.destination);
             }
         }
-        const writeRes = this.streamsByKey[destKey].write(chunk, encoding);
-        if (!writeRes) {
+
+        if (!this.streamsByKey[destKey].write(chunk, encoding)) {
             this.streamsByKey[destKey].once("drain", () => {
                 cb();
             });
