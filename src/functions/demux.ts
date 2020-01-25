@@ -37,6 +37,7 @@ class Demux extends Writable {
     private streamsByKey: {
         [key: string]: DemuxStreams;
     };
+    private destination: Writable;
     private demuxer: (chunk: any) => string;
     private construct: (destKey?: string) => DemuxStreams;
     constructor(
@@ -55,14 +56,23 @@ class Demux extends Writable {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
             this.streamsByKey[destKey] = await this.construct(destKey);
+            if (this.destination !== undefined) {
+                (this.streamsByKey[destKey] as any).pipe(this.destination);
+            }
         }
-        if (!this.streamsByKey[destKey].write(chunk, encoding)) {
+        const writeRes = this.streamsByKey[destKey].write(chunk, encoding);
+        if (!writeRes) {
             this.streamsByKey[destKey].once("drain", () => {
                 cb();
             });
         } else {
             cb();
         }
+    }
+
+    public pipe(dest: any) {
+        this.destination = dest;
+        return dest;
     }
 
     public on(event: string, cb: any) {
