@@ -5,7 +5,7 @@ import { Writable } from "stream";
 const sinon = require("sinon");
 const { sleep } = require("../src/helpers");
 import { performance } from "perf_hooks";
-const { demux, map } = mhysa();
+const { demux, map } = mhysa({ objectMode: true });
 
 interface Test {
     key: string;
@@ -654,4 +654,48 @@ test("demux() should emit drain event when second stream in pipeline is bottlene
             _demux.write(item);
         });
     });
+});
+
+test.cb("Demux should remux to sink", t => {
+    t.plan(6);
+    let i = 0;
+    const input = [
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+        { key: "a", visited: [] },
+        { key: "c", visited: [] },
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+    ];
+    const result = [
+        { key: "a", visited: ["a"] },
+        { key: "b", visited: ["b"] },
+        { key: "a", visited: ["a"] },
+        { key: "c", visited: ["c"] },
+        { key: "a", visited: ["a"] },
+        { key: "b", visited: ["b"] },
+    ];
+    const construct = (destKey: string) => {
+        const dest = map((chunk: any) => {
+            chunk.visited.push(destKey);
+            return chunk;
+        });
+
+        return dest;
+    };
+
+    const remux = map(d => {
+        t.deepEqual(d, result[i]);
+        i++;
+        if (i === input.length) {
+            t.end();
+        }
+    });
+
+    const demuxed = demux(construct, "key", {
+        objectMode: true,
+        remultiplex: remux,
+    });
+
+    input.forEach(event => demuxed.write(event));
 });

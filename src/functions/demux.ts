@@ -10,7 +10,7 @@ enum EventSubscription {
 
 const eventsTarget = {
     close: EventSubscription.Self,
-    data: EventSubscription.Self,
+    data: EventSubscription.All,
     drain: EventSubscription.Self,
     end: EventSubscription.Self,
     error: EventSubscription.Self,
