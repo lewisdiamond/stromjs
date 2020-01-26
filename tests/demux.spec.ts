@@ -685,7 +685,6 @@ test.cb("Demux should remux to sink", t => {
     };
 
     const remux = map(d => {
-        console.log(d);
         t.deepEqual(d, result[i]);
         i++;
         if (i === input.length) {
