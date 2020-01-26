@@ -355,7 +355,7 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
     });
 });
 
-test.cb.only(
+test.cb(
     "demux() should emit drain event when third stream is bottleneck",
     t => {
         t.plan(8);
@@ -446,7 +446,7 @@ test.cb(
         const sink = new Writable({
             objectMode: true,
             write(chunk, encoding, cb) {
-                expect(chunk.mapped).to.deep.equal([1, 2]);
+                expect(chunk.mapped).to.deep.equal([1, 2, 3]);
                 t.pass();
                 pendingReads--;
                 if (pendingReads === 0) {
@@ -685,6 +685,7 @@ test.cb("Demux should remux to sink", t => {
     };
 
     const remux = map(d => {
+        console.log(d);
         t.deepEqual(d, result[i]);
         i++;
         if (i === input.length) {
