@@ -5,7 +5,7 @@ import { Writable } from "stream";
 const sinon = require("sinon");
 const { sleep } = require("../src/helpers");
 import { performance } from "perf_hooks";
-const { demux, map } = mhysa({ objectMode: true });
+const { demux, map, fromArray } = mhysa({ objectMode: true });
 
 interface Test {
     key: string;
@@ -41,8 +41,7 @@ test.cb("demux() constructor should be called once per key", t => {
         t.end();
     });
 
-    input.forEach(event => demuxed.write(event));
-    demuxed.end();
+    fromArray(input).pipe(demuxed);
 });
 
 test.cb("demux() should send input through correct pipeline", t => {
@@ -84,8 +83,7 @@ test.cb("demux() should send input through correct pipeline", t => {
         t.end();
     });
 
-    input.forEach(event => demuxed.write(event));
-    demuxed.end();
+    fromArray(input).pipe(demuxed);
 });
 
 test.cb("demux() constructor should be called once per key using keyBy", t => {
@@ -108,7 +106,9 @@ test.cb("demux() constructor should be called once per key using keyBy", t => {
         return dest;
     });
 
-    const demuxed = demux(construct, item => item.key, { objectMode: true });
+    const demuxed = demux(construct, item => item.key, {
+        objectMode: true,
+    });
 
     demuxed.on("finish", () => {
         expect(construct.withArgs("a").callCount).to.equal(1);
@@ -118,8 +118,7 @@ test.cb("demux() constructor should be called once per key using keyBy", t => {
         t.end();
     });
 
-    input.forEach(event => demuxed.write(event));
-    demuxed.end();
+    fromArray(input).pipe(demuxed);
 });
 
 test.cb("demux() should send input through correct pipeline using keyBy", t => {
@@ -161,8 +160,7 @@ test.cb("demux() should send input through correct pipeline using keyBy", t => {
         t.end();
     });
 
-    input.forEach(event => demuxed.write(event));
-    demuxed.end();
+    fromArray(input).pipe(demuxed);
 });
 
 test("demux() write should return false after if it has >= highWaterMark items buffered and drain should be emitted", t => {
@@ -697,5 +695,5 @@ test.cb("Demux should remux to sink", t => {
         remultiplex: remux,
     });
 
-    input.forEach(event => demuxed.write(event));
+    fromArray(input).pipe(demuxed);
 });
