@@ -724,7 +724,7 @@ test.cb("Demux should send data events", t => {
     });
 });
 
-test.cb("demux() `finish` and `end` propagates", t => {
+test.cb.only("demux() `finish` and `end` propagates", t => {
     interface Chunk {
         key: string;
         mapped: number[];

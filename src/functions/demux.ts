@@ -1,4 +1,4 @@
-import { DuplexOptions, Duplex, Transform } from "stream";
+import { DuplexOptions, Duplex, Transform, Writable } from "stream";
 
 import { isReadable } from "../helpers";
 
@@ -48,10 +48,11 @@ class Demux extends Duplex {
             ...options,
             transform: (d, _, cb) => {
                 this.push(d);
-                cb(null, d);
+                cb(null);
             },
         });
-        this.once("unpipe", () => this._flush());
+
+        this.on("unpipe", () => this._flush());
     }
 
     public _read(size: number) {}
@@ -87,7 +88,7 @@ class Demux extends Duplex {
                 totalEnded++;
                 if (pipelines.length === totalEnded) {
                     this.push(null);
-                    this.emit("finished");
+                    this.emit("end");
                 }
             });
         });
