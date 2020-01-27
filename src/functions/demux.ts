@@ -35,7 +35,7 @@ class Demux extends Duplex {
     constructor(
         construct: (destKey?: string) => DemuxStreams,
         demuxBy: string | ((chunk: any) => string),
-        options: DemuxOptions,
+        options: DemuxOptions = {},
     ) {
         super(options);
         this.demuxer =
