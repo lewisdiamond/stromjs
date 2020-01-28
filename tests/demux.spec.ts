@@ -161,7 +161,7 @@ test.cb("demux() should send input through correct pipeline using keyBy", t => {
     fromArray(input).pipe(demuxed);
 });
 
-test("demux() write should return false after if it has >= highWaterMark items buffered and drain should be emitted", t => {
+test("demux() write should return false and emit drain if more than highWaterMark items are buffered", t => {
     return new Promise(async (resolve, reject) => {
         t.plan(7);
         interface Chunk {
@@ -224,7 +224,7 @@ test("demux() write should return false after if it has >= highWaterMark items b
     });
 });
 
-test("demux() should emit one drain event after slowProcessorSpeed * highWaterMark ms", t => {
+test("demux() should emit one drain event after slowProcessorSpeed * highWaterMark ms when first stream is bottleneck", t => {
     return new Promise(async (resolve, reject) => {
         t.plan(7);
         interface Chunk {
@@ -290,7 +290,7 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
 
 test("demux() should emit one drain event when writing 6 items with highWaterMark of 5", t => {
     return new Promise(async (resolve, reject) => {
-        t.plan(7);
+        t.plan(1);
         interface Chunk {
             key: string;
             mapped: number[];
@@ -317,7 +317,6 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
 
             first.on("data", () => {
                 pendingReads--;
-                t.pass();
                 if (pendingReads === 0) {
                     resolve();
                 }
@@ -349,8 +348,9 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
 });
 
 test.cb(
-    "demux() should emit drain event when second stream is bottleneck",
+    "demux() should emit drain event when second stream is bottleneck after (highWaterMark - 2) * slowProcessorSpeed ms",
     t => {
+        // ie) first two items are pushed directly into first and second streams (highWaterMark - 2 remain in demux)
         t.plan(8);
         const slowProcessorSpeed = 100;
         const highWaterMark = 5;
@@ -401,7 +401,7 @@ test.cb(
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(
-                slowProcessorSpeed,
+                slowProcessorSpeed * 3,
             );
             t.pass();
         });
@@ -425,6 +425,7 @@ test.cb(
 test.cb(
     "demux() should emit drain event when third stream is bottleneck",
     t => {
+        // @TODO investigate why drain is emitted after slowProcessorSpeed
         t.plan(8);
         const slowProcessorSpeed = 100;
         const highWaterMark = 5;
@@ -482,7 +483,6 @@ test.cb(
             t.end(err);
         });
 
-        // This event should be received after at least 3 * slowProcessorSpeed (two are read immediately by first and second, 3 remaining in demux before drain event)
         _demux.on("drain", () => {
             expect(_demux._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(
@@ -507,7 +507,7 @@ test.cb(
     },
 );
 
-test.skip("demux() should be blocked by slowest pipeline", t => {
+test("demux() should be blocked by slowest pipeline", t => {
     t.plan(1);
     const slowProcessorSpeed = 100;
     interface Chunk {
@@ -568,75 +568,6 @@ test.skip("demux() should be blocked by slowest pipeline", t => {
                 });
             }
         }
-    });
-});
-
-test("demux() should emit drain event when second stream in pipeline is bottleneck", t => {
-    t.plan(5);
-    const highWaterMark = 3;
-    return new Promise(async (resolve, reject) => {
-        interface Chunk {
-            key: string;
-            mapped: number[];
-        }
-        const sink = new Writable({
-            objectMode: true,
-            write(chunk, encoding, cb) {
-                expect(chunk.mapped).to.deep.equal([1, 2]);
-                t.pass();
-                cb();
-                if (pendingReads === 0) {
-                    resolve();
-                }
-            },
-        });
-
-        const construct = (destKey: string) => {
-            const first = map(
-                (chunk: Chunk) => {
-                    expect(first._readableState.length).to.be.at.most(2);
-                    chunk.mapped.push(1);
-                    return chunk;
-                },
-                { highWaterMark: 2 },
-            );
-
-            const second = map(
-                async (chunk: Chunk) => {
-                    await sleep(100);
-                    chunk.mapped.push(2);
-                    expect(second._writableState.length).to.be.equal(1);
-                    pendingReads--;
-                    return chunk;
-                },
-                { highWaterMark: 1 },
-            );
-
-            first.pipe(second).pipe(sink);
-            return first;
-        };
-
-        const _demux = demux(construct, "key", {
-            highWaterMark,
-        });
-        _demux.on("error", err => {
-            reject();
-        });
-
-        _demux.on("drain", () => {
-            expect(_demux._writableState.length).to.be.equal(0);
-            t.pass();
-        });
-
-        const input = [
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-        ];
-        let pendingReads = input.length;
-
-        fromArray(input).pipe(_demux);
     });
 });
 
@@ -724,7 +655,7 @@ test.cb("Demux should send data events", t => {
     });
 });
 
-test.cb.only("demux() `finish` and `end` propagates", t => {
+test.cb("demux() `finish` and `end` propagates", t => {
     interface Chunk {
         key: string;
         mapped: number[];
