@@ -1,4 +1,5 @@
 import { pipeline, TransformOptions, Transform } from "stream";
+import { AllStreams, isReadable } from "../helpers";
 
 export function compose(
     streams: Array<
@@ -19,18 +20,6 @@ enum EventSubscription {
     First,
     All,
     Self,
-}
-
-type AllStreams =
-    | NodeJS.ReadableStream
-    | NodeJS.ReadWriteStream
-    | NodeJS.WritableStream;
-
-function isReadable(stream: AllStreams): stream is NodeJS.WritableStream {
-    return (
-        (stream as NodeJS.ReadableStream).pipe !== undefined &&
-        (stream as any).readable === true
-    );
 }
 
 export class Compose extends Transform {
