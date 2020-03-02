@@ -12,7 +12,7 @@ enum EventSubscription {
 
 type DemuxStreams = NodeJS.WritableStream | NodeJS.ReadWriteStream;
 
-interface DemuxOptions extends DuplexOptions {
+export interface DemuxOptions extends DuplexOptions {
     remultiplex?: boolean;
 }
 
@@ -55,6 +55,7 @@ class Demux extends Duplex {
         this.on("unpipe", () => this._flush());
     }
 
+    // tslint:disable-next-line
     public _read(size: number) {}
 
     public async _write(chunk: any, encoding: any, cb: any) {
