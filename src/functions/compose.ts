@@ -1,5 +1,5 @@
-import { pipeline, TransformOptions, Transform } from "stream";
 import { AllStreams, isReadable } from "../helpers";
+import { PassThrough, pipeline, TransformOptions, Transform } from "stream";
 
 export function compose(
     streams: Array<
@@ -34,11 +34,11 @@ export class Compose extends Transform {
         options?: TransformOptions,
     ) {
         super(options);
-        this.first = streams[0];
+        this.first = new PassThrough(options);
         this.last = streams[streams.length - 1];
         this.streams = streams;
         pipeline(
-            streams,
+            [this.first, ...streams],
             errorCallback ||
                 ((error: any) => {
                     if (error) {

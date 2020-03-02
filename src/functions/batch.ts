@@ -12,7 +12,9 @@ export function batch(
             clearTimeout(timer);
         }
         timer = null;
-        self.push(buffer);
+        if (buffer.length > 0) {
+            self.push(buffer);
+        }
         buffer = [];
     };
     return new Transform({

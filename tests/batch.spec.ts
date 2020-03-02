@@ -2,7 +2,7 @@ import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
 import mhysa from "../src";
-const { batch } = mhysa({ objectMode: true });
+const { batch, map, fromArray } = mhysa({ objectMode: true });
 
 test.cb("batch() batches chunks together", t => {
     t.plan(3);
@@ -57,3 +57,28 @@ test.cb("batch() yields a batch after the timeout", t => {
         source.push(null);
     }, 600 * 2);
 });
+
+test.cb(
+    "batch() yields all input data even when the last element(s) dont make a full batch",
+    t => {
+        const data = [1, 2, 3, 4, 5, 6, 7];
+
+        fromArray([...data])
+            .pipe(batch(3))
+            .pipe(
+                map(d => {
+                    t.deepEqual(
+                        d,
+                        [data.shift(), data.shift(), data.shift()].filter(
+                            x => !!x,
+                        ),
+                    );
+                }),
+            )
+            .on("error", t.fail)
+            .on("finish", () => {
+                t.is(data.length, 0);
+                t.end();
+            });
+    },
+);

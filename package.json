@@ -1,6 +1,6 @@
 {
     "name": "@jogogo/mhysa",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.2",
     "description": "Streams and event emitter utils for Node.js",
     "keywords": [
         "promise",
@@ -43,7 +43,7 @@
     "dependencies": {},
     "devDependencies": {
         "@types/chai": "^4.1.7",
-        "@types/node": "^12.7.2",
+        "@types/node": "^12.12.15",
         "@types/sinon": "^7.0.13",
         "ava": "^2.4.0",
         "chai": "^4.2.0",
@@ -58,7 +58,8 @@
     },
     "ava": {
         "files": [
-            "tests/*.spec.ts"
+            "tests/*.spec.ts",
+            "tests/utils/*.spec.ts"
         ],
         "sources": [
             "src/**/*.ts"
