@@ -1,14 +1,6 @@
-import { DuplexOptions, Duplex, Transform, Writable } from "stream";
+import { DuplexOptions, Duplex, Transform } from "stream";
 
 import { isReadable } from "../helpers";
-
-enum EventSubscription {
-    Last = 0,
-    First,
-    All,
-    Self,
-    Unhandled,
-}
 
 type DemuxStreams = NodeJS.WritableStream | NodeJS.ReadWriteStream;
 
@@ -17,7 +9,7 @@ export interface DemuxOptions extends DuplexOptions {
 }
 
 export function demux(
-    construct: (destKey?: string) => DemuxStreams,
+    construct: (destKey?: string, chunk?: any) => DemuxStreams,
     demuxBy: string | ((chunk: any) => string),
     options?: DemuxOptions,
 ): Duplex {
@@ -29,7 +21,7 @@ class Demux extends Duplex {
         [key: string]: DemuxStreams;
     };
     private demuxer: (chunk: any) => string;
-    private construct: (destKey?: string) => DemuxStreams;
+    private construct: (destKey?: string, chunk?: any) => DemuxStreams;
     private remultiplex: boolean;
     private transform: Transform;
     constructor(
@@ -61,7 +53,7 @@ class Demux extends Duplex {
     public async _write(chunk: any, encoding: any, cb: any) {
         const destKey = this.demuxer(chunk);
         if (this.streamsByKey[destKey] === undefined) {
-            const newPipeline = await this.construct(destKey);
+            const newPipeline = await this.construct(destKey, chunk);
             this.streamsByKey[destKey] = newPipeline;
             if (this.remultiplex && isReadable(newPipeline)) {
                 (newPipeline as NodeJS.ReadWriteStream).pipe(this.transform);

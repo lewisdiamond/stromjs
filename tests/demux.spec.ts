@@ -44,6 +44,34 @@ test.cb("demux() constructor should be called once per key", t => {
     fromArray(input).pipe(demuxed);
 });
 
+test.cb("demux() item written passed in constructor", t => {
+    t.plan(4);
+    const input = [
+        { key: "a", visited: [] },
+        { key: "b", visited: [] },
+        { key: "c", visited: [] },
+    ];
+    const construct = sinon.spy((destKey: string, item: any) => {
+        expect(item).to.deep.equal({ key: destKey, visited: [] });
+        t.pass();
+        const dest = map((chunk: Test) => {
+            chunk.visited.push(1);
+            return chunk;
+        });
+
+        return dest;
+    });
+
+    const demuxed = demux(construct, "key", {});
+
+    demuxed.on("finish", () => {
+        t.pass();
+        t.end();
+    });
+
+    fromArray(input).pipe(demuxed);
+});
+
 test.cb("demux() should send input through correct pipeline", t => {
     t.plan(6);
     const input = [
