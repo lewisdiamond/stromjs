@@ -2,8 +2,8 @@ import { Readable } from "stream";
 import { performance } from "perf_hooks";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { rate } = mhysa({ objectMode: true });
+import { strom } from "../src";
+const { rate } = strom({ objectMode: true });
 
 test.cb("rate() sends data at a rate of 150", t => {
     t.plan(5);

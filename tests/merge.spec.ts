@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { merge } = mhysa();
+import { strom } from "../src";
+const { merge } = strom();
 
 test.cb(
     "merge() merges multiple readable streams in chunk arrival order",

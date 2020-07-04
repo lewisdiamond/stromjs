@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { unbatch, batch } = mhysa({ objectMode: true });
+import { strom } from "../src";
+const { unbatch, batch } = strom({ objectMode: true });
 
 test.cb("unbatch() unbatches", t => {
     t.plan(3);

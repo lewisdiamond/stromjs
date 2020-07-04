@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { collect } = mhysa();
+import { strom } from "../src";
+const { collect } = strom();
 
 test.cb(
     "collect() collects streamed elements into an array (object, flowing mode)",

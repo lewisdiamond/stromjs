@@ -1,11 +1,11 @@
 import { Readable } from "stream";
 import test from "ava";
-import mhysa from "../src";
+import { strom } from "../src";
 
-const withDefaultOptions = mhysa({ objectMode: true });
-const withoutOptions = mhysa();
+const withDefaultOptions = strom({ objectMode: true });
+const withoutOptions = strom();
 
-test("Mhysa instances can have default options", t => {
+test("strom instances can have default options", t => {
     let batch = withDefaultOptions.batch();
     t.true(batch._readableState.objectMode);
     t.true(batch._writableState.objectMode);

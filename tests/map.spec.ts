@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { map } = mhysa();
+import { strom } from "../src";
+const { map } = strom();
 
 test.cb("map() maps elements synchronously", t => {
     t.plan(3);

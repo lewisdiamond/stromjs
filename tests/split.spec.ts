@@ -1,8 +1,8 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { split } = mhysa();
+import { strom } from "../src";
+const { split } = strom();
 
 test.cb("split() splits chunks using the default separator (\\n)", t => {
     t.plan(5);

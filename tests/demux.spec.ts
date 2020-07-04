@@ -1,11 +1,11 @@
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
+import { strom } from "../src";
 import { Writable, Readable } from "stream";
-const sinon = require("sinon");
-const { sleep } = require("../src/helpers");
+import * as sinon from "sinon";
+import { sleep } from "../src/helpers";
 import { performance } from "perf_hooks";
-const { demux, map, fromArray } = mhysa({ objectMode: true });
+const { demux, map, fromArray } = strom({ objectMode: true });
 
 interface Test {
     key: string;

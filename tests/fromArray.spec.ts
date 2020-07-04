@@ -1,7 +1,7 @@
 import test from "ava";
 import { expect } from "chai";
-import mhysa from "../src";
-const { fromArray } = mhysa();
+import { strom } from "../src";
+const { fromArray } = strom();
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);

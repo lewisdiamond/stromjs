@@ -2,9 +2,9 @@ import * as test from "ava";
 import { expect } from "chai";
 import { sleep } from "../src/helpers";
 import { Readable, Writable } from "stream";
-import mhysa from "../src";
+import { strom } from "../src";
 import { performance } from "perf_hooks";
-const { compose, map, fromArray } = mhysa({ objectMode: true });
+const { compose, map, fromArray } = strom({ objectMode: true });
 
 test.cb("compose() chains two streams together in the correct order", t => {
     t.plan(3);
@@ -114,13 +114,9 @@ test("compose() writable length should be less than highWaterMark when handing w
             return chunk;
         });
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark: 2,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 2,
+        });
         composed.on("error", err => {
             reject();
         });
@@ -168,13 +164,9 @@ test("compose() should emit drain event ~rate * highWaterMark ms for every write
             return chunk;
         });
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark,
+        });
         composed.on("error", err => {
             reject();
         });
@@ -221,13 +213,9 @@ test.cb(
             return chunk;
         });
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark: 5,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
 
         composed.on("error", err => {
             t.end(err);
@@ -284,13 +272,9 @@ test.cb(
             { highWaterMark: 1 },
         );
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark: 5,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
         composed.on("error", err => {
             t.end(err);
         });
@@ -355,13 +339,9 @@ test.cb(
             { highWaterMark: 2 },
         );
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark: 5,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 5,
+        });
         composed.on("error", err => {
             t.end(err);
         });
@@ -414,13 +394,9 @@ test.cb(
             return chunk;
         });
 
-        const composed = compose(
-            [first, second],
-            undefined,
-            {
-                highWaterMark: 6,
-            },
-        );
+        const composed = compose([first, second], undefined, {
+            highWaterMark: 6,
+        });
 
         composed.on("error", err => {
             t.end(err);
@@ -470,12 +446,9 @@ test.cb("compose() should be 'destroyable'", t => {
         return chunk;
     });
 
-    const composed = compose(
-        [first, second],
-        (err: any) => {
-            t.pass();
-        },
-    );
+    const composed = compose([first, second], (err: any) => {
+        t.pass();
+    });
 
     const fakeSource = new Readable({
         objectMode: true,
@@ -531,13 +504,9 @@ test.cb("compose() `finish` and `end` propagates", t => {
         return chunk;
     });
 
-    const composed = compose(
-        [first, second],
-        undefined,
-        {
-            highWaterMark: 3,
-        },
-    );
+    const composed = compose([first, second], undefined, {
+        highWaterMark: 3,
+    });
 
     const fakeSource = new Readable({
         objectMode: true,

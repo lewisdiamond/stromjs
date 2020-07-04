@@ -1,10 +1,10 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import mhysa from "../src";
+import { strom } from "../src";
 import { FlushStrategy } from "../src/functions/accumulator";
 import { performance } from "perf_hooks";
-const { accumulator, accumulatorBy } = mhysa({ objectMode: true });
+const { accumulator, accumulatorBy } = strom({ objectMode: true });
 
 test.cb("accumulator() rolling", t => {
     t.plan(3);
@@ -14,8 +14,14 @@ test.cb("accumulator() rolling", t => {
         key: string;
     }
     const source = new Readable({ objectMode: true });
-    const firstFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
-    const secondFlush = [{ ts: 2, key: "d" }, { ts: 3, key: "e" }];
+    const firstFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+    ];
+    const secondFlush = [
+        { ts: 2, key: "d" },
+        { ts: 3, key: "e" },
+    ];
     const thirdFlush = [{ ts: 4, key: "f" }];
     const flushes = [firstFlush, secondFlush, thirdFlush];
 
@@ -88,7 +94,10 @@ test.cb(
             "nonExistingKey",
             { objectMode: true },
         );
-        const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+        const input = [
+            { ts: 0, key: "a" },
+            { ts: 1, key: "b" },
+        ];
 
         source
             .pipe(accumulatorStream)
@@ -182,7 +191,10 @@ test.cb("accumulator() sliding", t => {
         { ts: 4, key: "d" },
     ];
     const firstFlush = [{ ts: 0, key: "a" }];
-    const secondFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const secondFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+    ];
     const thirdFlush = [
         { ts: 0, key: "a" },
         { ts: 1, key: "b" },
@@ -232,7 +244,10 @@ test.cb("accumulator() sliding with key", t => {
         { ts: 6, key: "g" },
     ];
     const firstFlush = [{ ts: 0, key: "a" }];
-    const secondFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const secondFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+    ];
     const thirdFlush = [
         { ts: 0, key: "a" },
         { ts: 1, key: "b" },
@@ -243,8 +258,14 @@ test.cb("accumulator() sliding with key", t => {
         { ts: 2, key: "c" },
         { ts: 3, key: "d" },
     ];
-    const fifthFlush = [{ ts: 3, key: "d" }, { ts: 5, key: "f" }];
-    const sixthFlush = [{ ts: 5, key: "f" }, { ts: 6, key: "g" }];
+    const fifthFlush = [
+        { ts: 3, key: "d" },
+        { ts: 5, key: "f" },
+    ];
+    const sixthFlush = [
+        { ts: 5, key: "f" },
+        { ts: 6, key: "g" },
+    ];
 
     const flushes = [
         firstFlush,
@@ -286,7 +307,10 @@ test.cb(
             "nonExistingKey",
             { objectMode: true },
         );
-        const input = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+        const input = [
+            { ts: 0, key: "a" },
+            { ts: 1, key: "b" },
+        ];
 
         source
             .pipe(accumulatorStream)
@@ -334,10 +358,22 @@ test.cb(
             { ts: 6, key: "g" },
         ];
         const firstFlush = [{ ts: 0, key: "a" }];
-        const secondFlush = [{ ts: 0, key: "a" }, { ts: 2, key: "c" }];
-        const thirdFlush = [{ ts: 2, key: "c" }, { ts: 3, key: "d" }];
-        const fourthFlush = [{ ts: 3, key: "d" }, { ts: 5, key: "f" }];
-        const fifthFlush = [{ ts: 5, key: "f" }, { ts: 6, key: "g" }];
+        const secondFlush = [
+            { ts: 0, key: "a" },
+            { ts: 2, key: "c" },
+        ];
+        const thirdFlush = [
+            { ts: 2, key: "c" },
+            { ts: 3, key: "d" },
+        ];
+        const fourthFlush = [
+            { ts: 3, key: "d" },
+            { ts: 5, key: "f" },
+        ];
+        const fifthFlush = [
+            { ts: 5, key: "f" },
+            { ts: 6, key: "g" },
+        ];
 
         const flushes = [
             firstFlush,
@@ -469,7 +505,10 @@ test.cb("accumulatorBy() sliding", t => {
         { ts: 6, key: "g" },
     ];
     const firstFlush = [{ ts: 0, key: "a" }];
-    const secondFlush = [{ ts: 0, key: "a" }, { ts: 1, key: "b" }];
+    const secondFlush = [
+        { ts: 0, key: "a" },
+        { ts: 1, key: "b" },
+    ];
     const thirdFlush = [
         { ts: 0, key: "a" },
         { ts: 1, key: "b" },
@@ -480,8 +519,14 @@ test.cb("accumulatorBy() sliding", t => {
         { ts: 2, key: "c" },
         { ts: 3, key: "d" },
     ];
-    const fifthFlush = [{ ts: 3, key: "d" }, { ts: 5, key: "f" }];
-    const sixthFlush = [{ ts: 5, key: "f" }, { ts: 6, key: "g" }];
+    const fifthFlush = [
+        { ts: 3, key: "d" },
+        { ts: 5, key: "f" },
+    ];
+    const sixthFlush = [
+        { ts: 5, key: "f" },
+        { ts: 6, key: "g" },
+    ];
 
     const flushes = [
         firstFlush,
