@@ -1,6 +1,6 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 const catProcess = require("child_process").exec("grep -o ab");
 
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.child(catProcess))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.child(catProcess))
     .pipe(process.stdout);

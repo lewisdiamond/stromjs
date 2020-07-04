@@ -1,6 +1,6 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a", "b"])
-    .pipe(Mhysa.map(s => s.toUpperCase()))
-    .pipe(Mhysa.join(","))
+strom.fromArray(["a", "b"])
+    .pipe(strom.map(s => s.toUpperCase()))
+    .pipe(strom.join(","))
     .pipe(process.stdout);

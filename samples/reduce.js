@@ -1,6 +1,6 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a", "b", "cc"])
-    .pipe(Mhysa.reduce((acc, s) => ({ ...acc, [s]: s.length }), {}))
-    .pipe(Mhysa.stringify())
+strom.fromArray(["a", "b", "cc"])
+    .pipe(strom.reduce((acc, s) => ({ ...acc, [s]: s.length }), {}))
+    .pipe(strom.stringify())
     .pipe(process.stdout);

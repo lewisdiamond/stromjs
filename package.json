@@ -1,17 +1,16 @@
 {
-    "name": "@jogogo/mhysa",
-    "version": "2.0.0-alpha.4",
-    "description": "Streams and event emitter utils for Node.js",
+    "name": "strom",
+    "version": "2.0.0",
+    "description": "Streams utils for Node.js",
     "keywords": [
         "promise",
         "stream",
-        "event emitter",
         "utils"
     ],
-    "author": {
-        "name": "Wenzil"
-    },
     "contributors": [
+        {
+            "name": "Wenzil"
+        },
         {
             "name": "jerry",
             "email": "jerry@jogogo.co"
@@ -27,11 +26,8 @@
     "files": [
         "dist"
     ],
-    "publishConfig": {
-        "registry": "https://npm.dev.jogogo.co/"
-    },
     "repository": {
-        "url": "git@github.com:Jogogoplay/mhysa.git",
+        "url": "git@git.lewis.id:ldiamond/strom.git",
         "type": "git"
     },
     "scripts": {

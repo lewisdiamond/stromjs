@@ -1,8 +1,8 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.map(s => Promise.resolve(s + s)))
-    .pipe(Mhysa.flatMap(s => Promise.resolve([s, s.toUpperCase()])))
-    .pipe(Mhysa.filter(s => Promise.resolve(s !== "bb")))
-    .pipe(Mhysa.join(","))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.map(s => Promise.resolve(s + s)))
+    .pipe(strom.flatMap(s => Promise.resolve([s, s.toUpperCase()])))
+    .pipe(strom.filter(s => Promise.resolve(s !== "bb")))
+    .pipe(strom.join(","))
     .pipe(process.stdout);

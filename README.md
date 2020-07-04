@@ -1,14 +1,12 @@
-# Mhysa
+# Strom 
 
 **Dependency-free stream utils for Node.js**
 
-<sub>Released under the [MIT](https://github.com/Wenzil/Mhysa/blob/master/LICENSE) license.</sub>
+<sub>Released under the [MIT](https://git.lewis.id/strom/blob/master/LICENSE) license.</sub>
 
 ```sh
-yarn add mhysa
+yarn add @jogogo/strom 
 ```
-
-<sub>Tested with Node.js versions 8+</sub>
 
 ## fromArray(array)
 Convert an array into a `Readable` stream of its elements
@@ -18,7 +16,7 @@ Convert an array into a `Readable` stream of its elements
 | `array` | `T[]` | Array of elements to stream |
 
 ```js
-Mhysa.fromArray(["a", "b"])
+strom.fromArray(["a", "b"])
     .pipe(process.stdout);
 // ab is printed out
 ```
@@ -35,8 +33,8 @@ Return a `ReadWrite` stream that maps streamed chunks
 | `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
 ```js
-Mhysa.fromArray(["a", "b"])
-    .pipe(Mhysa.map(s => s.toUpperCase()))
+strom.fromArray(["a", "b"])
+    .pipe(strom.map(s => s.toUpperCase()))
     .pipe(process.stdout);
 // AB is printed out
 ```
@@ -53,8 +51,8 @@ Return a `ReadWrite` stream that flat maps streamed chunks
 | `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
 ```js
-Mhysa.fromArray(["a", "AA"])
-    .pipe(Mhysa.flatMap(s => new Array(s.length).fill(s)))
+strom.fromArray(["a", "AA"])
+    .pipe(strom.flatMap(s => new Array(s.length).fill(s)))
     .pipe(process.stdout);
 // aAAAA is printed out
 ```
@@ -70,8 +68,8 @@ Return a `ReadWrite` stream that filters out streamed chunks for which the predi
 | `options.objectMode` | `boolean` | `boolean` | Whether this stream should behave as a stream of objects |
 
 ```js
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.filter(s => s !== "b"))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.filter(s => s !== "b"))
     .pipe(process.stdout);
 // ac is printed out
 ```
@@ -90,9 +88,9 @@ value
 | `options.writableObjectMode` | `boolean` | Whether this stream should behave as a writable stream of objects |
 
 ```js
-Mhysa.fromArray(["a", "b", "cc"])
-    .pipe(Mhysa.reduce((acc, s) => ({ ...acc, [s]: s.length }), {}))
-    .pipe(Mhysa.stringify())
+strom.fromArray(["a", "b", "cc"])
+    .pipe(strom.reduce((acc, s) => ({ ...acc, [s]: s.length }), {}))
+    .pipe(strom.stringify())
     .pipe(process.stdout);
 // {"a":1,"b":1","c":2} is printed out
 ```
@@ -108,9 +106,9 @@ Return a `ReadWrite` stream that splits streamed chunks using the given separato
 | `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
-Mhysa.fromArray(["a,b", "c,d"])
-    .pipe(Mhysa.split(","))
-    .pipe(Mhysa.join("|"))
+strom.fromArray(["a,b", "c,d"])
+    .pipe(strom.split(","))
+    .pipe(strom.join("|"))
     .pipe(process.stdout);
 // a|bc|d is printed out
 ```
@@ -126,8 +124,8 @@ Return a `ReadWrite` stream that joins streamed chunks using the given separator
 | `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.join(","))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.join(","))
     .pipe(process.stdout);
 // a,b,c is printed out
 ```
@@ -145,8 +143,8 @@ the streamed chunks with the specified replacement string
 | `options.encoding` | `string` | Character encoding to use for decoding chunks. Defaults to utf8
 
 ```js
-Mhysa.fromArray(["a1", "b22", "c333"])
-    .pipe(Mhysa.replace(/b\d+/, "B"))
+strom.fromArray(["a1", "b22", "c333"])
+    .pipe(strom.replace(/b\d+/, "B"))
     .pipe(process.stdout);
 // a1Bc333 is printed out
 ```
@@ -156,8 +154,8 @@ Mhysa.fromArray(["a1", "b22", "c333"])
 Return a `ReadWrite` stream that parses the streamed chunks as JSON
 
 ```js
-Mhysa.fromArray(['{ "a": "b" }'])
-    .pipe(Mhysa.parse())
+strom.fromArray(['{ "a": "b" }'])
+    .pipe(strom.parse())
     .once("data", object => console.log(object));
 // { a: 'b' } is printed out
 ```
@@ -167,8 +165,8 @@ Mhysa.fromArray(['{ "a": "b" }'])
 Return a `ReadWrite` stream that stringifies the streamed chunks to JSON
 
 ```js
-Mhysa.fromArray([{ a: "b" }])
-    .pipe(Mhysa.stringify())
+strom.fromArray([{ a: "b" }])
+    .pipe(strom.stringify())
     .pipe(process.stdout);
 // {"a":"b"} is printed out
 ```
@@ -183,8 +181,8 @@ Return a `ReadWrite` stream that collects streamed chunks into an array or buffe
 | `options.objectMode` | `boolean` | Whether this stream should behave as a stream of objects |
 
 ```js
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.collect({ objectMode: true }))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.collect({ objectMode: true }))
     .once("data", object => console.log(object));
 // [ 'a', 'b', 'c' ] is printed out
 ```
@@ -200,7 +198,7 @@ Return a `Readable` stream of readable streams concatenated together
 ```js
 const source1 = new Readable();
 const source2 = new Readable();
-Mhysa.concat(source1, source2).pipe(process.stdout)
+strom.concat(source1, source2).pipe(process.stdout)
 source1.push("a1 ");
 source2.push("c3 ");
 source1.push("b2 ");
@@ -221,7 +219,7 @@ Return a `Readable` stream of readable streams merged together in chunk arrival 
 ```js
 const source1 = new Readable({ read() {} });
 const source2 = new Readable({ read() {} });
-Mhysa.merge(source1, source2).pipe(process.stdout);
+strom.merge(source1, source2).pipe(process.stdout);
 source1.push("a1 ");
 setTimeout(() => source2.push("c3 "), 10);
 setTimeout(() => source1.push("b2 "), 20);
@@ -243,8 +241,8 @@ cause the given readable stream to yield chunks
 
 ```js
 const catProcess = require("child_process").exec("grep -o ab");
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.duplex(catProcess.stdin, catProcess.stdout))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.duplex(catProcess.stdin, catProcess.stdout))
     .pipe(process.stdout);
 // ab is printed out
 ```
@@ -259,8 +257,8 @@ Return a `Duplex` stream from a child process' stdin and stdout
 
 ```js
 const catProcess = require("child_process").exec("grep -o ab");
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.child(catProcess))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.child(catProcess))
     .pipe(process.stdout);
 // ab is printed out
 ```
@@ -276,8 +274,8 @@ ended
 
 ```js
 let f = async () => {
-    const source = Mhysa.fromArray(["a", "b", "c"]);
-    console.log(await Mhysa.last(source));
+    const source = strom.fromArray(["a", "b", "c"]);
+    console.log(await strom.last(source));
 };
 f();
 // c is printed out

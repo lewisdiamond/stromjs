@@ -1,6 +1,6 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.filter(s => s !== "b"))
-    .pipe(Mhysa.join(","))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.filter(s => s !== "b"))
+    .pipe(strom.join(","))
     .pipe(process.stdout);

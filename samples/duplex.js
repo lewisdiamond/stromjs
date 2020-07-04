@@ -1,6 +1,6 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 const catProcess = require("child_process").exec("grep -o ab");
 
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.duplex(catProcess.stdin, catProcess.stdout))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.duplex(catProcess.stdin, catProcess.stdout))
     .pipe(process.stdout);

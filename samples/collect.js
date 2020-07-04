@@ -1,5 +1,5 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a", "b", "c"])
-    .pipe(Mhysa.collect({ objectMode: true }))
+strom.fromArray(["a", "b", "c"])
+    .pipe(strom.collect({ objectMode: true }))
     .on("data", object => console.log(object));

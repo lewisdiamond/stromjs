@@ -1,5 +1,5 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray(["a1", "b22", "c333"])
-    .pipe(Mhysa.replace(/b\d+/, "B"))
+strom.fromArray(["a1", "b22", "c333"])
+    .pipe(strom.replace(/b\d+/, "B"))
     .pipe(process.stdout);

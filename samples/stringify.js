@@ -1,5 +1,5 @@
-const Mhysa = require("mhysa");
+const strom = require("strom");
 
-Mhysa.fromArray([{ a: "b" }])
-    .pipe(Mhysa.stringify())
+strom.fromArray([{ a: "b" }])
+    .pipe(strom.stringify())
     .pipe(process.stdout);
