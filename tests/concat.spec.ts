@@ -172,7 +172,7 @@ test.cb(
 test.cb("concat() concatenates empty list of readable streams", t => {
     t.plan(0);
     concat()
-        .pipe(collect())
+        .pipe(collect({ objectMode: false }))
         .on("data", _ => {
             t.fail();
         })

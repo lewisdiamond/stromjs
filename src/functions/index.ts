@@ -28,7 +28,7 @@ import { unbatch } from "./unbatch";
 import { compose } from "./compose";
 import { demux } from "./demux";
 
-export function strom(defaultOptions?: TransformOptions) {
+export function strom(defaultOptions: TransformOptions = { objectMode: true }) {
     function withDefaultOptions<T extends any[], R>(
         n: number,
         fn: (...args: T) => R,

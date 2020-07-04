@@ -59,7 +59,7 @@ test.cb(
         const source = new Readable({ objectMode: false });
 
         source
-            .pipe(collect())
+            .pipe(collect({ objectMode: false }))
             .on("data", collected => {
                 expect(collected).to.deep.equal(Buffer.from("abc"));
                 t.pass();
