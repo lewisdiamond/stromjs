@@ -34,7 +34,8 @@
         "test": "ava",
         "lint": "tslint -p tsconfig.json",
         "validate:tslint": "tslint-config-prettier-check ./tslint.json",
-        "prepublishOnly": "yarn lint && yarn test && yarn tsc -d"
+        "prepublishOnly": "yarn lint && yarn test && yarn tsc -d",
+        "prepare": "tsc"
     },
     "dependencies": {},
     "devDependencies": {
