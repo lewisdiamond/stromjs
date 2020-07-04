@@ -1,5 +1,5 @@
 const { Readable } = require("stream");
-const strom = require("strom");
+const strom = require("strom").strom();
 
 const source1 = new Readable();
 const source2 = new Readable();

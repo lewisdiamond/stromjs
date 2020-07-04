@@ -1,4 +1,4 @@
-const strom = require("strom");
+const strom = require("strom").strom();
 
 strom.fromArray(["a", "b", "cc"])
     .pipe(strom.reduce((acc, s) => ({ ...acc, [s]: s.length }), {}))

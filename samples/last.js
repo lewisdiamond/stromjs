@@ -1,4 +1,4 @@
-const strom = require("strom");
+const strom = require("strom").strom();
 
 let f = async () => {
     const source = strom.fromArray(["a", "b", "c"]);

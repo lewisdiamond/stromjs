@@ -1,4 +1,4 @@
-const strom = require("strom");
+const strom = require("strom").strom();
 
 strom.fromArray(["a", "AA"])
     .pipe(strom.flatMap(s => new Array(s.length).fill(s)))

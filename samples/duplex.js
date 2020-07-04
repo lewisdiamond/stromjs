@@ -1,4 +1,4 @@
-const strom = require("strom");
+const strom = require("strom").strom();
 const catProcess = require("child_process").exec("grep -o ab");
 
 strom.fromArray(["a", "b", "c"])

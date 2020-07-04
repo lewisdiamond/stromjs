@@ -1,4 +1,4 @@
-const strom = require("strom");
+const strom = require("strom").strom();
 
 strom.fromArray(["a", "b"])
     .pipe(strom.map(s => s.toUpperCase()))
