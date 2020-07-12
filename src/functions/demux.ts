@@ -99,7 +99,7 @@ class Demux extends Duplex {
     }
 
     public _flush() {
-        const pipelines: DemuxStreams[] = [].concat.apply(
+        const pipelines: DemuxStreams[] = Array.prototype.concat.apply(
             [],
             Object.values(this.streamsByKey),
         );
