@@ -39,7 +39,7 @@ test.cb("batch() yields a batch after the timeout", t => {
     const expectedElements = [["a", "b"], ["c"], ["d"]];
     let i = 0;
     source
-        .pipe(batch(3))
+        .pipe(batch(3, 500))
         .on("data", (element: string[]) => {
             t.deepEqual(element, expectedElements[i]);
             i++;

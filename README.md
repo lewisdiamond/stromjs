@@ -2,10 +2,13 @@
 
 **Dependency-free stream utils for Node.js**
 
-<sub>Released under the [MIT](https://git.lewis.id/strom/blob/master/LICENSE) license.</sub>
+<sub>Released under the [MIT](LICENSE) license.</sub>
 
 ```sh
-yarn add strom  // Name TBD
+yarn add stromjs 
+```
+```sh
+npm add stromjs 
 ```
 
 ## fromArray(array)
@@ -23,7 +26,7 @@ strom.fromArray(["a", "b"])
 
 
 ## map(mapper, options)
-Return a `ReadWrite` stream that maps streamed chunks
+Returns a `ReadWrite` stream that maps streamed chunks
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -41,7 +44,7 @@ strom.fromArray(["a", "b"])
 
 
 ## flatMap(mapper, options)
-Return a `ReadWrite` stream that flat maps streamed chunks
+Returns a `ReadWrite` stream that flat maps streamed chunks
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -59,7 +62,7 @@ strom.fromArray(["a", "AA"])
 
 
 ## filter(predicate, options)
-Return a `ReadWrite` stream that filters out streamed chunks for which the predicate does not hold
+Returns a `ReadWrite` stream that filters out streamed chunks for which the predicate does not hold
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -76,7 +79,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## reduce(iteratee, initialValue, options)
-Return a `ReadWrite` stream that reduces streamed chunks down to a single value and yield that
+Returns a `ReadWrite` stream that reduces streamed chunks down to a single value and yield that
 value
 
 | Param | Type | Description |
@@ -97,7 +100,7 @@ strom.fromArray(["a", "b", "cc"])
 
 
 ## split(separator)
-Return a `ReadWrite` stream that splits streamed chunks using the given separator
+Returns a `ReadWrite` stream that splits streamed chunks using the given separator
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -115,7 +118,7 @@ strom.fromArray(["a,b", "c,d"])
 
 
 ## join(separator)
-Return a `ReadWrite` stream that joins streamed chunks using the given separator
+Returns a `ReadWrite` stream that joins streamed chunks using the given separator
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -132,7 +135,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## replace(searchValue, replaceValue)
-Return a `ReadWrite` stream that replaces occurrences of the given string or regular expression  in
+Returns a `ReadWrite` stream that replaces occurrences of the given string or regular expression  in
 the streamed chunks with the specified replacement string
 
 | Param | Type | Description |
@@ -151,7 +154,7 @@ strom.fromArray(["a1", "b22", "c333"])
 
 
 ## parse()
-Return a `ReadWrite` stream that parses the streamed chunks as JSON
+Returns a `ReadWrite` stream that parses the streamed chunks as JSON
 
 ```js
 strom.fromArray(['{ "a": "b" }'])
@@ -162,7 +165,7 @@ strom.fromArray(['{ "a": "b" }'])
 
 
 ## stringify()
-Return a `ReadWrite` stream that stringifies the streamed chunks to JSON
+Returns a `ReadWrite` stream that stringifies the streamed chunks to JSON
 
 ```js
 strom.fromArray([{ a: "b" }])
@@ -173,7 +176,7 @@ strom.fromArray([{ a: "b" }])
 
 
 ## collect(options)
-Return a `ReadWrite` stream that collects streamed chunks into an array or buffer
+Returns a `ReadWrite` stream that collects streamed chunks into an array or buffer
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -189,7 +192,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## concat(streams)
-Return a `Readable` stream of readable streams concatenated together
+Returns a `Readable` stream of readable streams concatenated together
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -210,7 +213,7 @@ source2.push(null);
 
 
 ## merge(streams)
-Return a `Readable` stream of readable streams merged together in chunk arrival order
+Returns a `Readable` stream of readable streams merged together in chunk arrival order
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -231,7 +234,7 @@ setTimeout(() => source2.push(null), 50);
 
 
 ## duplex(writable, readable)
-Return a `Duplex` stream from a writable stream that is assumed to somehow, when written to,
+Returns a `Duplex` stream from a writable stream that is assumed to somehow, when written to,
 cause the given readable stream to yield chunks
 
 | Param | Type | Description |
@@ -249,7 +252,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## child(childProcess)
-Return a `Duplex` stream from a child process' stdin and stdout
+Returns a `Duplex` stream from a child process' stdin and stdout
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -265,7 +268,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## last(readable)
-Return a `Promise` resolving to the last streamed chunk of the given readable stream, after it has 
+Returns a `Promise` resolving to the last streamed chunk of the given readable stream, after it has 
 ended
 
 | Param | Type | Description |
@@ -280,3 +283,61 @@ let f = async () => {
 f();
 // c is printed out
 ```
+
+## accumulator(flushStrategy, iteratee, options)
+TO BE DOCUMENTED
+
+## batch(batchSize, maxBatchAge, options)
+Returns a `Transform` stream which produces all incoming data in batches of size `batchSize`.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `batchSize` | `number` | Size of the batches to be produced |
+| `maxBatchAge` | `number`  | Maximum number of milliseconds a message will be queued for. E.g. a batch will be produced before reaching `batchSize` if the first message queued is `maxBatchAge` ms old or more |
+| `options` | `TransformOptions` | Options passed down to the Transform object |
+
+```js
+strom.fromArray(["a", "b", "c", "d"])
+    .pipe(strom.batch(3, 500))
+    .pipe(process.stdout);
+// ["a","b","c"]
+// ["d"] //After 500ms
+```
+
+## compose(streams, errorCb, options)
+
+Returns a `Transform` stream which consists of all `streams` but behaves as a single stream. The returned stream can be piped into and from transparently.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `streams` | `Array` | Streams to be composed |
+| `errorCb` | `(err: Error) => void`  | Function called when an error occurs in any of the streams |
+| `options` | `TransformOptions` | Options passed down to the Transform object |
+
+```js
+const composed = strom.compose([
+    strom.split(),
+    strom.map(data => data.trim()),
+    strom.filter(str => !!str),
+    strom.parse(),
+    strom.flatMap(data => data),
+    strom.stringify(),
+]);
+
+const data = ["[1,2,3] \n  [4,5,6] ", "\n [7,8,9] \n\n"];
+
+strom.fromArray(data).pipe(composed).pipe(process.stdout);
+// 123456789
+```
+
+## demux(pipelineConstructor, demuxBy, options)
+TO BE DOCUMENTED
+
+## parallelMap(mapper, parallel, sleepTime, options)
+Returns a `Transform` stream which maps incoming data through the async mapper with the given parallelism. 
+
+| Param | Type | Description | Default |
+| --- | --- | --- | --- |
+| `mapper` | `async (chunk: T, encoding: string) => R` | Mapper function, mapping each (chunk, encoding) to a new chunk (non-async will not be parallelized) | -- |
+| `parallel` | `number`  | Number of concurrent executions of the mapper allowed | 10 |
+| `sleepTime` | `number` | Number of milliseconds to wait before testing if more messages can be processed | 1 |
