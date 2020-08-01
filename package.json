@@ -1,7 +1,7 @@
 {
-    "name": "strom",
-    "version": "2.0.0",
-    "description": "Streams utils for Node.js",
+    "name": "stromjs",
+    "version": "2.0.0-alpha.1",
+    "description": "Dependency-free streams utils for Node.js",
     "keywords": [
         "promise",
         "stream",
@@ -12,12 +12,7 @@
             "name": "Wenzil"
         },
         {
-            "name": "jerry",
-            "email": "jerry@jogogo.co"
-        },
-        {
-            "name": "lewis",
-            "email": "lewis@jogogo.co"
+            "name": "Lewis Diamond"
         }
     ],
     "license": "MIT",
@@ -27,7 +22,7 @@
         "dist"
     ],
     "repository": {
-        "url": "git@git.lewis.id:ldiamond/strom.git",
+        "url": "git@git.lewis.id:strom/strom.git",
         "type": "git"
     },
     "scripts": {
