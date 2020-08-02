@@ -5,7 +5,7 @@
 <sub>Released under the [MIT](https://git.lewis.id/strom/blob/master/LICENSE) license.</sub>
 
 ```sh
-yarn add strom  // Name TBD
+yarn add stromjs
 ```
 
 ## fromArray(array)
