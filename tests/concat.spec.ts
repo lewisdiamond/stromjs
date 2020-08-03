@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { concat, collect } = strom();
+import { concat, collect } from "../src";
 
 test.cb(
     "concat() concatenates multiple readable streams (object, flowing mode)",

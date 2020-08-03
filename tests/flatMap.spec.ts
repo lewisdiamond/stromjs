@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { flatMap } = strom({ objectMode: true });
+import { flatMap } from "../src";
 
 test.cb("flatMap() maps elements synchronously", t => {
     t.plan(6);

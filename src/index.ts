@@ -1,2 +1,29 @@
-export { strom } from "./functions";
+import { strom } from "./functions";
 export * from "./utils";
+export const {
+    fromArray,
+    map,
+    flatMap,
+    filter,
+    reduce,
+    split,
+    join,
+    replace,
+    parse,
+    stringify,
+    collect,
+    concat,
+    merge,
+    duplex,
+    child,
+    last,
+    batch,
+    unbatch,
+    rate,
+    parallelMap,
+    accumulator,
+    accumulatorBy,
+    compose,
+    demux,
+    instance,
+} = strom();

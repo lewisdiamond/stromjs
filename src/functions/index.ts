@@ -263,5 +263,10 @@ export function strom(defaultOptions: TransformOptions = { objectMode: true }) {
          * @param options Writable stream options
          */
         demux: withDefaultOptions(2, demux),
+
+        /**
+         * Create a new strom instance overriding the defaults
+         */
+        instance: strom,
     };
 }

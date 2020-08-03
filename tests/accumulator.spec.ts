@@ -1,10 +1,9 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import { strom } from "../src";
+import { accumulator, accumulatorBy } from "../src";
 import { FlushStrategy } from "../src/functions/accumulator";
 import { performance } from "perf_hooks";
-const { accumulator, accumulatorBy } = strom({ objectMode: true });
 
 test.cb("accumulator() rolling", t => {
     t.plan(3);

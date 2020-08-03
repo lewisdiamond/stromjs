@@ -2,9 +2,8 @@ import * as test from "ava";
 import { expect } from "chai";
 import { sleep } from "../src/helpers";
 import { Readable, Writable } from "stream";
-import { strom } from "../src";
+import { compose, map, fromArray } from "../src";
 import { performance } from "perf_hooks";
-const { compose, map, fromArray } = strom({ objectMode: true });
 
 test.cb("compose() chains two streams together in the correct order", t => {
     t.plan(3);

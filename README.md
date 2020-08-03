@@ -341,3 +341,48 @@ Returns a `Transform` stream which maps incoming data through the async mapper w
 | `mapper` | `async (chunk: T, encoding: string) => R` | Mapper function, mapping each (chunk, encoding) to a new chunk (non-async will not be parallelized) | -- |
 | `parallel` | `number`  | Number of concurrent executions of the mapper allowed | 10 |
 | `sleepTime` | `number` | Number of milliseconds to wait before testing if more messages can be processed | 1 |
+
+```js
+function sleep(time) {
+    return time > 0 ? new Promise(resolve => setTimeout(resolve, time)) : null;
+}
+
+strom
+    .fromArray([1, 2, 3, 4, 6, 8])
+    .pipe(
+        strom.parallelMap(async d => {
+            await sleep(10000 - d * 1000);
+            return `${d}`;
+        }, 3),
+    )
+    .pipe(process.stdout);
+    
+// 321864
+```
+
+## rate()
+
+
+```js
+const strom = require("stromjs").strom();
+
+function sleep(time) {
+    return time > 0 ? new Promise(resolve => setTimeout(resolve, time)) : null;
+}
+
+const rate = strom.rate(2, 1, { behavior: 1 });
+rate.pipe(strom.map(x => console.log(x)));
+async function produce() {
+    rate.write(1);
+    await sleep(500);
+    rate.write(2);
+    await sleep(500);
+    rate.write(3);
+    rate.write(4);
+    rate.write(5);
+    await sleep(500);
+    rate.write(6);
+}
+
+produce();
+```

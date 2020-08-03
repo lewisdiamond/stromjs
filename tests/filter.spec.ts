@@ -1,8 +1,7 @@
 import test from "ava";
 import { expect } from "chai";
 import { Readable } from "stream";
-import { strom } from "../src";
-const { filter } = strom();
+import { filter } from "../src";
 
 test.cb("filter() filters elements synchronously", t => {
     t.plan(2);

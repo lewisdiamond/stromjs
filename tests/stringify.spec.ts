@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { stringify } = strom();
+import { stringify } from "../src";
 
 test.cb("stringify() stringifies the streamed elements as JSON", t => {
     t.plan(4);

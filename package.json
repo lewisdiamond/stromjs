@@ -9,10 +9,18 @@
     ],
     "contributors": [
         {
-            "name": "Wenzil"
+            "name": "Sami Turcotte",
+            "url": "https://github.com/Wenzil"
         },
         {
-            "name": "Lewis Diamond"
+           "name": "Jerry Kurian",
+           "email": "jerrykurian@protonmail.com",
+           "url": "https://github.com/jkurian"
+        },
+        {
+            "name": "Lewis Diamond",
+            "email": "stromjs@lewisdiamond.com",
+            "url": "https://github.com/lewisdiamond"
         }
     ],
     "license": "MIT",

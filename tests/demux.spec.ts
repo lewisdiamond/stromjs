@@ -1,11 +1,10 @@
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
+import { demux, map, fromArray } from "../src";
 import { Writable, Readable } from "stream";
 import * as sinon from "sinon";
 import { sleep } from "../src/helpers";
 import { performance } from "perf_hooks";
-const { demux, map, fromArray } = strom({ objectMode: true });
 
 interface Test {
     key: string;

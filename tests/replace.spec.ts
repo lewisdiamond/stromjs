@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { replace } = strom();
+import { replace } from "../src";
 
 test.cb(
     "replace() replaces occurrences of the given string in the streamed elements with the specified " +

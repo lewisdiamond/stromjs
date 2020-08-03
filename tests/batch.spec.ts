@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { batch, map, fromArray } = strom({ objectMode: true });
+import { batch, map, fromArray } from "../src";
 
 test.cb("batch() batches chunks together", t => {
     t.plan(3);

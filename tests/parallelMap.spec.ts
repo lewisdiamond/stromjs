@@ -2,9 +2,8 @@ import { Readable } from "stream";
 import { performance } from "perf_hooks";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
+import { parallelMap } from "../src";
 import { sleep } from "../src/helpers";
-const { parallelMap } = strom({ objectMode: true });
 
 test.cb("parallelMap() parallel mapping", t => {
     t.plan(6);
