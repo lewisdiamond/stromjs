@@ -1,6 +1,7 @@
-const strom = require("strom").strom();
+const strom = require("stromjs");
 
-strom.fromArray(["a", "b", "c"])
+strom
+    .fromArray(["a", "b", "c"])
     .pipe(strom.filter(s => s !== "b"))
     .pipe(strom.join(","))
     .pipe(process.stdout);

@@ -1,5 +1,6 @@
-const strom = require("strom").strom();
+const strom = require("stromjs");
 
-strom.fromArray([{ a: "b" }])
+strom
+    .fromArray([{ a: "b" }])
     .pipe(strom.stringify())
     .pipe(process.stdout);

@@ -1934,9 +1934,6 @@ merge2@^1.2.3, merge2@^1.3.0:
   resolved "https://npm.dev.jogogo.co/merge2/-/merge2-1.3.0.tgz#5b366ee83b2f1582c48f87e47cf1a9352103ca81"
   integrity sha512-2j4DAdlBOkiSZIsaXk4mTE3sRS02yBHAtfy127xRV3bQUFqXkjHCHLW6Scv7DwNRbIWNHH8zpnz9zMaKXIdvYw==
 
-mhysa@./:
-  version "2.0.0-alpha.1"
-
 micromatch@^4.0.2:
   version "4.0.2"
   resolved "https://npm.dev.jogogo.co/micromatch/-/micromatch-4.0.2.tgz#4fcb0999bf9fbc2fcbdd212f6d629b9a56c39259"
@@ -2718,6 +2715,9 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
+
+stromjs@./:
+  version "0.5.1"
 
 supertap@^1.0.0:
   version "1.0.0"

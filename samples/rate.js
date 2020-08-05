@@ -1,4 +1,4 @@
-const strom = require("../dist/index.js");
+const strom = require("stromjs");
 
 function sleep(time) {
     return time > 0 ? new Promise(resolve => setTimeout(resolve, time)) : null;
