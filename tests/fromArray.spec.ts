@@ -1,7 +1,6 @@
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { fromArray } = strom();
+import { fromArray } from "../src";
 
 test.cb("fromArray() streams array elements in flowing mode", t => {
     t.plan(3);

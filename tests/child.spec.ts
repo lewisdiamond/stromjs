@@ -2,8 +2,7 @@ import * as cp from "child_process";
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { child } = strom();
+import { child } from "../src";
 
 test.cb(
     "child() allows easily writing to child process stdin and reading from its stdout",

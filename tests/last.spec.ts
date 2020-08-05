@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { last } = strom();
+import { last } from "../src";
 
 test("last() resolves to the last chunk streamed by the given readable stream", async t => {
     const source = new Readable({ objectMode: true });

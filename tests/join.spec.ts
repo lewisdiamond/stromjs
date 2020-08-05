@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { join } = strom();
+import { join } from "../src";
 
 test.cb("join() joins chunks using the specified separator", t => {
     t.plan(9);

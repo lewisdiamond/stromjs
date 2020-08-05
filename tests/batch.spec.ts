@@ -1,8 +1,7 @@
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { batch, map, fromArray } = strom({ objectMode: true });
+import { batch, map, fromArray } from "../src";
 
 test.cb("batch() batches chunks together", t => {
     t.plan(3);
@@ -39,7 +38,7 @@ test.cb("batch() yields a batch after the timeout", t => {
     const expectedElements = [["a", "b"], ["c"], ["d"]];
     let i = 0;
     source
-        .pipe(batch(3))
+        .pipe(batch(3, 500))
         .on("data", (element: string[]) => {
             t.deepEqual(element, expectedElements[i]);
             i++;

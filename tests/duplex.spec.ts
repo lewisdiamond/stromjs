@@ -2,8 +2,7 @@ import * as cp from "child_process";
 import { Readable } from "stream";
 import test from "ava";
 import { expect } from "chai";
-import { strom } from "../src";
-const { duplex } = strom();
+import { duplex } from "../src";
 
 test.cb(
     "duplex() combines a writable and readable stream into a ReadWrite stream",

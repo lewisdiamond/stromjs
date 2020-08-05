@@ -2,7 +2,7 @@ import { Transform, TransformOptions } from "stream";
 
 export function batch(
     batchSize: number = 1000,
-    maxBatchAge: number = 500,
+    maxBatchAge: number = 0,
     options: TransformOptions = {},
 ): Transform {
     let buffer: any[] = [];
@@ -23,7 +23,7 @@ export function batch(
             buffer.push(chunk);
             if (buffer.length === batchSize) {
                 sendChunk(this);
-            } else {
+            } else if (maxBatchAge) {
                 if (timer === null) {
                     timer = setInterval(() => {
                         sendChunk(this);
