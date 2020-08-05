@@ -5,10 +5,10 @@
 <sub>Released under the [MIT](LICENSE) license.</sub>
 
 ```sh
-yarn add stromjs 
+yarn add stromjs
 ```
 ```sh
-npm add stromjs 
+npm add stromjs
 ```
 
 ## fromArray(array)
