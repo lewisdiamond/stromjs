@@ -144,7 +144,7 @@ test("compose() writable length should be less than highWaterMark when handing w
 });
 
 test("compose() should emit drain event ~rate * highWaterMark ms for every write that causes backpressure", async t => {
-    t.plan(2);
+    t.plan(7);
     const _rate = 100;
     const highWaterMark = 2;
     return new Promise(async (resolve, reject) => {
@@ -529,10 +529,10 @@ test.cb("compose() `finish` and `end` propagates", t => {
     });
     composed.on("end", () => {
         t.pass();
-        t.end();
     });
     sink.on("finish", () => {
         t.pass();
+        t.end();
     });
 
     const input = [

@@ -1,10 +1,8 @@
-import { AllStreams, isReadable } from "../helpers";
-import { PassThrough, pipeline, TransformOptions, Transform } from "stream";
+import { isReadable, isWritable } from "../helpers";
+import { PassThrough, pipeline, TransformOptions, Transform, Stream, Readable, Writable } from "stream";
 
 export function compose(
-    streams: Array<
-        NodeJS.ReadableStream | NodeJS.ReadWriteStream | NodeJS.WritableStream
-    >,
+    streams: (Readable | Writable)[],
     errorCallback?: (err: any) => void,
     options?: TransformOptions,
 ): Compose {
@@ -15,30 +13,30 @@ export function compose(
     return new Compose(streams, errorCallback, options);
 }
 
-enum EventSubscription {
-    Last = 0,
-    First,
-    All,
-    Self,
-}
 
 export class Compose extends Transform {
-    private first: AllStreams;
-    private last: AllStreams;
-    private streams: AllStreams[];
-    private inputStream: ReadableStream;
+    private first: Writable & Readable;
+    private last: Readable;
+    private streams: Stream[];
 
     constructor(
-        streams: AllStreams[],
+        streams: (Readable | Writable)[],
         errorCallback?: (err: any) => void,
         options?: TransformOptions,
     ) {
         super(options);
         this.first = new PassThrough(options);
-        this.last = streams[streams.length - 1];
+        const last = streams.pop();
+        if (last && isReadable(last)) {
+            this.last = last;
+        } else {
+            throw new TypeError("Invalid last stream provided, it must be readable");
+        }
         this.streams = streams;
         pipeline(
-            [this.first, ...streams],
+            [this.first,
+            ...streams,
+            this.last],
             errorCallback ||
                 ((error: any) => {
                     if (error) {
@@ -48,10 +46,10 @@ export class Compose extends Transform {
         );
 
         if (isReadable(this.last)) {
-            (this.last as NodeJS.ReadWriteStream).pipe(
+            this.last.pipe(
                 new Transform({
                     ...options,
-                    transform: (d: any, encoding, cb) => {
+                    transform: (d: any, _encoding, cb) => {
                         this.push(d);
                         cb();
                     },
@@ -60,13 +58,13 @@ export class Compose extends Transform {
         }
     }
 
-    public _transform(chunk: any, encoding: string, cb: any) {
-        (this.first as NodeJS.WritableStream).write(chunk, encoding, cb);
+    public _transform(chunk: any, encoding: BufferEncoding, cb: any) {
+        this.first.write(chunk, encoding, cb);
     }
 
     public _flush(cb: any) {
-        if (isReadable(this.first)) {
-            (this.first as any).push(null);
+        if (isWritable(this.first)) {
+            this.first.push(null);
         }
         this.last.once("end", () => {
             cb();

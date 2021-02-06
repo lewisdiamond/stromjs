@@ -21,13 +21,11 @@ test.cb("demux() constructor should be called once per key", t => {
         { key: "a", visited: [] },
         { key: "b", visited: [] },
     ];
-    const construct = sinon.spy((destKey: string) => {
-        const dest = map((chunk: Test) => {
+    const construct = sinon.spy((_destKey: string) => {
+        return map((chunk: Test) => {
             chunk.visited.push(1);
             return chunk;
         });
-
-        return dest;
     });
 
     const demuxed = demux(construct, "key", {});
@@ -124,13 +122,11 @@ test.cb("demux() constructor should be called once per key using keyBy", t => {
         { key: "b", visited: [] },
     ];
 
-    const construct = sinon.spy((destKey: string) => {
-        const dest = map((chunk: Test) => {
+    const construct = sinon.spy((_destKey: string) => {
+        return map((chunk: Test) => {
             chunk.visited.push(1);
             return chunk;
         });
-
-        return dest;
     });
 
     const demuxed = demux(construct, item => item.key, {});
@@ -206,7 +202,7 @@ test("demux() write should return false and emit drain if more than highWaterMar
         let pendingReads = input.length;
         const highWaterMark = 5;
         const slowProcessorSpeed = 25;
-        const construct = (destKey: string) => {
+        const construct = (_destKey: string) => {
             const first = map(
                 async (chunk: Chunk) => {
                     await sleep(slowProcessorSpeed);
@@ -231,7 +227,7 @@ test("demux() write should return false and emit drain if more than highWaterMar
             highWaterMark,
         });
 
-        _demux.on("error", err => {
+        _demux.on("error", _err => {
             reject();
         });
 
@@ -239,7 +235,7 @@ test("demux() write should return false and emit drain if more than highWaterMar
             const res = _demux.write(item);
             expect(_demux._writableState.length).to.be.at.most(highWaterMark);
             if (!res) {
-                await new Promise((resolv, rej) => {
+                await new Promise((resolv, _rej) => {
                     _demux.once("drain", () => {
                         expect(_demux._writableState.length).to.be.equal(0);
                         t.pass();
@@ -270,7 +266,7 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
         const highWaterMark = 5;
         const slowProcessorSpeed = 25;
 
-        const construct = (destKey: string) => {
+        const construct = (_destKey: string) => {
             const first = map(
                 async (chunk: Chunk) => {
                     await sleep(slowProcessorSpeed);
@@ -292,7 +288,7 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
         const _demux = demux(construct, "key", {
             highWaterMark,
         });
-        _demux.on("error", err => {
+        _demux.on("error", _err => {
             reject();
         });
 
@@ -300,14 +296,14 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
         for (const item of input) {
             const res = _demux.write(item);
             if (!res) {
-                await new Promise((resolv, rej) => {
+                await new Promise((resolv, _rej) => {
                     // This event should be received after all items in demux are processed
                     _demux.once("drain", () => {
                         expect(performance.now() - start).to.be.greaterThan(
                             slowProcessorSpeed * highWaterMark,
                         );
                         t.pass();
-                        resolv();
+                        resolv(null);
                     });
                 });
             }
@@ -332,7 +328,7 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
             { key: "a", mapped: [] },
         ];
         let pendingReads = input.length;
-        const construct = (destKey: string) => {
+        const construct = (_destKey: string) => {
             const first = map(
                 async (chunk: Chunk) => {
                     await sleep(50);
@@ -354,7 +350,7 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
             highWaterMark: 5,
         });
 
-        _demux.on("error", err => {
+        _demux.on("error", _err => {
             reject();
         });
 
@@ -364,7 +360,7 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
             if (!res) {
                 await new Promise(_resolve => {
                     _demux.once("drain", () => {
-                        _resolve();
+                        _resolve(null);
                         expect(_demux._writableState.length).to.be.equal(0);
                         t.pass();
                     });
@@ -683,13 +679,7 @@ test.cb("Demux should send data events", t => {
 });
 
 test.cb("demux() `finish` and `end` propagates", t => {
-    interface Chunk {
-        key: string;
-        mapped: number[];
-    }
-
-    t.plan(9);
-
+    t.plan(10);
     const construct = (destKey: string) => {
         const dest = map((chunk: any) => {
             chunk.mapped.push(destKey);
@@ -728,10 +718,10 @@ test.cb("demux() `finish` and `end` propagates", t => {
     });
     _demux.on("end", () => {
         t.pass();
-        t.end();
     });
     sink.on("finish", () => {
         t.pass();
+        t.end();
     });
 
     const input = [

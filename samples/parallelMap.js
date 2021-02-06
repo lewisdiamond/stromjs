@@ -8,7 +8,7 @@ strom
     .fromArray([1, 2, 3, 4, 6, 8])
     .pipe(
         strom.parallelMap(async d => {
-            await sleep(10000 - d * 1000);
+            await sleep(1000 - d * 100);
             return `${d}`;
         }, 3),
     )

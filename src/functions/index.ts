@@ -1,9 +1,4 @@
-import {
-    Transform,
-    TransformOptions,
-    WritableOptions,
-    ReadableOptions,
-} from "stream";
+import { TransformOptions } from "stream";
 import { accumulator, accumulatorBy } from "./accumulator";
 import { batch } from "./batch";
 import { child } from "./child";

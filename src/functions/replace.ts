@@ -9,7 +9,7 @@ export function replace(
     const decoder = new StringDecoder(options.encoding);
     return new Transform({
         readableObjectMode: true,
-        transform(chunk: Buffer, encoding, callback) {
+        transform(chunk: Buffer, _encoding, callback) {
             const asString = decoder.write(chunk);
             // Take care not to break up multi-byte characters spanning multiple chunks
             if (asString !== "" || chunk.length === 0) {

@@ -1,5 +1,5 @@
 export interface WithEncoding {
-    encoding: string;
+    encoding: BufferEncoding;
 }
 
 export enum SerializationFormats {

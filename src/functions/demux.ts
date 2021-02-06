@@ -1,8 +1,6 @@
-import { DuplexOptions, Duplex, Transform } from "stream";
+import { DuplexOptions, Duplex, Transform, Writable } from "stream";
 
 import { isReadable } from "../helpers";
-
-type DemuxStreams = NodeJS.WritableStream | NodeJS.ReadWriteStream;
 
 export interface DemuxOptions extends DuplexOptions {
     remultiplex?: boolean;
@@ -12,7 +10,7 @@ export function demux(
     pipelineConstructor: (
         destKey?: string,
         chunk?: any,
-    ) => DemuxStreams | DemuxStreams[],
+    ) => Writable | Writable[],
     demuxBy: string | ((chunk: any) => string),
     options?: DemuxOptions,
 ): Duplex {
@@ -21,20 +19,20 @@ export function demux(
 
 class Demux extends Duplex {
     private streamsByKey: {
-        [key: string]: DemuxStreams[];
+        [key: string]: Writable[];
     };
     private demuxer: (chunk: any) => string;
     private pipelineConstructor: (
         destKey?: string,
         chunk?: any,
-    ) => DemuxStreams[];
+    ) => Writable[];
     private remultiplex: boolean;
     private transform: Transform;
     constructor(
         pipelineConstructor: (
             destKey?: string,
             chunk?: any,
-        ) => DemuxStreams | DemuxStreams[],
+        ) => Writable | Writable[],
         demuxBy: string | ((chunk: any) => string),
         options: DemuxOptions = {},
     ) {
@@ -60,7 +58,7 @@ class Demux extends Duplex {
     }
 
     // tslint:disable-next-line
-    public _read(size: number) {}
+    public _read(_size: number) {}
 
     public async _write(chunk: any, encoding: any, cb: any) {
         const destKey = this.demuxer(chunk);
@@ -70,7 +68,7 @@ class Demux extends Duplex {
 
             newPipelines.forEach(newPipeline => {
                 if (this.remultiplex && isReadable(newPipeline)) {
-                    (newPipeline as NodeJS.ReadWriteStream).pipe(
+                    newPipeline.pipe(
                         this.transform,
                     );
                 } else if (this.remultiplex) {
@@ -88,7 +86,7 @@ class Demux extends Duplex {
                 pendingDrains.push(
                     new Promise(resolve => {
                         pipeline.once("drain", () => {
-                            resolve();
+                            resolve(null);
                         });
                     }),
                 );
@@ -99,7 +97,7 @@ class Demux extends Duplex {
     }
 
     public _flush() {
-        const pipelines: DemuxStreams[] = Array.prototype.concat.apply(
+        const pipelines: Writable[] = Array.prototype.concat.apply(
             [],
             Object.values(this.streamsByKey),
         );
@@ -121,7 +119,7 @@ class Demux extends Duplex {
     }
 
     public _destroy(error: any, cb: (error?: any) => void) {
-        const pipelines: DemuxStreams[] = [].concat.apply(
+        const pipelines: Writable[] = [].concat.apply(
             [],
             Object.values(this.streamsByKey),
         );

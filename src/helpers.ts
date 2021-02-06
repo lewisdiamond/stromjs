@@ -1,17 +1,23 @@
+import { Readable, Stream, Writable } from "stream";
+
 export async function sleep(time: number): Promise<{} | null> {
     return time > 0 ? new Promise(resolve => setTimeout(resolve, time)) : null;
 }
 
-export type AllStreams =
-    | NodeJS.ReadableStream
-    | NodeJS.ReadWriteStream
-    | NodeJS.WritableStream;
-
 export function isReadable(
-    stream: AllStreams,
-): stream is NodeJS.WritableStream {
+    stream: Stream,
+): stream is Readable {
     return (
-        (stream as NodeJS.ReadableStream).pipe !== undefined &&
-        (stream as any).readable === true
+        (stream as Readable).pipe !== undefined &&
+        (stream as Readable).readable === true
+    );
+}
+
+export function isWritable(
+    stream: Stream,
+): stream is Writable {
+    return (
+        (stream as Writable).write !== undefined &&
+        (stream as Writable).writable === true
     );
 }
