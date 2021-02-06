@@ -30,7 +30,7 @@
         "dist"
     ],
     "repository": {
-        "url": "git@git.lewis.id:strom/strom.git",
+        "url": "https://github.com/lewisdiamond/stromjs",
         "type": "git"
     },
     "scripts": {
