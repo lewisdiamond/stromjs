@@ -8,12 +8,12 @@ export function concat(...streams: NodeJS.ReadableStream[]): Readable {
             wrapper.push(null);
         } else {
             streams[currentStreamIndex]
-                .on("data", chunk => {
+                .on("data", (chunk) => {
                     if (!wrapper.push(chunk)) {
                         streams[currentStreamIndex].pause();
                     }
                 })
-                .on("error", err => wrapper.emit("error", err))
+                .on("error", (err) => wrapper.emit("error", err))
                 .on("end", () => {
                     currentStreamIndex++;
                     startCurrentStream();

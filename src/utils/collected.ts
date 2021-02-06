@@ -2,10 +2,10 @@ import { Transform } from "stream";
 
 export function collected(stream: Transform): any {
     return new Promise((resolve, reject) => {
-        stream.once("data", d => {
+        stream.once("data", (d) => {
             resolve(d);
         });
-        stream.once("error", e => {
+        stream.once("error", (e) => {
             reject(e);
         });
     });

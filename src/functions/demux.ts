@@ -22,10 +22,7 @@ class Demux extends Duplex {
         [key: string]: Writable[];
     };
     private demuxer: (chunk: any) => string;
-    private pipelineConstructor: (
-        destKey?: string,
-        chunk?: any,
-    ) => Writable[];
+    private pipelineConstructor: (destKey?: string, chunk?: any) => Writable[];
     private remultiplex: boolean;
     private transform: Transform;
     constructor(
@@ -38,7 +35,7 @@ class Demux extends Duplex {
     ) {
         super(options);
         this.demuxer =
-            typeof demuxBy === "string" ? chunk => chunk[demuxBy] : demuxBy;
+            typeof demuxBy === "string" ? (chunk) => chunk[demuxBy] : demuxBy;
         this.pipelineConstructor = (destKey: string, chunk?: any) => {
             const pipeline = pipelineConstructor(destKey, chunk);
             return Array.isArray(pipeline) ? pipeline : [pipeline];
@@ -66,11 +63,9 @@ class Demux extends Duplex {
             const newPipelines = this.pipelineConstructor(destKey, chunk);
             this.streamsByKey[destKey] = newPipelines;
 
-            newPipelines.forEach(newPipeline => {
+            newPipelines.forEach((newPipeline) => {
                 if (this.remultiplex && isReadable(newPipeline)) {
-                    newPipeline.pipe(
-                        this.transform,
-                    );
+                    newPipeline.pipe(this.transform);
                 } else if (this.remultiplex) {
                     console.error(
                         `Pipeline construct for ${destKey} does not implement readable interface`,
@@ -79,12 +74,12 @@ class Demux extends Duplex {
             });
         }
         const pipelines = this.streamsByKey[destKey];
-        const pendingDrains: Array<Promise<any>> = [];
+        const pendingDrains: Promise<any>[] = [];
 
-        pipelines.forEach(pipeline => {
+        pipelines.forEach((pipeline) => {
             if (!pipeline.write(chunk, encoding)) {
                 pendingDrains.push(
-                    new Promise(resolve => {
+                    new Promise((resolve) => {
                         pipeline.once("drain", () => {
                             resolve(null);
                         });
@@ -101,17 +96,17 @@ class Demux extends Duplex {
             [],
             Object.values(this.streamsByKey),
         );
-        const flushPromises: Array<Promise<void>> = [];
-        pipelines.forEach(pipeline => {
+        const flushPromises: Promise<void>[] = [];
+        pipelines.forEach((pipeline) => {
             flushPromises.push(
-                new Promise(resolve => {
+                new Promise((resolve) => {
                     pipeline.once("end", () => {
                         resolve();
                     });
                 }),
             );
         });
-        pipelines.forEach(pipeline => pipeline.end());
+        pipelines.forEach((pipeline) => pipeline.end());
         Promise.all(flushPromises).then(() => {
             this.push(null);
             this.emit("end");
@@ -123,7 +118,7 @@ class Demux extends Duplex {
             [],
             Object.values(this.streamsByKey),
         );
-        pipelines.forEach(p => (p as any).destroy());
+        pipelines.forEach((p) => (p as any).destroy());
         cb(error);
     }
 }

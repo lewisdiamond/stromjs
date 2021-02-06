@@ -1,5 +1,13 @@
 import { isReadable, isWritable } from "../helpers";
-import { PassThrough, pipeline, TransformOptions, Transform, Stream, Readable, Writable } from "stream";
+import {
+    PassThrough,
+    pipeline,
+    TransformOptions,
+    Transform,
+    Stream,
+    Readable,
+    Writable,
+} from "stream";
 
 export function compose(
     streams: (Readable | Writable)[],
@@ -12,7 +20,6 @@ export function compose(
 
     return new Compose(streams, errorCallback, options);
 }
-
 
 export class Compose extends Transform {
     private first: Writable & Readable;
@@ -30,13 +37,13 @@ export class Compose extends Transform {
         if (last && isReadable(last)) {
             this.last = last;
         } else {
-            throw new TypeError("Invalid last stream provided, it must be readable");
+            throw new TypeError(
+                "Invalid last stream provided, it must be readable",
+            );
         }
         this.streams = streams;
         pipeline(
-            [this.first,
-            ...streams,
-            this.last],
+            [this.first, ...streams, this.last],
             errorCallback ||
                 ((error: any) => {
                     if (error) {
@@ -72,13 +79,13 @@ export class Compose extends Transform {
     }
 
     public _destroy(error: any, cb: (error?: any) => void) {
-        this.streams.forEach(s => (s as any).destroy());
+        this.streams.forEach((s) => (s as any).destroy());
         cb(error);
     }
 
     public bubble(...events: string[]) {
-        this.streams.forEach(s => {
-            events.forEach(e => {
+        this.streams.forEach((s) => {
+            events.forEach((e) => {
                 s.on(e, (...args) => super.emit(e, ...args));
             });
         });

@@ -18,14 +18,14 @@ export function duplex(
         },
     });
     readable
-        .on("data", chunk => {
+        .on("data", (chunk) => {
             if (!wrapper.push(chunk)) {
                 readable.pause();
             }
         })
-        .on("error", err => wrapper.emit("error", err))
+        .on("error", (err) => wrapper.emit("error", err))
         .on("end", () => wrapper.push(null));
     writable.on("drain", () => wrapper.emit("drain"));
-    writable.on("error", err => wrapper.emit("error", err));
+    writable.on("error", (err) => wrapper.emit("error", err));
     return wrapper;
 }

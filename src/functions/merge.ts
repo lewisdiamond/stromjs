@@ -10,14 +10,14 @@ export function merge(...streams: Readable[]): Readable {
                 this.push(null);
             } else if (!isStarted) {
                 isStarted = true;
-                streams.forEach(stream =>
+                streams.forEach((stream) =>
                     stream
-                        .on("data", chunk => {
+                        .on("data", (chunk) => {
                             if (!this.push(chunk)) {
-                                streams.forEach(s => s.pause());
+                                streams.forEach((s) => s.pause());
                             }
                         })
-                        .on("error", err => this.emit("error", err))
+                        .on("error", (err) => this.emit("error", err))
                         .on("end", () => {
                             streamEndedCount++;
                             if (streamEndedCount === streams.length) {
@@ -26,7 +26,7 @@ export function merge(...streams: Readable[]): Readable {
                         }),
                 );
             } else {
-                streams.forEach(s => s.resume());
+                streams.forEach((s) => s.resume());
             }
         },
     });
