@@ -3,7 +3,9 @@ import { accumulator, accumulatorBy } from "./accumulator";
 import { batch } from "./batch";
 import { child } from "./child";
 import { collect } from "./collect";
+import { compose } from "./compose";
 import { concat } from "./concat";
+import { demux } from "./demux";
 import { duplex } from "./duplex";
 import { filter } from "./filter";
 import { flatMap } from "./flatMap";
@@ -19,9 +21,8 @@ import { reduce } from "./reduce";
 import { replace } from "./replace";
 import { split } from "./split";
 import { stringify } from "./stringify";
+import { tap } from "./tap";
 import { unbatch } from "./unbatch";
-import { compose } from "./compose";
-import { demux } from "./demux";
 
 export function strom(defaultOptions: TransformOptions = { objectMode: true }) {
     function withDefaultOptions<T extends any[], R>(
@@ -258,6 +259,16 @@ export function strom(defaultOptions: TransformOptions = { objectMode: true }) {
          * @param options Writable stream options
          */
         demux: withDefaultOptions(2, demux),
+
+        /**
+         * Calls the provided function with every incomming packet forwarding. The packet is forwarded down the stream as-is
+         * @param fn Function, called for each (chunk, encoding)
+         * @param options Readable & Writable stream options
+         * @param options.copy Perform a deep copy of the packet before passing it to the function
+         * @param options.deepFreeze Recursively freeze the packet in objectMode
+         * @param options.shallowFreeze Freezes the packet in objectMode
+         */
+        tap: withDefaultOptions(1, tap),
 
         /**
          * Create a new strom instance overriding the defaults
