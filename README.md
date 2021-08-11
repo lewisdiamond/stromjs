@@ -1,8 +1,10 @@
-# Strom 
+# Strom
 
 **Dependency-free stream utils for Node.js**
 
 <sub>Released under the [MIT](LICENSE) license.</sub>
+
+## Installation
 
 ```sh
 yarn add stromjs
@@ -10,6 +12,30 @@ yarn add stromjs
 ```sh
 npm add stromjs
 ```
+## API
+
+- [accumulator(flushStrategy, iteratee, options)](#accumulatorflushStrategy-iteratee-options)
+- [batch(batchSize, maxBatchAge, options)](#batchbatchSize-maxBatchAge-options)
+- [child(childProcess)](#childchildProcess)
+- [collect(options)](#collectoptions)
+- [compose(streams, errorCb, options)](#composestreams-errorCb-options)
+- [concat(streams)](#concatstreams)
+- [demux(pipelineConstructor, demuxBy, options)](#demuxpipelineConstructor-demuxBy-options)
+- [duplex(writable, readable)](#duplexwritable-readable)
+- [filter(predicate, options)](#filterpredicate-options)
+- [flatMap(mapper, options)](#flatMapmapper-options)
+- [fromArray(array)](#fromArrayarray)
+- [join(separator)](#joinseparator)
+- [last(readable)](#lastreadable)
+- [map(mapper, options)](#mapmapper-options)
+- [merge(streams)](#mergestreams)
+- [parallelMap(mapper, parallel, sleepTime, options)](#parallelMapmapper-parallel-sleepTime-options)
+- [parse()](#parse)
+- [rate()](#rate())
+- [reduce(iteratee, initialValue, options)](#reduceiteratee-initialValue,-options)
+- [replace(searchValue, replaceValue)](#replacesearchValue-replaceValue)
+- [split(separator)](#splitseparator)
+- [stringify()](#stringify)
 
 ## fromArray(array)
 Convert an array into a `Readable` stream of its elements
@@ -268,7 +294,7 @@ strom.fromArray(["a", "b", "c"])
 
 
 ## last(readable)
-Returns a `Promise` resolving to the last streamed chunk of the given readable stream, after it has 
+Returns a `Promise` resolving to the last streamed chunk of the given readable stream, after it has
 ended
 
 | Param | Type | Description |
@@ -334,7 +360,7 @@ strom.fromArray(data).pipe(composed).pipe(process.stdout);
 TO BE DOCUMENTED
 
 ## parallelMap(mapper, parallel, sleepTime, options)
-Returns a `Transform` stream which maps incoming data through the async mapper with the given parallelism. 
+Returns a `Transform` stream which maps incoming data through the async mapper with the given parallelism.
 
 | Param | Type | Description | Default |
 | --- | --- | --- | --- |
@@ -356,12 +382,12 @@ strom
         }, 3),
     )
     .pipe(process.stdout);
-    
+
 // 321864
 ```
 
 ## rate()
-
+TO BE DOCUMENTED
 
 ```js
 const strom = require("stromjs").strom();
