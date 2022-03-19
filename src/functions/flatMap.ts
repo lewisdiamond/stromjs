@@ -9,8 +9,12 @@ export function flatMap<T, R>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
-            (await mapper(chunk, encoding)).forEach((c) => this.push(c));
-            callback();
+            try {
+                (await mapper(chunk, encoding)).forEach((c) => this.push(c));
+                callback();
+            } catch (err) {
+                callback(err);
+            }
         },
     });
 }

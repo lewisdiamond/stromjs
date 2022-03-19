@@ -16,8 +16,12 @@ function _accumulator<T>(
     return new Transform({
         ...options,
         transform(data: T, encoding, callback) {
-            accumulateBy(data, buffer, this);
-            callback();
+            try {
+                accumulateBy(data, buffer, this);
+                callback();
+            } catch (err) {
+                callback(err);
+            }
         },
         flush(callback) {
             if (shouldFlush) {

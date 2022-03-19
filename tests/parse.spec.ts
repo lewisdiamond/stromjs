@@ -3,42 +3,46 @@ import test from "ava";
 import { expect } from "chai";
 import { parse } from "../src";
 
-test.cb("parse() parses the streamed elements as JSON", t => {
+test("parse() parses the streamed elements as JSON", (t) => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
     const expectedElements = ["abc", {}, []];
     let i = 0;
-    source
-        .pipe(parse())
-        .on("data", part => {
-            expect(part).to.deep.equal(expectedElements[i]);
-            t.pass();
-            i++;
-        })
-        .on("error", t.end)
-        .on("end", t.end);
+    return new Promise((resolve, reject) => {
+        source
+            .pipe(parse())
+            .on("data", (part) => {
+                expect(part).to.deep.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", reject)
+            .on("end", resolve);
 
-    source.push('"abc"');
-    source.push("{}");
-    source.push("[]");
-    source.push(null);
+        source.push('"abc"');
+        source.push("{}");
+        source.push("[]");
+        source.push(null);
+    });
 });
 
-test.cb("parse() emits errors on invalid JSON", t => {
+test("parse() emits errors on invalid JSON", (t) => {
     t.plan(1);
     const source = new Readable({ objectMode: true });
 
-    source
-        .pipe(parse())
-        .resume()
-        .on("error", (d: any) => {
-            t.pass();
-            t.end();
-        })
-        .on("end", t.fail);
+    return new Promise((resolve, reject) => {
+        source
+            .pipe(parse())
+            .resume()
+            .on("error", (d: any) => {
+                t.pass();
+                resolve();
+            })
+            .on("end", reject);
 
-    source.push("{}");
-    source.push({});
-    source.push([]);
-    source.push(null);
+        source.push("{}");
+        source.push({});
+        source.push([]);
+        source.push(null);
+    });
 });

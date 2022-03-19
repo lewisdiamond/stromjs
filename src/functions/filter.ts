@@ -9,11 +9,15 @@ export function filter<T>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding?: any, callback?: any) {
-            const result = await predicate(chunk, encoding);
-            if (result === true) {
-                callback(null, chunk);
-            } else {
-                callback();
+            try {
+                const result = await predicate(chunk, encoding);
+                if (result === true) {
+                    callback(null, chunk);
+                } else {
+                    callback();
+                }
+            } catch (err) {
+                callback(err);
             }
         },
     });
