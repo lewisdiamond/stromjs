@@ -3,19 +3,21 @@ import test from "ava";
 import { expect } from "chai";
 import { batch, map, fromArray } from "../src";
 
-test.cb("batch() batches chunks together", t => {
+test("batch() batches chunks together", (t) => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
     const expectedElements = [["a", "b", "c"], ["d", "e", "f"], ["g"]];
     let i = 0;
-    source
-        .pipe(batch(3))
-        .on("data", (element: string[]) => {
-            t.deepEqual(element, expectedElements[i]);
-            i++;
-        })
-        .on("error", t.end)
-        .on("end", t.end);
+    const ret = new Promise((resolve, reject) => {
+        source
+            .pipe(batch(3))
+            .on("data", (element: string[]) => {
+                t.deepEqual(element, expectedElements[i]);
+                i++;
+            })
+            .on("error", resolve)
+            .on("end", resolve);
+    });
 
     source.push("a");
     source.push("b");
@@ -25,9 +27,10 @@ test.cb("batch() batches chunks together", t => {
     source.push("f");
     source.push("g");
     source.push(null);
+    return ret;
 });
 
-test.cb("batch() yields a batch after the timeout", t => {
+test("batch() yields a batch after the timeout", (t) => {
     t.plan(3);
     const source = new Readable({
         objectMode: true,
@@ -37,15 +40,16 @@ test.cb("batch() yields a batch after the timeout", t => {
     });
     const expectedElements = [["a", "b"], ["c"], ["d"]];
     let i = 0;
-    source
-        .pipe(batch(3, 500))
-        .on("data", (element: string[]) => {
-            t.deepEqual(element, expectedElements[i]);
-            i++;
-        })
-        .on("error", t.fail)
-        .on("end", t.end);
-
+    const ret = new Promise((resolve, reject) => {
+        source
+            .pipe(batch(3, 500))
+            .on("data", (element: string[]) => {
+                t.deepEqual(element, expectedElements[i]);
+                i++;
+            })
+            .on("error", reject)
+            .on("end", resolve);
+    });
     source.push("a");
     source.push("b");
     setTimeout(() => {
@@ -55,29 +59,29 @@ test.cb("batch() yields a batch after the timeout", t => {
         source.push("d");
         source.push(null);
     }, 600 * 2);
+    return ret;
 });
 
-test.cb(
-    "batch() yields all input data even when the last element(s) dont make a full batch",
-    t => {
-        const data = [1, 2, 3, 4, 5, 6, 7];
+test("batch() yields all input data even when the last element(s) dont make a full batch", (t) => {
+    const data = [1, 2, 3, 4, 5, 6, 7];
 
+    return new Promise((resolve, reject) => {
         fromArray([...data])
             .pipe(batch(3))
             .pipe(
-                map(d => {
+                map((d) => {
                     t.deepEqual(
                         d,
                         [data.shift(), data.shift(), data.shift()].filter(
-                            x => !!x,
+                            (x) => !!x,
                         ),
                     );
                 }),
             )
-            .on("error", t.fail)
+            .on("error", reject)
             .on("finish", () => {
                 t.is(data.length, 0);
-                t.end();
+                resolve();
             });
-    },
-);
+    });
+});

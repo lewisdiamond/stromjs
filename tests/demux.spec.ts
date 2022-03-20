@@ -11,7 +11,7 @@ interface Test {
     visited: number[];
 }
 
-test.cb("demux() constructor should be called once per key", t => {
+test("demux() constructor should be called once per key", (t) => {
     t.plan(1);
     const input = [
         { key: "a", visited: [] },
@@ -30,18 +30,20 @@ test.cb("demux() constructor should be called once per key", t => {
 
     const demuxed = demux(construct, "key", {});
 
-    demuxed.on("finish", () => {
-        expect(construct.withArgs("a").callCount).to.equal(1);
-        expect(construct.withArgs("b").callCount).to.equal(1);
-        expect(construct.withArgs("c").callCount).to.equal(1);
-        t.pass();
-        t.end();
-    });
+    return new Promise((resolve, reject) => {
+        demuxed.on("finish", () => {
+            expect(construct.withArgs("a").callCount).to.equal(1);
+            expect(construct.withArgs("b").callCount).to.equal(1);
+            expect(construct.withArgs("c").callCount).to.equal(1);
+            t.pass();
+            resolve();
+        });
 
-    fromArray(input).pipe(demuxed);
+        fromArray(input).pipe(demuxed);
+    });
 });
 
-test.cb("demux() item written passed in constructor", t => {
+test("demux() item written passed in constructor", (t) => {
     t.plan(4);
     const input = [
         { key: "a", visited: [] },
@@ -61,15 +63,17 @@ test.cb("demux() item written passed in constructor", t => {
 
     const demuxed = demux(construct, "key", {});
 
-    demuxed.on("finish", () => {
-        t.pass();
-        t.end();
-    });
+    return new Promise((resolve, reject) => {
+        demuxed.on("finish", () => {
+            t.pass();
+            resolve();
+        });
 
-    fromArray(input).pipe(demuxed);
+        fromArray(input).pipe(demuxed);
+    });
 });
 
-test.cb("demux() should send input through correct pipeline", t => {
+test("demux() should send input through correct pipeline", (t) => {
     t.plan(6);
     const input = [
         { key: "a", visited: [] },
@@ -79,7 +83,7 @@ test.cb("demux() should send input through correct pipeline", t => {
         { key: "a", visited: [] },
         { key: "b", visited: [] },
     ];
-    const pipelineSpies = {};
+    const pipelineSpies: any = {};
     const construct = (destKey: string) => {
         const mapper = sinon.spy((chunk: Test) => {
             return { ...chunk, visited: [1] };
@@ -92,26 +96,28 @@ test.cb("demux() should send input through correct pipeline", t => {
 
     const demuxed = demux(construct, "key", {});
 
-    demuxed.on("finish", () => {
-        pipelineSpies["a"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("a");
-            t.pass();
+    return new Promise((resolve, reject) => {
+        demuxed.on("finish", () => {
+            pipelineSpies.a.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("a");
+                t.pass();
+            });
+            pipelineSpies.b.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("b");
+                t.pass();
+            });
+            pipelineSpies.c.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("c");
+                t.pass();
+            });
+            resolve();
         });
-        pipelineSpies["b"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("b");
-            t.pass();
-        });
-        pipelineSpies["c"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("c");
-            t.pass();
-        });
-        t.end();
-    });
 
-    fromArray(input).pipe(demuxed);
+        fromArray(input).pipe(demuxed);
+    });
 });
 
-test.cb("demux() constructor should be called once per key using keyBy", t => {
+test("demux() constructor should be called once per key using keyBy", (t) => {
     t.plan(1);
     const input = [
         { key: "a", visited: [] },
@@ -129,20 +135,22 @@ test.cb("demux() constructor should be called once per key using keyBy", t => {
         });
     });
 
-    const demuxed = demux(construct, item => item.key, {});
+    const demuxed = demux(construct, (item) => item.key, {});
 
-    demuxed.on("finish", () => {
-        expect(construct.withArgs("a").callCount).to.equal(1);
-        expect(construct.withArgs("b").callCount).to.equal(1);
-        expect(construct.withArgs("c").callCount).to.equal(1);
-        t.pass();
-        t.end();
+    return new Promise((resolve, reject) => {
+        demuxed.on("finish", () => {
+            expect(construct.withArgs("a").callCount).to.equal(1);
+            expect(construct.withArgs("b").callCount).to.equal(1);
+            expect(construct.withArgs("c").callCount).to.equal(1);
+            t.pass();
+            resolve();
+        });
+
+        fromArray(input).pipe(demuxed);
     });
-
-    fromArray(input).pipe(demuxed);
 });
 
-test.cb("demux() should send input through correct pipeline using keyBy", t => {
+test("demux() should send input through correct pipeline using keyBy", (t) => {
     t.plan(6);
     const input = [
         { key: "a", visited: [] },
@@ -152,7 +160,7 @@ test.cb("demux() should send input through correct pipeline using keyBy", t => {
         { key: "a", visited: [] },
         { key: "b", visited: [] },
     ];
-    const pipelineSpies = {};
+    const pipelineSpies: any = {};
     const construct = (destKey: string) => {
         const mapper = sinon.spy((chunk: Test) => {
             return { ...chunk, visited: [1] };
@@ -163,41 +171,43 @@ test.cb("demux() should send input through correct pipeline using keyBy", t => {
         return dest;
     };
 
-    const demuxed = demux(construct, item => item.key, {});
+    const demuxed = demux(construct, (item) => item.key, {});
 
-    demuxed.on("finish", () => {
-        pipelineSpies["a"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("a");
-            t.pass();
+    return new Promise((resolve, reject) => {
+        demuxed.on("finish", () => {
+            pipelineSpies.a.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("a");
+                t.pass();
+            });
+            pipelineSpies.b.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("b");
+                t.pass();
+            });
+            pipelineSpies.c.getCalls().forEach((call) => {
+                expect(call.args[0].key).to.equal("c");
+                t.pass();
+            });
+            resolve();
         });
-        pipelineSpies["b"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("b");
-            t.pass();
-        });
-        pipelineSpies["c"].getCalls().forEach(call => {
-            expect(call.args[0].key).to.equal("c");
-            t.pass();
-        });
-        t.end();
+
+        fromArray(input).pipe(demuxed);
     });
-
-    fromArray(input).pipe(demuxed);
 });
 
-test("demux() write should return false and emit drain if more than highWaterMark items are buffered", t => {
+test("demux() write should return false and emit drain if more than highWaterMark items are buffered", (t) => {
     return new Promise(async (resolve, reject) => {
         t.plan(7);
         interface Chunk {
             key: string;
-            mapped: number[];
+            mapped: boolean;
         }
         const input: Chunk[] = [
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
-            { key: "a", mapped: [] },
+            { key: "a", mapped: false },
+            { key: "b", mapped: false },
+            { key: "c", mapped: false },
+            { key: "d", mapped: false },
+            { key: "e", mapped: false },
+            { key: "f", mapped: false },
         ];
         let pendingReads = input.length;
         const highWaterMark = 5;
@@ -206,18 +216,18 @@ test("demux() write should return false and emit drain if more than highWaterMar
             const first = map(
                 async (chunk: Chunk) => {
                     await sleep(slowProcessorSpeed);
-                    return { ...chunk, mapped: [1] };
+                    return { ...chunk, mapped: true };
                 },
                 { highWaterMark: 1 },
             );
 
-            first.on("data", chunk => {
-                expect(chunk.mapped).to.deep.equal([1]);
+            first.on("data", (chunk) => {
+                expect(chunk.mapped).to.be.true;
                 pendingReads--;
+                t.pass();
                 if (pendingReads === 0) {
                     resolve();
                 }
-                t.pass();
             });
 
             return first;
@@ -227,19 +237,24 @@ test("demux() write should return false and emit drain if more than highWaterMar
             highWaterMark,
         });
 
-        _demux.on("error", _err => {
+        _demux.on("error", (_err) => {
             reject();
         });
 
         for (const item of input) {
             const res = _demux.write(item);
-            expect(_demux._writableState.length).to.be.at.most(highWaterMark);
+            expect((_demux as any)._writableState.length).to.be.at.most(
+                highWaterMark,
+            );
             if (!res) {
-                await new Promise((resolv, _rej) => {
+                await new Promise((_resolve, _rej) => {
                     _demux.once("drain", () => {
-                        expect(_demux._writableState.length).to.be.equal(0);
+                        expect(
+                            (_demux as any)._writableState.length,
+                        ).to.be.equal(0);
                         t.pass();
-                        resolv();
+                        //Nested resolve
+                        _resolve(undefined);
                     });
                 });
             }
@@ -247,7 +262,7 @@ test("demux() write should return false and emit drain if more than highWaterMar
     });
 });
 
-test("demux() should emit one drain event after slowProcessorSpeed * highWaterMark ms when first stream is bottleneck", t => {
+test("demux() should emit one drain event after slowProcessorSpeed * highWaterMark ms when first stream is bottleneck", (t) => {
     return new Promise(async (resolve, reject) => {
         t.plan(7);
         interface Chunk {
@@ -288,7 +303,7 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
         const _demux = demux(construct, "key", {
             highWaterMark,
         });
-        _demux.on("error", _err => {
+        _demux.on("error", (_err) => {
             reject();
         });
 
@@ -311,7 +326,7 @@ test("demux() should emit one drain event after slowProcessorSpeed * highWaterMa
     });
 });
 
-test("demux() should emit one drain event when writing 6 items with highWaterMark of 5", t => {
+test("demux() should emit one drain event when writing 6 items with highWaterMark of 5", (t) => {
     return new Promise(async (resolve, reject) => {
         t.plan(1);
         interface Chunk {
@@ -350,18 +365,22 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
             highWaterMark: 5,
         });
 
-        _demux.on("error", _err => {
+        _demux.on("error", (_err) => {
             reject();
         });
 
         for (const item of input) {
             const res = _demux.write(item);
-            expect(_demux._writableState.length).to.be.at.most(highWaterMark);
+            expect((_demux as any)._writableState.length).to.be.at.most(
+                highWaterMark,
+            );
             if (!res) {
-                await new Promise(_resolve => {
+                await new Promise((_resolve) => {
                     _demux.once("drain", () => {
                         _resolve(null);
-                        expect(_demux._writableState.length).to.be.equal(0);
+                        expect(
+                            (_demux as any)._writableState.length,
+                        ).to.be.equal(0);
                         t.pass();
                     });
                 });
@@ -370,17 +389,16 @@ test("demux() should emit one drain event when writing 6 items with highWaterMar
     });
 });
 
-test.cb(
-    "demux() should emit drain event when second stream is bottleneck after (highWaterMark - 2) * slowProcessorSpeed ms",
-    t => {
-        // ie) first two items are pushed directly into first and second streams (highWaterMark - 2 remain in demux)
-        t.plan(8);
-        const slowProcessorSpeed = 100;
-        const highWaterMark = 5;
-        interface Chunk {
-            key: string;
-            mapped: number[];
-        }
+test("demux() should emit drain event when second stream is bottleneck after (highWaterMark - 2) * slowProcessorSpeed ms", (t) => {
+    // ie) first two items are pushed directly into first and second streams (highWaterMark - 2 remain in demux)
+    t.plan(8);
+    const slowProcessorSpeed = 100;
+    const highWaterMark = 5;
+    interface Chunk {
+        key: string;
+        mapped: number[];
+    }
+    return new Promise((resolve, reject) => {
         const sink = new Writable({
             objectMode: true,
             write(chunk, encoding, cb) {
@@ -388,8 +406,9 @@ test.cb(
                 t.pass();
                 pendingReads--;
                 if (pendingReads === 0) {
-                    t.end();
+                    resolve();
                 }
+
                 cb();
             },
         });
@@ -417,12 +436,12 @@ test.cb(
         const _demux = demux(construct, () => "a", {
             highWaterMark,
         });
-        _demux.on("error", err => {
-            t.end(err);
+        _demux.on("error", (err) => {
+            reject(err);
         });
 
         _demux.on("drain", () => {
-            expect(_demux._writableState.length).to.be.equal(0);
+            expect((_demux as any)._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(
                 slowProcessorSpeed * 3,
             );
@@ -442,20 +461,19 @@ test.cb(
 
         const start = performance.now();
         fromArray(input).pipe(_demux);
-    },
-);
+    });
+});
 
-test.cb(
-    "demux() should emit drain event when third stream is bottleneck",
-    t => {
-        // @TODO investigate why drain is emitted after slowProcessorSpeed
-        t.plan(8);
-        const slowProcessorSpeed = 100;
-        const highWaterMark = 5;
-        interface Chunk {
-            key: string;
-            mapped: number[];
-        }
+test("demux() should emit drain event when third stream is bottleneck", (t) => {
+    // @TODO investigate why drain is emitted after slowProcessorSpeed
+    t.plan(8);
+    const slowProcessorSpeed = 100;
+    const highWaterMark = 5;
+    interface Chunk {
+        key: string;
+        mapped: number[];
+    }
+    return new Promise((resolve, reject) => {
         const sink = new Writable({
             objectMode: true,
             write(chunk, encoding, cb) {
@@ -463,7 +481,7 @@ test.cb(
                 t.pass();
                 pendingReads--;
                 if (pendingReads === 0) {
-                    t.end();
+                    resolve();
                 }
                 cb();
             },
@@ -493,21 +511,18 @@ test.cb(
                 { highWaterMark: 1 },
             );
 
-            first
-                .pipe(second)
-                .pipe(third)
-                .pipe(sink);
+            first.pipe(second).pipe(third).pipe(sink);
             return first;
         };
         const _demux = demux(construct, () => "a", {
             highWaterMark,
         });
-        _demux.on("error", err => {
-            t.end(err);
+        _demux.on("error", (err) => {
+            reject(err);
         });
 
         _demux.on("drain", () => {
-            expect(_demux._writableState.length).to.be.equal(0);
+            expect((_demux as any)._writableState.length).to.be.equal(0);
             expect(performance.now() - start).to.be.greaterThan(
                 slowProcessorSpeed,
             );
@@ -527,10 +542,10 @@ test.cb(
 
         const start = performance.now();
         fromArray(input).pipe(_demux);
-    },
-);
+    });
+});
 
-test("demux() should be blocked by slowest pipeline", t => {
+test("demux() should be blocked by slowest pipeline", (t) => {
     t.plan(1);
     const slowProcessorSpeed = 100;
     interface Chunk {
@@ -555,11 +570,11 @@ test("demux() should be blocked by slowest pipeline", t => {
             highWaterMark: 1,
         });
 
-        _demux.on("error", err => {
+        _demux.on("error", (err) => {
             reject(err);
         });
 
-        _demux.on("data", async chunk => {
+        _demux.on("data", async (chunk) => {
             pendingReads--;
             if (chunk.key === "b") {
                 expect(performance.now() - start).to.be.greaterThan(
@@ -584,9 +599,9 @@ test("demux() should be blocked by slowest pipeline", t => {
         const start = performance.now();
         for (const item of input) {
             if (!_demux.write(item)) {
-                await new Promise(_resolve => {
+                await new Promise((_resolve) => {
                     _demux.once("drain", () => {
-                        _resolve();
+                        _resolve(undefined);
                     });
                 });
             }
@@ -594,7 +609,7 @@ test("demux() should be blocked by slowest pipeline", t => {
     });
 });
 
-test.cb("Demux should remux to sink", t => {
+test("Demux should remux to sink", (t) => {
     t.plan(6);
     let i = 0;
     const input = [
@@ -622,22 +637,23 @@ test.cb("Demux should remux to sink", t => {
         return dest;
     };
 
-    const sink = map(d => {
-        t.deepEqual(d, result[i]);
-        i++;
-        if (i === input.length) {
-            t.end();
-        }
+    return new Promise((resolve, reject) => {
+        const sink = map((d) => {
+            t.deepEqual(d, result[i]);
+            i++;
+            if (i === input.length) {
+                resolve();
+            }
+        });
+
+        const demuxed = demux(construct, "key", {});
+
+        fromArray(input).pipe(demuxed).pipe(sink);
+        demuxed.on("error", reject);
     });
-
-    const demuxed = demux(construct, "key", {});
-
-    fromArray(input)
-        .pipe(demuxed)
-        .pipe(sink);
 });
 
-test.cb("Demux should send data events", t => {
+test("Demux should send data events", (t) => {
     t.plan(6);
     let i = 0;
     const input = [
@@ -669,16 +685,18 @@ test.cb("Demux should send data events", t => {
 
     fromArray(input).pipe(demuxed);
 
-    demuxed.on("data", d => {
-        t.deepEqual(d, result[i]);
-        i++;
-        if (i === input.length) {
-            t.end();
-        }
+    return new Promise((resolve, reject) => {
+        demuxed.on("data", (d) => {
+            t.deepEqual(d, result[i]);
+            i++;
+            if (i === input.length) {
+                resolve();
+            }
+        });
     });
 });
 
-test.cb("demux() `finish` and `end` propagates", t => {
+test("demux() `finish` and `end` propagates", (t) => {
     t.plan(10);
     const construct = (destKey: string) => {
         const dest = map((chunk: any) => {
@@ -698,6 +716,13 @@ test.cb("demux() `finish` and `end` propagates", t => {
             return;
         },
     });
+    const input = [
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+        { key: "a", mapped: [] },
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+    ];
 
     const sink = map((d: any) => {
         const curr = input.shift();
@@ -719,24 +744,19 @@ test.cb("demux() `finish` and `end` propagates", t => {
     _demux.on("end", () => {
         t.pass();
     });
-    sink.on("finish", () => {
-        t.pass();
-        t.end();
-    });
+    return new Promise((resolve, reject) => {
+        sink.on("finish", () => {
+            t.pass();
+            resolve();
+        });
 
-    const input = [
-        { key: "a", mapped: [] },
-        { key: "b", mapped: [] },
-        { key: "a", mapped: [] },
-        { key: "a", mapped: [] },
-        { key: "b", mapped: [] },
-    ];
-    fakeSource.push(input[0]);
-    fakeSource.push(input[1]);
-    fakeSource.push(null);
+        fakeSource.push(input[0]);
+        fakeSource.push(input[1]);
+        fakeSource.push(null);
+    });
 });
 
-test.cb("demux() `unpipe` propagates", t => {
+test("demux() `unpipe` propagates", (t) => {
     interface Chunk {
         key: string;
         mapped: number[];
@@ -763,6 +783,14 @@ test.cb("demux() `unpipe` propagates", t => {
         },
     });
 
+    const input = [
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+        { key: "a", mapped: [] },
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+    ];
+
     const sink = map((d: any) => {
         const curr = input.shift();
         t.is(curr.key, d.key);
@@ -779,24 +807,19 @@ test.cb("demux() `unpipe` propagates", t => {
         t.pass();
     });
 
-    sink.on("finish", () => {
-        t.pass();
-        t.end();
-    });
+    return new Promise((resolve) => {
+        sink.on("finish", () => {
+            t.pass();
+            resolve();
+        });
 
-    const input = [
-        { key: "a", mapped: [] },
-        { key: "b", mapped: [] },
-        { key: "a", mapped: [] },
-        { key: "a", mapped: [] },
-        { key: "b", mapped: [] },
-    ];
-    fakeSource.push(input[0]);
-    fakeSource.push(input[1]);
-    fakeSource.push(null);
+        fakeSource.push(input[0]);
+        fakeSource.push(input[1]);
+        fakeSource.push(null);
+    });
 });
 
-test.cb("demux() should be 'destroyable'", t => {
+test("demux() should be 'destroyable'", (t) => {
     t.plan(2);
     const _sleep = 100;
     interface Chunk {
@@ -822,6 +845,13 @@ test.cb("demux() should be 'destroyable'", t => {
         },
     });
 
+    const input = [
+        { key: "a", mapped: [] },
+        { key: "b", mapped: [] },
+        { key: "c", mapped: [] },
+        { key: "d", mapped: [] },
+        { key: "e", mapped: [] },
+    ];
     const fakeSink = new Writable({
         objectMode: true,
         write(data, enc, cb) {
@@ -835,19 +865,14 @@ test.cb("demux() should be 'destroyable'", t => {
         },
     });
 
-    _demux.on("close", t.end);
-    fakeSource.pipe(_demux).pipe(fakeSink);
+    return new Promise((resolve) => {
+        _demux.on("close", resolve);
+        fakeSource.pipe(_demux).pipe(fakeSink);
 
-    const input = [
-        { key: "a", mapped: [] },
-        { key: "b", mapped: [] },
-        { key: "c", mapped: [] },
-        { key: "d", mapped: [] },
-        { key: "e", mapped: [] },
-    ];
-    fakeSource.push(input[0]);
-    fakeSource.push(input[1]);
-    fakeSource.push(input[2]);
-    fakeSource.push(input[3]);
-    fakeSource.push(input[4]);
+        fakeSource.push(input[0]);
+        fakeSource.push(input[1]);
+        fakeSource.push(input[2]);
+        fakeSource.push(input[3]);
+        fakeSource.push(input[4]);
+    });
 });

@@ -11,8 +11,12 @@ export function reduce<T, R>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
-            value = await iteratee(value, chunk, encoding);
-            callback();
+            try {
+                value = await iteratee(value, chunk, encoding);
+                callback();
+            } catch (err) {
+                callback(err);
+            }
         },
         flush(callback) {
             // Best effort attempt at yielding the final value (will throw if e.g. yielding an object and

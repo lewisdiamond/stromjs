@@ -3,7 +3,7 @@ import test from "ava";
 import { expect } from "chai";
 import { map } from "../src";
 
-test.cb("map() maps elements synchronously", t => {
+test("map() maps elements synchronously", (t) => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
     const mapStream = map((element: string) => element.toUpperCase(), {
@@ -11,23 +11,25 @@ test.cb("map() maps elements synchronously", t => {
     });
     const expectedElements = ["A", "B", "C"];
     let i = 0;
-    source
-        .pipe(mapStream)
-        .on("data", (element: string) => {
-            expect(element).to.equal(expectedElements[i]);
-            t.pass();
-            i++;
-        })
-        .on("error", t.end)
-        .on("end", t.end);
+    return new Promise((resolve, reject) => {
+        source
+            .pipe(mapStream)
+            .on("data", (element: string) => {
+                expect(element).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", reject)
+            .on("end", resolve);
 
-    source.push("a");
-    source.push("b");
-    source.push("c");
-    source.push(null);
+        source.push("a");
+        source.push("b");
+        source.push("c");
+        source.push(null);
+    });
 });
 
-test.cb("map() maps elements asynchronously", t => {
+test("map() maps elements asynchronously", (t) => {
     t.plan(3);
     const source = new Readable({ objectMode: true });
     const mapStream = map(
@@ -39,18 +41,20 @@ test.cb("map() maps elements asynchronously", t => {
     );
     const expectedElements = ["A", "B", "C"];
     let i = 0;
-    source
-        .pipe(mapStream)
-        .on("data", (element: string) => {
-            expect(element).to.equal(expectedElements[i]);
-            t.pass();
-            i++;
-        })
-        .on("error", t.end)
-        .on("end", t.end);
+    return new Promise((resolve, reject) => {
+        source
+            .pipe(mapStream)
+            .on("data", (element: string) => {
+                expect(element).to.equal(expectedElements[i]);
+                t.pass();
+                i++;
+            })
+            .on("error", reject)
+            .on("end", resolve);
 
-    source.push("a");
-    source.push("b");
-    source.push("c");
-    source.push(null);
+        source.push("a");
+        source.push("b");
+        source.push("c");
+        source.push(null);
+    });
 });
