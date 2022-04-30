@@ -5,7 +5,12 @@
     "keywords": [
         "promise",
         "stream",
-        "utils"
+        "utils",
+        "async",
+        "data processing",
+        "nodejs",
+        "dependency-free",
+        "functional"
     ],
     "engines": {
         "node": ">=16.0.0"
