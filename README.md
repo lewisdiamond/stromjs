@@ -444,5 +444,5 @@ async function produce() {
     rate.write(6);
 }
 
-producestrom();
+produce();
 ```

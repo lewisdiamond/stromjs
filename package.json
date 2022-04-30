@@ -1,6 +1,6 @@
 {
     "name": "stromjs",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "description": "Dependency-free streams utils for Node.js",
     "keywords": [
         "promise",
