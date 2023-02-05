@@ -1,3 +1,5 @@
+![image](https://img.shields.io/npm/v/stromjs) ![image](https://img.shields.io/npm/dw/stromjs) ![image](https://github.com/lewisdiamond/stromjs/actions/workflows/node.js.yml/badge.svg)
+
 # Strom
 
 **Dependency-free stream utils for Node.js**
