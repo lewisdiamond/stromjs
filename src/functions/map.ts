@@ -7,7 +7,11 @@ export function map<T, R>(
     return new Transform({
         ...options,
         async transform(chunk: T, encoding, callback) {
-            callback(null, await mapper(chunk, encoding));
+            try {
+                callback(null, await mapper(chunk, encoding));
+            } catch (e) {
+                callback(e);
+            }
         },
     });
 }

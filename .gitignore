@@ -4,6 +4,8 @@ dist
 sample_output
 yarn-error.log
 TODO.md
+.yarn/
+.yarnrc.yml
 
 
 #VIM
